@@ -29,3 +29,8 @@
 .infoLabel + .infoLabel {
   margin-top: 10px;
 }
+
+.input {
+  width: 60%;
+  margin-right: 10px;
+}
