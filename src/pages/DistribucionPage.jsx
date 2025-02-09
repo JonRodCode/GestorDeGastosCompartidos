@@ -21,6 +21,15 @@ const DistribucionGastos = () => {
     setNuevaPersona("");
   };  
 
+  const eliminarUltimaPersona = () => {
+    if (personas.length === 0) return; // Evita errores si la lista está vacía
+
+    const ultimaPersona = personas[personas.length - 1]; // Última persona en la lista
+  
+    setPersonas(prevPersonas => prevPersonas.slice(0, -1)); // Elimina el último elemento
+    setMiembrosDelHogar(prevMiembrosDelHogar => prevMiembrosDelHogar.filter(nombre => nombre !== ultimaPersona.nombre));
+  };
+
   const obtenerDatosPersonas = () => {
     const nuevosDatos = [];
 
@@ -86,6 +95,13 @@ const DistribucionGastos = () => {
           onClick={() => agregarPersona(nuevaPersona)}
         >
           Agregar persona
+        </Button>
+        <Button
+          type="primary"
+          className={css.button}
+          onClick={() => eliminarUltimaPersona()}
+        >
+          Eliminar ultima persona
         </Button>
       </div>
       <div className={css.infoContainer}>

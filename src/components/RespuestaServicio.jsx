@@ -49,10 +49,10 @@ const RespuestaServicio = ({ nuevaRespuesta }) => {
               <Descriptions.Item label="Porcentaje del Hogar">{persona.porcentajeCorrespondienteDelHogar.toFixed(2)}%</Descriptions.Item>
               <Descriptions.Item label="Gasto Equitativo">{persona.gastoEquitativo}</Descriptions.Item>
               <Descriptions.Item label="Gasto Igualitario">{persona.gastoIgualitario}</Descriptions.Item>
+              <Descriptions.Item label="Gasto Total">{persona.gastoTotal}</Descriptions.Item>
               <Descriptions.Item label="Parte Equitativa">{persona.parteEquitativaCorrespondiente}</Descriptions.Item>
               <Descriptions.Item label="Parte Igualitaria">{persona.parteIgualitariaCorrespondiente}</Descriptions.Item>
               <Descriptions.Item label="Parte Correspondiente Total">{persona.parteCorrespondienteTotal}</Descriptions.Item>
-              <Descriptions.Item label="Deuda Total">{persona.gastoTotal}</Descriptions.Item>
               <Descriptions.Item label="Es Deudor">{persona.esDeudor ? "Sí" : "No"}</Descriptions.Item>
               {persona.esDeudor && (
                 <>
