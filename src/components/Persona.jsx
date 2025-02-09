@@ -83,19 +83,23 @@ const Persona = forwardRef(({nombre, miembrosHogar }, ref) => {
     }));
   
   return (
-    <Card title={nombre}
-      onClick={() => setModoActivo(null)}>
+    <Card className={css.card} 
+    title={<span className={css.cardTitle}>{nombre}</span>}
+    onClick={() => setModoActivo(null)}
+    >
       <Row gutter={16}>
         <Col span={24}>
           <div className={css.numerosContainer} onClick={(e) => { e.stopPropagation(); setModoActivo("ganancia"); }}>
-            <strong>Ganancia:</strong>
-            <div className={css.tagsContainer}>
-              {ganancias.map((valor, index) => (
-                <Tag key={index} color="blue" onClick={() => eliminarNumero("ganancia", index)}>
-                  {valor}
-                </Tag>
-              ))}
-            </div>
+          <div className={css.tituloConTags}>
+  <strong>Ganancia:</strong>
+  <div className={css.tagsContainer}>
+    {ganancias.map((valor, index) => (
+      <Tag key={index} color="blue" onClick={() => eliminarNumero("ganancia", index)}>
+        {valor}
+      </Tag>
+    ))}
+  </div>
+</div>
           </div>
           {modoActivo === "ganancia" && (
             <NumeroInput
@@ -108,6 +112,7 @@ const Persona = forwardRef(({nombre, miembrosHogar }, ref) => {
           <div>
         <Col span={24}>
           <div className={css.numerosContainer} onClick={(e) => { e.stopPropagation(); setModoActivo("gastoEquitativoPagado"); }}>
+          <div className={css.tituloConTags}>
             <strong>Gastos Equitativos pagados:</strong>
             <div className={css.tagsContainer}>
               {gastosEquitativosPagados.map((valor, index) => (
@@ -116,7 +121,7 @@ const Persona = forwardRef(({nombre, miembrosHogar }, ref) => {
                 </Tag>
               ))}
             </div>
-          </div>
+          </div></div>
           {modoActivo === "gastoEquitativoPagado" && (
             <NumeroInput
               placeholder="Ingrese un gasto"
@@ -128,6 +133,7 @@ const Persona = forwardRef(({nombre, miembrosHogar }, ref) => {
 
         <Col span={24}>
           <div className={css.numerosContainer} onClick={(e) => { e.stopPropagation(); setModoActivo("gastoEquitativoPendiente"); }}>
+          <div className={css.tituloConTags}>
             <strong>Gastos Equitativos Pendientes:</strong>
             <div className={css.tagsContainer}>
               {gastosEquitativosPendientes.map((valor, index) => (
@@ -136,7 +142,7 @@ const Persona = forwardRef(({nombre, miembrosHogar }, ref) => {
                 </Tag>
               ))}
             </div>
-          </div>
+          </div></div>
           {modoActivo === "gastoEquitativoPendiente" && (
             <NumeroInput
               placeholder="Ingrese un gasto"
@@ -148,6 +154,7 @@ const Persona = forwardRef(({nombre, miembrosHogar }, ref) => {
 
         <Col span={24}>
           <div className={css.numerosContainer} onClick={(e) => { e.stopPropagation(); setModoActivo("gastoIgualitarioPagado"); }}>
+          <div className={css.tituloConTags}>
             <strong>Gastos Igualitarios pagados:</strong>
             <div className={css.tagsContainer}>
               {gastosIgualitariosPagados.map((valor, index) => (
@@ -156,7 +163,7 @@ const Persona = forwardRef(({nombre, miembrosHogar }, ref) => {
                 </Tag>
               ))}
             </div>
-          </div>
+          </div></div>
           {modoActivo === "gastoIgualitarioPagado" && (
             <NumeroInput
               placeholder="Ingrese un gasto"
@@ -167,6 +174,7 @@ const Persona = forwardRef(({nombre, miembrosHogar }, ref) => {
         </Col>
         <Col span={24}>
           <div className={css.numerosContainer} onClick={(e) => { e.stopPropagation(); setModoActivo("gastoIgualitarioPendiente"); }}>
+          <div className={css.tituloConTags}>
             <strong>Gastos Igualitario Pendiente:</strong>
             <div className={css.tagsContainer}>
               {gastosIgualitariosPendientes.map((valor, index) => (
@@ -175,7 +183,7 @@ const Persona = forwardRef(({nombre, miembrosHogar }, ref) => {
                 </Tag>
               ))}
             </div>
-          </div>
+          </div></div>
           {modoActivo === "gastoIgualitarioPendiente" && (
             <NumeroInput
               placeholder="Ingrese un gasto"

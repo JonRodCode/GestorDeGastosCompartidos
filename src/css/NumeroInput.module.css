@@ -1,11 +1,11 @@
 .inputContainer {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-top: 5px;
-  }
-  
-  .input {
-    flex: 1;
-    max-width: 200px;
-  }
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.input {
+  width: 150px; /* Hacer el input más grande */
+  min-width: 180px;
+  padding: 4px 8px;
+}

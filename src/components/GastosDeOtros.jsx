@@ -34,34 +34,28 @@ const GastosDeOtros = forwardRef(({ items }, ref) => {
 
   return (
     <div className={css.container}>
-      {items.map((item, index) => (
-        <div key={index} className={css.item} onClick={(e) => { 
-          e.stopPropagation(); 
-          setItemSeleccionado(itemSeleccionado === item ? null : item);
-        }}>
-          {/* Nombre del item + números en la misma línea */}
-          <div className={css.itemHeader}>
-            <span>{item}:</span>
-            <div className={css.tagsContainer}>
-              {(numeros[item] || []).map((num, index) => (
-                <Tag key={index} color="blue" onClick={() => eliminarNumero(item, index)}>{num}</Tag>
-              ))}
-            </div>
-          </div>
-
-          {/* Input debajo del nombre */}
-          {itemSeleccionado === item && (
-            <div className={css.visible}>
-              <NumeroInput
-                onAdd={(numero) => agregarNumero(item, numero)}
-                placeholder="Agregar número"
-                onClose={() => setItemSeleccionado(null)}
-              />
-            </div>
-          )}
+  {items.map((item, index) => (
+    <div key={index} className={css.item} onClick={(e) => { 
+      e.stopPropagation(); 
+      setItemSeleccionado(itemSeleccionado === item ? null : item);
+    }}>
+      <div className={css.itemHeader}>
+        <span>{item}:</span>
+        <div className={css.tagsContainer}>
+          {(numeros[item] || []).map((num, index) => (
+            <Tag key={index} color="blue" onClick={() => eliminarNumero(item, index)}>{num}</Tag>
+          ))}
         </div>
-      ))}
+      </div>
+
+      {itemSeleccionado === item && (
+        <div className={css.visible}>
+          <NumeroInput onAdd={(numero) => agregarNumero(item, numero)} placeholder="Agregar número" onClose={() => setItemSeleccionado(null)} />
+        </div>
+      )}
     </div>
+  ))}
+</div>
   );
 });
 

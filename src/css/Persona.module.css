@@ -1,14 +1,45 @@
+.card {
+  border: 1px solid #444; /* Ajustar grosor del borde */
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 16px; /* 🔹 Agrega separación entre cartas */
+}
+
+.cardTitle {
+  font-size: 20px; /* Aumentar tamaño del título */
+}
+
+:global(.ant-card-head) {
+  padding: 1px 16px !important; /* Reduce el espacio arriba/abajo */
+  border-bottom: 1px solid #333 !important;
+}
+
+:global(.ant-card-body) {
+  padding-top: 8px !important; /* Reduce el espacio entre la línea y el contenido */
+}
+
 .numerosContainer {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 5px;
-    cursor: pointer;
-  }
-  
-  .tagsContainer {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
-  }
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  padding: 5px 0;
+}
+
+.numerosContainer div {
+  display: flex;
+  align-items: center; /* Alinea título y tags en la misma línea */
+  gap: 8px; /* Espacio entre título y tags */
+}
+
+.tituloConTags {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Ajusta el espacio entre el título y las tags */
+}
+
+.tagsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}

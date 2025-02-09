@@ -1,6 +1,8 @@
 import { useEffect, useState, useRef } from "react";
 import { Button, Typography, Input } from "antd";
 import Persona from "../components/Persona";
+import RespuestaServicio from "../components/RespuestaServicio";
+import css from "../css/DistribucionPage.module.css";
 
 const { Title } = Typography;
 
@@ -62,35 +64,35 @@ const DistribucionGastos = () => {
 
 
   return (
-    <div className="container">
-      <Title level={2} className="title">
+    <div className={css.container}>
+      <Title level={2} className={css.title}>
         Distribución de Gastos del Hogar
       </Title>
-      <Title level={3} className="subtitle">
+      <Title level={3} className={css.subtitle}>
         Cargar Gastos Por Persona
       </Title>
-      <div className="button-container">
+      <div className={css.buttonContainer}>
       <Input
         value={nuevaPersona}
         onChange={(e) => setNuevaPersona(e.target.value)}
         onKeyDown={(e) => e.key === "Enter" && agregarPersona(nuevaPersona)}
         placeholder="Nueva persona"
         type="text"
-        className='input'
+        className={css.input}
       />
         <Button
           type="primary"
-          className="button"
+          className={css.button}
           onClick={() => agregarPersona(nuevaPersona)}
         >
           Agregar persona
         </Button>
       </div>
-      <div className="info-container">
-        <label className="info-label">
+      <div className={css.infoContainer}>
+        <label className={css.infoLabel}>
           Cantidad de miembros: {personas.length}
         </label>
-        <label className="info-label">
+        <label className={css.infoLabel}>
           Miembros: {personas.map((persona) => persona.nombre + " ,")}
         </label>
       </div>
@@ -111,7 +113,8 @@ const DistribucionGastos = () => {
     <div>
       <h3>Respuesta del servidor:</h3>
       {/*<pre>{JSON.stringify(nuevaRespuesta, null, 2)}</pre>  Muestra la respuesta en formato legible */}
-      <p>{nuevaRespuesta.ajustesDeSaldos}</p> 
+      
+      <RespuestaServicio nuevaRespuesta={nuevaRespuesta} />
     </div>
   )}
 
