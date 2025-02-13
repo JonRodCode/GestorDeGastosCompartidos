@@ -1,4 +1,3 @@
-import React from 'react';
 import { Form, Input, Button, Checkbox } from 'antd';
 
 const LoginForm = ({ onFinish, loading }) => (

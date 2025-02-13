@@ -44,8 +44,8 @@ const DistribucionGastos = () => {
 
   const enviarDatos = async () => {
     setLoading(true);
-    const datos = obtenerDatosPersonas(); // Obtener los datos actualizados de las personas
-    // Hacemos la petición POST
+    const datos = obtenerDatosPersonas(); 
+   
     try {
       const response = await fetch("http://localhost:6061/resumen", {
         method: "POST",

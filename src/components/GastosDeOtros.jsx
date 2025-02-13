@@ -1,9 +1,8 @@
-import React, { useState, useImperativeHandle, forwardRef } from "react";
-import { Input, Button, Space, Select, Tag } from "antd";
+import  { useState, useImperativeHandle, forwardRef } from "react";
+import { Tag } from "antd";
 import NumeroInput from "./NumeroInput";
 import css from "../css/GastosDeOtros.module.css";
 
-const { Option } = Select;
 
 const GastosDeOtros = forwardRef(({ items }, ref) => {
   const [numeros, setNumeros] = useState({}); // Almacena los números de cada item
@@ -58,5 +57,7 @@ const GastosDeOtros = forwardRef(({ items }, ref) => {
 </div>
   );
 });
+
+GastosDeOtros.displayName = "GastosDeOtros";
 
 export default GastosDeOtros;

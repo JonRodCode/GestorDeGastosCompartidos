@@ -33,6 +33,7 @@
 }
 
 .tituloConTags {
+  cursor: pointer;
   display: flex;
   align-items: center;
   gap: 8px; /* Ajusta el espacio entre el título y las tags */
@@ -42,4 +43,5 @@
   display: flex;
   flex-wrap: wrap;
   gap: 5px;
+  cursor: pointer;
 }

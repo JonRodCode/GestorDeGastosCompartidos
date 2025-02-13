@@ -1,10 +1,9 @@
-import React, { useEffect, useState, useRef, useImperativeHandle, forwardRef } from "react";
-import { Card, Input, Button, Row, Col, Typography, Space, Tag } from "antd";
+import  { useEffect, useState, useRef, useImperativeHandle, forwardRef } from "react";
+import { Card, Input, Row, Col, Tag } from "antd";
 import css from "../css/Persona.module.css";
 import NumeroInput from "./NumeroInput";
 import GastosDeOtros from "./GastosDeOtros"
 
-const { Title } = Typography;
 
 const Persona = forwardRef(({nombre, miembrosHogar }, ref) => {
   const [ganancias, setGanancias] = useState([]);
@@ -91,7 +90,7 @@ const Persona = forwardRef(({nombre, miembrosHogar }, ref) => {
         <Col span={24}>
           <div className={css.numerosContainer} onClick={(e) => { e.stopPropagation(); setModoActivo("ganancia"); }}>
           <div className={css.tituloConTags}>
-  <strong>Ganancia:</strong>
+      <strong>Ganancia:</strong>
   <div className={css.tagsContainer}>
     {ganancias.map((valor, index) => (
       <Tag key={index} color="blue" onClick={() => eliminarNumero("ganancia", index)}>
@@ -218,5 +217,7 @@ const Persona = forwardRef(({nombre, miembrosHogar }, ref) => {
     </Card>
   );
 });
+
+Persona.displayName = "Persona";
 
 export default Persona;
