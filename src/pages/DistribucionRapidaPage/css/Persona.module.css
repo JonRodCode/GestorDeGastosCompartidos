@@ -3,6 +3,8 @@
   padding: 10px;
   border-radius: 8px;
   margin-bottom: 16px; /* 🔹 Agrega separación entre cartas */
+  min-width: 50vh;
+  max-width: 90vh; 
 }
 
 .cardTitle {

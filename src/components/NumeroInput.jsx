@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Input, Button } from "antd";
 import css from "../css/NumeroInput.module.css";
 
@@ -17,15 +17,15 @@ const NumeroInput = ({ onAdd, placeholder, onClose }) => {
       setNumero("");
     }
   };
-  const handleClickOutside = (e) => {
+  const handleClickOutside = useCallback((e) => {
     if (containerRef.current && !containerRef.current.contains(e.target)) {
       onClose(); 
     }
-  };
+  }, [onClose]); 
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside); // Cleanup al desmontar
-  }, []);
+  }, [handleClickOutside]);
 
   return (
     <div ref={containerRef} className={css.inputContainer} onClick={(e) => e.stopPropagation()}>

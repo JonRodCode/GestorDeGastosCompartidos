@@ -1,35 +1,37 @@
-import  { useState, useImperativeHandle, forwardRef } from "react";
+import  { useState } from "react";
 import { Tag } from "antd";
-import NumeroInput from "./NumeroInput";
+import NumeroInput from "../../../components/NumeroInput";
 import css from "../css/GastosDeOtros.module.css";
 
 
-const GastosDeOtros = forwardRef(({ items }, ref) => {
+const GastosDeOtros = ({ items, onChange }) => {
   const [numeros, setNumeros] = useState({}); // Almacena los números de cada item
   const [itemSeleccionado, setItemSeleccionado] = useState(null); // Controla qué input está abierto
   
   // Función para agregar un número a un ítem específico
   const agregarNumero = (item, numero) => {
-    setNumeros((prev) => ({
-      ...prev,
-      [item]: [...(prev[item] || []), numero],
-    }));
+    setNumeros((prev) => {
+      const nuevoEstado = {
+        ...prev,
+        [item]: [...(prev[item] || []), numero],
+      };
+      onChange?.(nuevoEstado); // Notifica al padre
+      return nuevoEstado;
+    });
   };
 
-  const eliminarNumero = (item, index) =>{
-    const nuevaListaDeNumeros = [...numeros[item]];
-    nuevaListaDeNumeros.splice(index,1);
-    setNumeros(prevNumeros => ({
-      ...prevNumeros,
-      [item] : nuevaListaDeNumeros,
-    }));
+  const eliminarNumero = (item, index) => {
+    setNumeros((prev) => {
+      const nuevaListaDeNumeros = [...prev[item]];
+      nuevaListaDeNumeros.splice(index, 1);
+      const nuevoEstado = {
+        ...prev,
+        [item]: nuevaListaDeNumeros,
+      };
+      onChange?.(nuevoEstado); // Notifica al padre
+      return nuevoEstado;
+    });
   };
-
-  useImperativeHandle(ref, () => ({
-    obtenerDatos() {
-      return numeros;
-    }
-  }));
 
   return (
     <div className={css.container}>
@@ -56,8 +58,6 @@ const GastosDeOtros = forwardRef(({ items }, ref) => {
   ))}
 </div>
   );
-});
-
-GastosDeOtros.displayName = "GastosDeOtros";
+};
 
 export default GastosDeOtros;

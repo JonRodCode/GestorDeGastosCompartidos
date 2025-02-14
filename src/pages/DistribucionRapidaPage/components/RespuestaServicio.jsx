@@ -46,7 +46,9 @@ const RespuestaServicio = ({ nuevaRespuesta }) => {
               <Descriptions.Item label="Ganancias">{persona.ganancias.join(", ")}</Descriptions.Item>
               <Descriptions.Item label="Personas a Cargo">{persona.personasACargo}</Descriptions.Item>
               <Descriptions.Item label="Sueldo Total">{persona.sueldoTotal}</Descriptions.Item>
-              <Descriptions.Item label="Porcentaje del Hogar">{persona.porcentajeCorrespondienteDelHogar.toFixed(2)}%</Descriptions.Item>
+              <Descriptions.Item label="Porcentaje del Hogar">{persona.porcentajeCorrespondienteDelHogar 
+                    ? Number(persona.porcentajeCorrespondienteDelHogar).toFixed(2) 
+                    : "0.00"}%</Descriptions.Item>
               <Descriptions.Item label="Gasto Equitativo">{persona.gastoEquitativo}</Descriptions.Item>
               <Descriptions.Item label="Gasto Igualitario">{persona.gastoIgualitario}</Descriptions.Item>
               <Descriptions.Item label="Gasto Total">{persona.gastoTotal}</Descriptions.Item>

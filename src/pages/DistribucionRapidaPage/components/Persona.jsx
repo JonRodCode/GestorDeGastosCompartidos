@@ -1,29 +1,24 @@
-import  { useEffect, useState, useRef, useImperativeHandle, forwardRef } from "react";
+import  { useEffect, useState, useImperativeHandle, forwardRef } from "react";
 import { Card, Input, Row, Col, Tag } from "antd";
 import css from "../css/Persona.module.css";
-import NumeroInput from "./NumeroInput";
+import NumeroInput from "../../../components/NumeroInput";
 import GastosDeOtros from "./GastosDeOtros"
 
 
 const Persona = forwardRef(({nombre, miembrosHogar }, ref) => {
   const [ganancias, setGanancias] = useState([]);
   const [gastosEquitativosPagados, setGastosEquitativosPagados] = useState([]);
-  const [gastosEquitativosPendientes, setGastosEquitativosPendientes] = useState([]);
   const [gastosIgualitariosPagados, setGastosIgualitariosPagados] = useState([]);
-  const [gastosIgualitariosPendientes, setGastosIgualitariosPendientes] = useState([]);
   const [personasACargo, setPersonasACargo] = useState(0);
   const [gastosPersonalesDeOtros, setGastosPersonalesDeOtros] = useState({});
-  const gastosDeOtrosRef = useRef(null);
     
   const [modoActivo, setModoActivo] = useState(null);
 
   const [listaSinMiNombre, setListaSinMiNombre] = useState([]);
 
-  const obtenerDatosDeGastosDeOtros = () => {    
-    if (gastosDeOtrosRef) {      
-    const nuevosDatos = gastosDeOtrosRef.current.obtenerDatos();    
-    setGastosPersonalesDeOtros(nuevosDatos);       
-  }};
+  const obtenerDatosDeGastosDeOtros = (nuevosDatos) => {
+    setGastosPersonalesDeOtros(nuevosDatos);
+  };
 
   useEffect(() => {
     setListaSinMiNombre(miembrosHogar.filter(name => name !== nombre ))
@@ -38,44 +33,30 @@ const Persona = forwardRef(({nombre, miembrosHogar }, ref) => {
         setGanancias(nuevaListaDeNumeros);
         break;
 
-      case "gastoEquitativoPagado" :
+      case "gastoEquitativo" :
         nuevaListaDeNumeros = [...gastosEquitativosPagados];
         nuevaListaDeNumeros.splice(index,1);
         setGastosEquitativosPagados(nuevaListaDeNumeros);
         break;
-
-        case "gastoEquitativoPendiente" :
-          nuevaListaDeNumeros = [...gastosEquitativosPendientes];
-          nuevaListaDeNumeros.splice(index,1);
-          setGastosEquitativosPendientes(nuevaListaDeNumeros);
-          break;
       
-          case "gastoIgualitarioPagado" :
+          case "gastoIgualitario" :
             nuevaListaDeNumeros = [...gastosIgualitariosPagados];
             nuevaListaDeNumeros.splice(index,1);
             setGastosIgualitariosPagados(nuevaListaDeNumeros);
             break;
 
-            case "gastoIgualitarioPendiente" :
-              nuevaListaDeNumeros = [...gastosIgualitariosPendientes];
-              nuevaListaDeNumeros.splice(index,1);
-              setGastosIgualitariosPendientes(nuevaListaDeNumeros);
-              break;
-
+            
       }
     }    
 
     useImperativeHandle(ref, () => ({
-      obtenerDatosPropios() {
-      obtenerDatosDeGastosDeOtros();      
+      obtenerDatosPropios() {     
       return {
         nombre,
         ganancias,
         personasACargo,
         gastosEquitativosPagados,
-        gastosEquitativosPendientes,
         gastosIgualitariosPagados,
-        gastosIgualitariosPendientes,
         gastosPersonalesDeOtros
       };
     }
@@ -110,18 +91,18 @@ const Persona = forwardRef(({nombre, miembrosHogar }, ref) => {
         </Col>
           <div>
         <Col span={24}>
-          <div className={css.numerosContainer} onClick={(e) => { e.stopPropagation(); setModoActivo("gastoEquitativoPagado"); }}>
+          <div className={css.numerosContainer} onClick={(e) => { e.stopPropagation(); setModoActivo("gastoEquitativo"); }}>
           <div className={css.tituloConTags}>
-            <strong>Gastos Equitativos pagados:</strong>
+            <strong>Gastos Equitativos:</strong>
             <div className={css.tagsContainer}>
               {gastosEquitativosPagados.map((valor, index) => (
-                <Tag key={index} color="red" onClick={() => eliminarNumero("gastoEquitativoPagado", index)}>
+                <Tag key={index} color="red" onClick={() => eliminarNumero("gastoEquitativo", index)}>
                   {valor}
                 </Tag>
               ))}
             </div>
           </div></div>
-          {modoActivo === "gastoEquitativoPagado" && (
+          {modoActivo === "gastoEquitativo" && (
             <NumeroInput
               placeholder="Ingrese un gasto"
               onAdd={(num) => setGastosEquitativosPagados([...gastosEquitativosPagados, num])}
@@ -131,39 +112,18 @@ const Persona = forwardRef(({nombre, miembrosHogar }, ref) => {
         </Col>
 
         <Col span={24}>
-          <div className={css.numerosContainer} onClick={(e) => { e.stopPropagation(); setModoActivo("gastoEquitativoPendiente"); }}>
+          <div className={css.numerosContainer} onClick={(e) => { e.stopPropagation(); setModoActivo("gastoIgualitario"); }}>
           <div className={css.tituloConTags}>
-            <strong>Gastos Equitativos Pendientes:</strong>
-            <div className={css.tagsContainer}>
-              {gastosEquitativosPendientes.map((valor, index) => (
-                <Tag key={index} color="red" onClick={() => eliminarNumero("gastoEquitativoPendiente", index)}>
-                  {valor}
-                </Tag>
-              ))}
-            </div>
-          </div></div>
-          {modoActivo === "gastoEquitativoPendiente" && (
-            <NumeroInput
-              placeholder="Ingrese un gasto"
-              onAdd={(num) => setGastosEquitativosPendientes([...gastosEquitativosPendientes, num])}
-              onClose={() => setModoActivo(null)}
-            />
-          )}
-        </Col>
-
-        <Col span={24}>
-          <div className={css.numerosContainer} onClick={(e) => { e.stopPropagation(); setModoActivo("gastoIgualitarioPagado"); }}>
-          <div className={css.tituloConTags}>
-            <strong>Gastos Igualitarios pagados:</strong>
+            <strong>Gastos Igualitarios:</strong>
             <div className={css.tagsContainer}>
               {gastosIgualitariosPagados.map((valor, index) => (
-                <Tag key={index} color="red" onClick={() => eliminarNumero("gastoIgualitarioPagado", index)}>
+                <Tag key={index} color="red" onClick={() => eliminarNumero("gastoIgualitario", index)}>
                   {valor}
                 </Tag>
               ))}
             </div>
           </div></div>
-          {modoActivo === "gastoIgualitarioPagado" && (
+          {modoActivo === "gastoIgualitario" && (
             <NumeroInput
               placeholder="Ingrese un gasto"
               onAdd={(num) => setGastosIgualitariosPagados([...gastosIgualitariosPagados, num])}
@@ -171,26 +131,7 @@ const Persona = forwardRef(({nombre, miembrosHogar }, ref) => {
             />
           )}
         </Col>
-        <Col span={24}>
-          <div className={css.numerosContainer} onClick={(e) => { e.stopPropagation(); setModoActivo("gastoIgualitarioPendiente"); }}>
-          <div className={css.tituloConTags}>
-            <strong>Gastos Igualitario Pendiente:</strong>
-            <div className={css.tagsContainer}>
-              {gastosIgualitariosPendientes.map((valor, index) => (
-                <Tag key={index} color="red" onClick={() => eliminarNumero("gastoIgualitarioPendiente", index)}>
-                  {valor}
-                </Tag>
-              ))}
-            </div>
-          </div></div>
-          {modoActivo === "gastoIgualitarioPendiente" && (
-            <NumeroInput
-              placeholder="Ingrese un gasto"
-              onAdd={(num) => setGastosIgualitariosPendientes([...gastosIgualitariosPendientes, num])}
-              onClose={() => setModoActivo(null)}
-            />
-          )}
-        </Col>
+        
         </div>
         <Col span={24}>
         <div className={css.numerosContainer}>
@@ -208,7 +149,7 @@ const Persona = forwardRef(({nombre, miembrosHogar }, ref) => {
         
         <Col span={24}>        
         <strong>Gastos personales de otros miembros:</strong>
-        <GastosDeOtros items={listaSinMiNombre} ref={gastosDeOtrosRef} >
+        <GastosDeOtros items={listaSinMiNombre}  onChange={obtenerDatosDeGastosDeOtros} >
 
         </GastosDeOtros>
         </Col>

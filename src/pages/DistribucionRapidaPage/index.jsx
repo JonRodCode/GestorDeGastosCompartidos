@@ -1,12 +1,12 @@
-import { useEffect, useState, useRef } from "react";
+import { useState, useRef } from "react";
 import { Button, Typography, Input } from "antd";
-import Persona from "../components/Persona";
-import RespuestaServicio from "../components/RespuestaServicio";
-import css from "../css/DistribucionPage.module.css";
+import Persona from "./components/Persona";
+import RespuestaServicio from "./components/RespuestaServicio";
+import css from "./css/DistribucionPage.module.css";
 
 const { Title } = Typography;
 
-const DistribucionGastos = () => {
+const DistribucionRapidaPage = () => {
   const [personas, setPersonas] = useState([]);
   const [miembrosDelHogar, setMiembrosDelHogar] = useState([])
   const [nuevaPersona, setNuevaPersona] = useState("");
@@ -80,66 +80,70 @@ const DistribucionGastos = () => {
       <Title level={3} className={css.subtitle}>
         Cargar Gastos Por Persona
       </Title>
+  
+      {/* Input y botones */}
       <div className={css.buttonContainer}>
-      <Input
-        value={nuevaPersona}
-        onChange={(e) => setNuevaPersona(e.target.value)}
-        onKeyDown={(e) => e.key === "Enter" && agregarPersona(nuevaPersona)}
-        placeholder="Nueva persona"
-        type="text"
-        className={css.input}
-      />
-        <Button
-          type="primary"
-          className={css.button}
-          onClick={() => agregarPersona(nuevaPersona)}
-        >
+        <Input
+          value={nuevaPersona}
+          onChange={(e) => setNuevaPersona(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && agregarPersona(nuevaPersona)}
+          placeholder="Nueva persona"
+          type="text"
+          className={css.input}
+        />
+        <Button type="primary" className={css.button} onClick={() => agregarPersona(nuevaPersona)}>
           Agregar persona
         </Button>
-        <Button
-          type="primary"
-          className={css.button}
-          onClick={() => eliminarUltimaPersona()}
-        >
-          Eliminar ultima persona
+        <Button type="primary" className={css.button} onClick={() => eliminarUltimaPersona()}>
+          Eliminar última persona
         </Button>
+         {/* Botón de enviar */}
+      <Button type="primary" onClick={enviarDatos}>
+        Enviar Datos
+      </Button>
       </div>
-      <div className={css.infoContainer}>
-        <label className={css.infoLabel}>
-          Cantidad de miembros: {personas.length}
-        </label>
-        <label className={css.infoLabel}>
-          Miembros: {personas.map((persona) => persona.nombre + " ,")}
-        </label>
-      </div>
-      <div>
-        {personas.length !== 0 ? (personas.map((persona, index) => (
-          <Persona
-            key={index}
-            nombre={persona.nombre}
-            miembrosHogar={miembrosDelHogar}
-            ref={(el) => personasRef.current[index] = el}
-            />            
-        ))) : <p>Agregue una persona</p>}
-      </div>
-      <Button type="primary" onClick={enviarDatos}>Enviar Datos</Button>
-      {loading && <p>Cargando...</p>} {/* Si la respuesta está en proceso de carga */}
   
-  {nuevaRespuesta && (
-    <div>
-      <h3>Respuesta del servidor:</h3>
-      {/*<pre>{JSON.stringify(nuevaRespuesta, null, 2)}</pre>  Muestra la respuesta en formato legible */}
-      
-      <RespuestaServicio nuevaRespuesta={nuevaRespuesta} />
+      {/* Información de miembros */}
+      <div className={css.infoContainer}>
+        <label className={css.infoLabel}>Cantidad de miembros: {personas.length}</label>
+        <label className={css.infoLabel}>
+          Miembros: {personas.map((persona) => persona.nombre).join(", ")}
+        </label>
+      </div>
+  
+      {/* Contenedor principal con Personas y Resumen General */}
+      <div className={css.mainContainer}>
+        {/* Personas */}
+        <div className={css.leftSection}>
+          {personas.length !== 0 ? (
+            personas.map((persona, index) => (
+              <Persona
+                key={index}
+                nombre={persona.nombre}
+                miembrosHogar={miembrosDelHogar}
+                ref={(el) => (personasRef.current[index] = el)}
+              />
+            ))
+          ) : (
+            <p>Agregue una persona</p>
+          )}
+        </div>
+  
+        {/* Resumen General alineado con la primera card */}
+        <div className={css.rightSection}>
+          <div className={css.responseWrapper}>
+            {nuevaRespuesta && <RespuestaServicio nuevaRespuesta={nuevaRespuesta} />}
+            {!nuevaRespuesta && !loading && <p>No se ha recibido respuesta aún.</p>}
+          </div>
+        </div>
+      </div>
+  
+     
+  
+      {/* Cargando */}
+      {loading && <p>Cargando...</p>}
     </div>
-  )}
-
-  {!nuevaRespuesta && !loading && (
-    <p>No se ha recibido respuesta aún.</p> // Mensaje si no hay respuesta y no está cargando
-  )}
-    </div>
-
   );
 };
 
-export default DistribucionGastos;
+export default DistribucionRapidaPage;

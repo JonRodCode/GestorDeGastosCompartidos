@@ -1,0 +1,61 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 20px;
+}
+
+.buttonContainer {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.input {
+  width: 200px;
+}
+
+.button {
+  background-color: #1890ff;
+  color: white;
+}
+
+.infoContainer {
+  display: flex;
+  gap: 15px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.infoLabel {
+  background: #f0f0f0;
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
+/* Contenedor principal de Personas y Resumen */
+.mainContainer {
+  display: flex;
+  align-items: flex-start; /* Asegura que todo esté alineado arriba */
+  gap: 20px;
+  margin-top: 20px;
+}
+
+/* Sección izquierda (Personas) */
+.leftSection {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Sección derecha (Resumen General) */
+.rightSection {
+  flex: 1;
+  max-width: 450px;
+}
+
+/* Wrapper para la respuesta, se alinea con la primera card */
+.responseWrapper {
+  margin-top: 10px; /* Ajustar según el espacio necesario */
+}
