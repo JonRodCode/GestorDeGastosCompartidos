@@ -1,11 +1,12 @@
-import DistribucionRapidaPage from './pages/DistribucionRapidaPage';
+import NuevaGestionPage from './pages/NuevaGestionPage';
+import "antd/dist/reset.css"; 
 
 const App = () => {
   
 
   return (
     <div style={{ padding: "20px" }}>
-      <DistribucionRapidaPage/>
+      <NuevaGestionPage/>
     </div>
   );
 };

@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
-import { Button, Typography, Input } from "antd";
+import { Typography, Button } from "antd";
+import MiembrosInput from "../../components/MiembrosInput";
 import Persona from "./components/Persona";
 import RespuestaServicio from "./components/RespuestaServicio";
 import css from "./css/DistribucionPage.module.css";
@@ -8,27 +9,10 @@ const { Title } = Typography;
 
 const DistribucionRapidaPage = () => {
   const [personas, setPersonas] = useState([]);
-  const [miembrosDelHogar, setMiembrosDelHogar] = useState([])
-  const [nuevaPersona, setNuevaPersona] = useState("");
+  const [miembrosDelHogar, setMiembrosDelHogar] = useState([]);
   const personasRef = useRef([]);
   const [nuevaRespuesta, setNuevaRespuesta] = useState(null);
   const [loading, setLoading] = useState(false);
-
-  const agregarPersona = (nuevaPersona) => {
-    const nuevaCantidadDeMiembros = personas.length +1;
-    setPersonas(prevPersonas => [...prevPersonas, { id: nuevaCantidadDeMiembros, nombre: nuevaPersona}]);
-    setMiembrosDelHogar(prevMiembrosDelHogar => [...prevMiembrosDelHogar, nuevaPersona]);
-    setNuevaPersona("");
-  };  
-
-  const eliminarUltimaPersona = () => {
-    if (personas.length === 0) return; // Evita errores si la lista está vacía
-
-    const ultimaPersona = personas[personas.length - 1]; // Última persona en la lista
-  
-    setPersonas(prevPersonas => prevPersonas.slice(0, -1)); // Elimina el último elemento
-    setMiembrosDelHogar(prevMiembrosDelHogar => prevMiembrosDelHogar.filter(nombre => nombre !== ultimaPersona.nombre));
-  };
 
   const obtenerDatosPersonas = () => {
     const nuevosDatos = [];
@@ -82,34 +66,15 @@ const DistribucionRapidaPage = () => {
       </Title>
   
       {/* Input y botones */}
-      <div className={css.buttonContainer}>
-        <Input
-          value={nuevaPersona}
-          onChange={(e) => setNuevaPersona(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && agregarPersona(nuevaPersona)}
-          placeholder="Nueva persona"
-          type="text"
-          className={css.input}
-        />
-        <Button type="primary" className={css.button} onClick={() => agregarPersona(nuevaPersona)}>
-          Agregar persona
-        </Button>
-        <Button type="primary" className={css.button} onClick={() => eliminarUltimaPersona()}>
-          Eliminar última persona
-        </Button>
-         {/* Botón de enviar */}
+      <MiembrosInput 
+        personas={personas} 
+        setPersonas={setPersonas} 
+        miembrosDelHogar={miembrosDelHogar} 
+        setMiembrosDelHogar={setMiembrosDelHogar}
+      />
       <Button type="primary" onClick={enviarDatos}>
-        Enviar Datos
-      </Button>
-      </div>
-  
-      {/* Información de miembros */}
-      <div className={css.infoContainer}>
-        <label className={css.infoLabel}>Cantidad de miembros: {personas.length}</label>
-        <label className={css.infoLabel}>
-          Miembros: {personas.map((persona) => persona.nombre).join(", ")}
-        </label>
-      </div>
+          Enviar Datos
+        </Button>
   
       {/* Contenedor principal con Personas y Resumen General */}
       <div className={css.mainContainer}>
