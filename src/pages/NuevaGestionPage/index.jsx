@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Typography, Button } from "antd";
+import { Typography, Button, Spin, Alert } from "antd";
 import MiembrosInput from "../../components/MiembrosInput";
 import PersonaConGastos from "./components/PersonaConGastos";
 import css from "./css/NuevaGestionPage.module.css";
@@ -12,6 +12,10 @@ const NuevaGestionPage = () => {
     const [personas, setPersonas] = useState([]);
     const [miembrosDelHogar, setMiembrosDelHogar] = useState([]);
 
+    // Posiblemente cambiemos la forma de mostrar la respuesta
+    const [nuevaRespuesta, setNuevaRespuesta] = useState(null);
+  const [loading, setLoading] = useState(false);
+
     // Función para actualizar los gastos de una persona específica
     const actualizarGastosDePersona = (nombre, nuevosGastos) => {
         setPersonas((prevPersonas) =>
@@ -21,9 +25,123 @@ const NuevaGestionPage = () => {
         );
     };
 
+    const mapearGasto = (personaNombre, gasto) => {
+        const gastoBase = {
+            tipo: gasto.tipo,
+            persona: personaNombre,
+            detalleConsumo: gasto.detalleConsumo || "",
+            fuenteDelGasto: gasto.fuenteDelGasto || "",
+            categoria: gasto.categoria || "",
+            determinacion: gasto.determinacion || "",
+            monto: gasto.monto || 0,
+            tipoDeImporte: gasto.tipoDeImporte || "Gasto",
+            excepcion: gasto.excepcion || "Nula",
+            fecha: gasto.fecha || null,
+            marcado: gasto.marcado ? "true" : "false"
+        };
+    
+        // Transformación según el tipo de gasto
+        switch (gasto.tipo) {
+            case "prestamo":
+                return {
+                    ...gastoBase,
+                    cuotaActual: gasto.cuotaActual || 0,
+                    totalDeCuotas: gasto.totalDeCuotas || 0,
+                    prestamoDe: gasto.prestamoDe || ""
+                };
+            case "debito":
+                return {
+                    ...gastoBase,
+                    mesDelResumen: gasto.mesDelResumen || "",
+                    tarjeta: gasto.tarjeta || "Visa",
+                    tipoTarjeta: gasto.tipoTarjeta || "Titular",
+                    aNombreDe: gasto.aNombreDe || "",
+                    banco: gasto.banco || "",
+                    numFinalTarjeta: gasto.numFinalTarjeta || "",
+                    nombreConsumo: gasto.nombreConsumo || ""
+                };
+            case "credito":
+                return {
+                    ...gastoBase,
+                    mesDelResumen: gasto.mesDelResumen || "",
+                    tarjeta: gasto.tarjeta || "Visa",
+                    tipoTarjeta: gasto.tipoTarjeta || "Titular",
+                    aNombreDe: gasto.aNombreDe || "",
+                    banco: gasto.banco || "",
+                    numFinalTarjeta: gasto.numFinalTarjeta || "",
+                    nombreConsumo: gasto.nombreConsumo || "",
+                    cuotaActual: gasto.cuotaActual || 0,
+                    totalDeCuotas: gasto.totalDeCuotas || 0
+                };
+            default: // "basico" u otros tipos de gasto desconocidos
+                return gastoBase;
+        }
+    };
+    
+    const enviarDatos = async () => {
+        setLoading(true);
+        // Convertir cada gasto en el formato correcto según su tipo
+        const gastosTransformados = personas.flatMap(persona =>
+            persona.gastos.map(gasto => mapearGasto(persona.nombre, gasto))
+        );
+    
+        const datos = {
+            especificaciones: {
+				"fuenteDelGasto" : {
+							"Carrefour" : ["Carref*MP"]
+						},
+				"categorias" : {
+							"Supermercado" : ["Carrefour"]
+						},
+				"determinaciones" : {
+							"GastoEquitativo" : ["Supermercado"]
+						},
+				"excepcionesGlobales" : 
+							{"GastoIgualitario" : [
+                                                    {"tipo" : "basico",
+                                                    "persona" : "",
+	                                                "detalleConsumo" : "Bebidas",
+ 	                                                "fuenteDelGasto" : "Carrefour",
+	                                                "categoria" : "",
+ 	                                                "determinacion" : "",
+ 	                                                "monto" : 0,
+	                                                "tipoDeImporte" : null,
+ 	                                                "excepcion" : null,
+ 	                                                "fecha" : null,
+ 	                                                "marcado" : null
+                                                    }
+                                                    ]
+                            },
+				"GastosConCuotasPendientes" : []
+				}, // Aquí puedes agregar datos adicionales si es necesario
+            gastos: gastosTransformados
+        };
+    
+        try {
+            const response = await fetch("http://localhost:6060/clasificacionGeneral", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(datos)
+            });
+
+            if (response.ok) {
+                const respuesta = await response.json();
+                console.log("Respuesta del servidor:", respuesta);
+                setNuevaRespuesta(respuesta);
+            } else {
+                console.error("Error en la petición");
+                setNuevaRespuesta(null);
+            }
+        } catch (error) {
+            console.error("Hubo un error:", error);
+            setNuevaRespuesta(null);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
-        <div className={css.container}>
-          
+        <div className={css.container}>          
             <Title level={2} className={css.title}>
                 Nueva Gestión de Gastos del Hogar
             </Title>
@@ -79,6 +197,18 @@ const NuevaGestionPage = () => {
                     </div>
                 )}
             </div>
+            <Button onClick={enviarDatos} disabled={loading} type="primary">
+                {loading ? <Spin size="small" /> : "Enviar Datos"}
+            </Button>
+            {nuevaRespuesta && (
+                <pre style={{ background: "#f0f0f0", padding: "10px", borderRadius: "5px", marginTop: "10px" }}>
+                    {JSON.stringify(nuevaRespuesta, null, 2)}
+                </pre>
+            )}
+
+            {!nuevaRespuesta && !loading && (
+                <Alert message="No hay datos aún" type="info" showIcon style={{ marginTop: "10px" }} />
+            )}
         </div>
     );
 };

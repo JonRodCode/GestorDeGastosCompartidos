@@ -43,8 +43,8 @@ const GastoPrestamo = forwardRef(({ gasto }, ref) => {
 
   return (
     <div>
+      <div className={css.formContainer}>
       <GastoBase ref={gastoBaseRef} tipo="prestamo" gasto={gasto} />
-      <div className={css.container}>
         <Input
           placeholder="Cuota Actual"
           type="number"

@@ -56,7 +56,7 @@ const GastoBase = forwardRef(({ tipo, gasto }, ref) => {
   }));
 
   return (
-    <div className={css.container}>
+    <div className={css.gastoBaseContainer}>
       <div className={css.header}>
         <h3>{TITULOS_GASTO[tipo] || "Gasto"}</h3>
         <Tooltip title="Marque este gasto para verlo dentro de los primeros luego de la clasificación.">
@@ -64,19 +64,22 @@ const GastoBase = forwardRef(({ tipo, gasto }, ref) => {
         </Tooltip>
       </div>
       <Input placeholder="Detalle de Consumo" value={datos.detalle} onChange={(e) => handleChange("detalle", e.target.value)} />
+      
       <Input
-        placeholder="Fuente del Gasto"
-        value={datos.fuenteDelGasto}
-        onChange={(e) => handleChange("fuenteDelGasto", e.target.value)}
-        status={errores.fuenteDelGasto ? "error" : ""}
-      />
-      <Input
-        placeholder="Monto"
-        type="number"
-        value={datos.monto}
-        onChange={(e) => handleChange("monto", e.target.value)}
-        status={errores.monto ? "error" : ""}
-      />
+  placeholder={errores.fuenteDelGasto ? "CAMPO REQUERIDO" : "Fuente del Gasto"}
+  value={datos.fuenteDelGasto}
+  onChange={(e) => handleChange("fuenteDelGasto", e.target.value)}
+  className={errores.fuenteDelGasto ? css.inputError : ""}
+/>
+
+<Input
+  placeholder={errores.monto ? "CAMPO REQUERIDO" : "Monto"}
+  type="number"
+  value={datos.monto}
+  onChange={(e) => handleChange("monto", e.target.value)}
+  className={errores.monto ? css.inputError : ""}
+/>
+
       <Select
         value={datos.tipoImporte}
         onChange={(value) => handleChange("tipoImporte", value)}

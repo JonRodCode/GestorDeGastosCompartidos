@@ -3,10 +3,17 @@ import { Card, Button, Select, Tooltip, Typography, Checkbox } from "antd";
 import GastoBasico from "./Gastos/GastoBasico";
 import GastoPrestamo from "./Gastos/GastoPrestamo";
 import GastoDebito from "./Gastos/GastoDebito";
+import GastoCredito from "./Gastos/GastoCredito";
 import css from "../css/PersonaConGastos.module.css";
 
 const { Option } = Select;
 const { Title, Text } = Typography;
+const TIPOS_GASTO = {
+  basico: "Básico",
+  prestamo: "Préstamo",
+  debito: "Débito",
+  credito: "Crédito",
+};
 
 const PersonaConGastos = ({ nombre, gastos, setGastos }) => {
   const [tipoGasto, setTipoGasto] = useState("basico");
@@ -81,25 +88,22 @@ const PersonaConGastos = ({ nombre, gastos, setGastos }) => {
 
       {mostrarFormulario && (
         <>
-
-
           <Title level={4} className={css.nuevoGastoTitulo}>
            {gastoEditado ? "Modificar Gasto" : "Nuevo Gasto"}
           </Title>
           <div className={css.formContainer} ref={formularioRef} tabIndex={-1}>
             <label>Tipo de gasto:</label>
             <Select value={tipoGasto} onChange={setTipoGasto} className={css.selectBox}>
-              <Option value="basico">Básico</Option>
-              <Option value="prestamo">Préstamo</Option>
-              <Option value="debito">Débito</Option>
-              <Option value="credito">Crédito</Option>
-            </Select>
+  {Object.entries(TIPOS_GASTO).map(([key, label]) => (
+    <Option key={key} value={key}>{label}</Option>
+  ))}
+</Select>
           </div>
 
           {tipoGasto === "basico" && <GastoBasico ref={gastoRef} gasto={gastoEditado}/>}
           {tipoGasto === "prestamo" && <GastoPrestamo ref={gastoRef} gasto={gastoEditado}/>}
           {tipoGasto === "debito" && <GastoDebito ref={gastoRef} gasto={gastoEditado}/>}
-
+          {tipoGasto === "credito" && <GastoCredito ref={gastoRef} gasto={gastoEditado}/>}
           <div className={css.buttonContainer}>
             <Button type="primary" onClick={agregarGasto}>
               Confirmar
@@ -115,7 +119,8 @@ const PersonaConGastos = ({ nombre, gastos, setGastos }) => {
         {gastos.length === 0 ? (
           <Text type="secondary">No se han agregado gastos</Text>
         ) : (
-          <div className={css.gastosScrollWrapper}>
+          <div> 
+            <div className={css.buttonContainer}>
             <Button
               onClick={() => handleButtonClick('eliminar')}
               style={{
@@ -134,12 +139,14 @@ const PersonaConGastos = ({ nombre, gastos, setGastos }) => {
             >
               Modificar
             </Button>
+            </div>
+          <div className={css.gastosScrollWrapper}>
             <div className={css.gastosScrollContainer}>
               {gastos.map((gasto) => (
                 <div key={gasto.id} className={css.gastoItem}>
                   <Card >
                     <div className={css.tipoYCheckbox}>
-                      <p><strong>Tipo:</strong> {gasto.tipo}</p>
+                    <p><strong>Tipo:</strong> {TIPOS_GASTO[gasto.tipo] || gasto.tipo}</p>
                       <Tooltip title="Marcar para un rápido acceso luego de la clasificación">
                         <Checkbox checked={gasto.marcado}/>
                       </Tooltip>
@@ -160,7 +167,7 @@ const PersonaConGastos = ({ nombre, gastos, setGastos }) => {
                         <p><strong>Préstamo de:</strong> {gasto.prestamoDe}</p>
                       </>
                     )}
-                    {gasto.tipo === "debito" && (
+                    {(gasto.tipo === "debito" || gasto.tipo === "credito")&& (
           <>
             <p><strong>Mes del Resumen:</strong> {gasto.mesDelResumen}</p>
             <p><strong>Tarjeta:</strong> {gasto.tarjeta}</p>
@@ -169,6 +176,12 @@ const PersonaConGastos = ({ nombre, gastos, setGastos }) => {
             <p><strong>Banco:</strong> {gasto.banco}</p>
             <p><strong>Últimos dígitos de la Tarjeta:</strong> {gasto.numFinalTarjeta}</p>
             <p><strong>Nombre del Consumo:</strong> {gasto.nombreConsumo}</p>
+          </>
+        )}
+        {gasto.tipo === "credito" && (
+          <>
+            <p><strong>Cuota Actual:</strong> {gasto.cuotaActual}</p>
+            <p><strong>Total de Cuotas:</strong> {gasto.totalDeCuotas}</p>
           </>
         )}
                     {botonActivo === 'eliminar' && (
@@ -191,6 +204,7 @@ const PersonaConGastos = ({ nombre, gastos, setGastos }) => {
                 </div>
               ))}
             </div>
+          </div>
           </div>
         )}
       </div>

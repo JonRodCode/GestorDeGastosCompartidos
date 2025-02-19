@@ -1,12 +1,14 @@
-.container {
+.formContainer {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding: 15px;
-  border: 1px solid #d9d9d9;
+  padding: 10px;
   border-radius: 8px;
-  background-color: #f9f9f9;
+  background: #f9f9f9;
+  width: 100%;
+  max-width: 500px;
 }
+
 
 .header {
   display: flex;
@@ -23,4 +25,27 @@
 .header .ant-checkbox-wrapper {
   display: flex;
   align-items: center;
+}
+
+.gastoBaseContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.gastoCreditoContainer {
+  margin-top: -10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 8px;
+  background: #f9f9f9;
+  width: 100%;
+  max-width: 500px;
+}
+
+.inputError::placeholder {
+  color: red;
+  opacity: 1; /* Hace que el rojo sea bien visible */
 }

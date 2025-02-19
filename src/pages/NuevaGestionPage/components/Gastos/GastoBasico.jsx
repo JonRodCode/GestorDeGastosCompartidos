@@ -31,8 +31,8 @@ const GastoBasico = forwardRef(({ gasto }, ref) => {
 
   return (
     <div>
+      <div className={css.formContainer}>
       <GastoBase ref={gastoBaseRef} tipo="basico" gasto={gasto} />
-      <div className={css.container}>
       <Select
         value={datosBasico.formaDePago}
         onChange={(value) => handleChange("formaDePago", value)}

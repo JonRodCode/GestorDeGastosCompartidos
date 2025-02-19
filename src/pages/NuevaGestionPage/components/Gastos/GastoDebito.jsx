@@ -5,41 +5,55 @@ import css from "../../css/Gastos/GastoBase.module.css";
 
 const { Option } = Select;
 
-const GastoDebito = forwardRef(({ gasto }, ref) => {
+const GastoDebito = forwardRef(({ gasto, tipo = "debito" }, ref) => {
   const gastoBaseRef = useRef();
   const [datosTarjeta, setDatosTarjeta] = useState({
     mesDelResumen: "",
-    tarjeta: "",
-    tipoTarjeta: "",
+    tarjeta: "Visa",
+    tipoTarjeta: "Titular",
     aNombreDe: "",
     banco: "",
     numFinalTarjeta: "",
     nombreConsumo: "",
   });
 
+  const [errores, setErrores] = useState({});
+
   useImperativeHandle(ref, () => ({
     obtenerDatos: () => {
       const datosBase = gastoBaseRef.current?.obtenerDatos();
       if (!datosBase) return null;
-      const { tarjeta, tipoTarjeta, banco } = datosTarjeta;
-      if (!tarjeta || !tipoTarjeta || !banco) {
-        alert("Los campos Tarjeta, Tipo de Tarjeta y Banco son obligatorios");
+
+      const nuevosErrores = {};
+
+      if (!datosTarjeta.banco) nuevosErrores.banco = true;
+      
+      // Validar "A Nombre De" solo si el campo está habilitado
+      if (datosTarjeta.tipoTarjeta === "Extensión" && !datosTarjeta.aNombreDe) {
+        nuevosErrores.aNombreDe = true;
+      }
+
+      if (Object.keys(nuevosErrores).length > 0) {
+        setErrores(nuevosErrores);
         return null;
       }
+
+      setErrores({});
       return { ...datosBase, ...datosTarjeta };
     },
   }));
 
   const handleChange = (campo, valor) => {
     setDatosTarjeta((prev) => ({ ...prev, [campo]: valor }));
+    setErrores((prev) => ({ ...prev, [campo]: false })); // Quita el error al escribir
   };
 
   useEffect(() => {
     if (gasto) {
       setDatosTarjeta({
         mesDelResumen: gasto.mesDelResumen || "",
-        tarjeta: gasto.tarjeta || "",
-        tipoTarjeta: gasto.tipoTarjeta || "",
+        tarjeta: gasto.tarjeta || "Visa",
+        tipoTarjeta: gasto.tipoTarjeta || "Titular",
         aNombreDe: gasto.aNombreDe || "",
         banco: gasto.banco || "",
         numFinalTarjeta: gasto.numFinalTarjeta || "",
@@ -51,15 +65,17 @@ const GastoDebito = forwardRef(({ gasto }, ref) => {
 
   return (
     <div>
-      <GastoBase ref={gastoBaseRef} tipo="debito" gasto={gasto} />
-      <div className={css.container}>
+      <div className={css.formContainer}>
+        <GastoBase ref={gastoBaseRef} tipo={tipo} gasto={gasto} />
+
         <Input
-          placeholder="Mes del Resumen"
+          placeholder={errores.mesDelResumen ? "CAMPO REQUERIDO" : "Mes del Resumen"}
           value={datosTarjeta.mesDelResumen}
           onChange={(e) => handleChange("mesDelResumen", e.target.value)}
+          className={errores.mesDelResumen ? css.inputError : ""}
         />
+
         <Select
-          placeholder="Tarjeta"
           value={datosTarjeta.tarjeta}
           onChange={(value) => handleChange("tarjeta", value)}
         >
@@ -68,31 +84,37 @@ const GastoDebito = forwardRef(({ gasto }, ref) => {
           <Option value="American Express">American Express</Option>
           <Option value="Otra">Otra</Option>
         </Select>
+
         <Select
-          placeholder="Tipo de Tarjeta"
           value={datosTarjeta.tipoTarjeta}
           onChange={(value) => handleChange("tipoTarjeta", value)}
         >
           <Option value="Titular">Titular</Option>
           <Option value="Extensión">Extensión</Option>
         </Select>
+
         <Input
-          placeholder="A Nombre De"
+          placeholder={errores.aNombreDe ? "CAMPO REQUERIDO" : "A Nombre De"}
           value={datosTarjeta.aNombreDe}
           onChange={(e) => handleChange("aNombreDe", e.target.value)}
           disabled={datosTarjeta.tipoTarjeta !== "Extensión"}
+          className={errores.aNombreDe ? css.inputError : ""}
         />
+
         <Input
-          placeholder="Banco"
+          placeholder={errores.banco ? "CAMPO REQUERIDO" : "Banco"}
           value={datosTarjeta.banco}
           onChange={(e) => handleChange("banco", e.target.value)}
+          className={errores.banco ? css.inputError : ""}
         />
+
         <Input
           placeholder="Últimos dígitos de la Tarjeta"
           type="number"
           value={datosTarjeta.numFinalTarjeta}
           onChange={(e) => handleChange("numFinalTarjeta", e.target.value)}
         />
+
         <Input
           placeholder="Nombre del Consumo"
           value={datosTarjeta.nombreConsumo}
