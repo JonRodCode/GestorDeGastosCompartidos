@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Typography, Button, Spin, Alert } from "antd";
 import MiembrosInput from "../../components/MiembrosInput";
 import PersonaConGastos from "./components/PersonaConGastos";
+import Especificaciones from "./components/Especificaciones";
 import css from "./css/NuevaGestionPage.module.css";
 
 
@@ -193,7 +194,15 @@ const NuevaGestionPage = () => {
                 )}
                 {activeView === 'view2' && (
                     <div>
-                        <h1>Especificaciones</h1>
+                    <Title level={3} className={css.subtitle}>
+                    Especificaciones
+                        </Title>
+                        <div className={css.mainContainer}>
+                            <Especificaciones>
+                                
+                            </Especificaciones>
+
+                            </div>
                     </div>
                 )}
             </div>

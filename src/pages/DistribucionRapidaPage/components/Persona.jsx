@@ -1,7 +1,7 @@
 import  { useEffect, useState, useImperativeHandle, forwardRef } from "react";
 import { Card, Input, Row, Col, Tag } from "antd";
 import css from "../css/Persona.module.css";
-import NumeroInput from "../../../components/NumeroInput";
+import InputDesplegable from "../../../components/InputDesplegable";
 import GastosDeOtros from "./GastosDeOtros"
 
 
@@ -82,7 +82,7 @@ const Persona = forwardRef(({nombre, miembrosHogar }, ref) => {
 </div>
           </div>
           {modoActivo === "ganancia" && (
-            <NumeroInput
+            <InputDesplegable
               placeholder="Ingrese una ganancia"
               onAdd={(num) => setGanancias([...ganancias, num])}
               onClose={() => setModoActivo(null)}
@@ -103,7 +103,7 @@ const Persona = forwardRef(({nombre, miembrosHogar }, ref) => {
             </div>
           </div></div>
           {modoActivo === "gastoEquitativo" && (
-            <NumeroInput
+            <InputDesplegable
               placeholder="Ingrese un gasto"
               onAdd={(num) => setGastosEquitativosPagados([...gastosEquitativosPagados, num])}
               onClose={() => setModoActivo(null)}
@@ -124,7 +124,7 @@ const Persona = forwardRef(({nombre, miembrosHogar }, ref) => {
             </div>
           </div></div>
           {modoActivo === "gastoIgualitario" && (
-            <NumeroInput
+            <InputDesplegable
               placeholder="Ingrese un gasto"
               onAdd={(num) => setGastosIgualitariosPagados([...gastosIgualitariosPagados, num])}
               onClose={() => setModoActivo(null)}

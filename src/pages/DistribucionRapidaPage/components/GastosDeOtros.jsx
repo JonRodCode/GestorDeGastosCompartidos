@@ -1,6 +1,6 @@
 import  { useState } from "react";
 import { Tag } from "antd";
-import NumeroInput from "../../../components/NumeroInput";
+import InputDesplegable from "../../../components/InputDesplegable";
 import css from "../css/GastosDeOtros.module.css";
 
 
@@ -51,7 +51,7 @@ const GastosDeOtros = ({ items, onChange }) => {
 
       {itemSeleccionado === item && (
         <div className={css.visible}>
-          <NumeroInput onAdd={(numero) => agregarNumero(item, numero)} placeholder="Agregar número" onClose={() => setItemSeleccionado(null)} />
+          <InputDesplegable onAdd={(numero) => agregarNumero(item, numero)} placeholder="Agregar número" onClose={() => setItemSeleccionado(null)} />
         </div>
       )}
     </div>
