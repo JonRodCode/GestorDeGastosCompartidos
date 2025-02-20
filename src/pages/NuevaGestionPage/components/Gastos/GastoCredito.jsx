@@ -1,37 +1,59 @@
-import { forwardRef, useImperativeHandle, useRef, useState, useEffect } from "react";
+import {
+  forwardRef,
+  useImperativeHandle,
+  useRef,
+  useState,
+  useEffect,
+} from "react";
 import GastoDebito from "./GastoDebito";
 import { Input } from "antd";
 import css from "../../css/Gastos/GastoBase.module.css";
 
 const GastoCredito = forwardRef(({ gasto }, ref) => {
   const gastoDebitoRef = useRef();
-  const [datosCuotas, setDatosCuotas] = useState({
+  const [datosTarjeta, setDatosTarjeta] = useState({
     cuotaActual: "",
     totalDeCuotas: "",
+    nombreConsumo: "",
   });
+
+  const [errores, setErrores] = useState({});
 
   useImperativeHandle(ref, () => ({
     obtenerDatos: () => {
       const datosBase = gastoDebitoRef.current?.obtenerDatos();
       if (!datosBase) return null;
-      const { cuotaActual, totalDeCuotas } = datosCuotas;
-      if (!cuotaActual || !totalDeCuotas) {
-        alert("Todos los campos de cuotas son obligatorios");
+
+      const nuevosErrores = {};
+
+      if (!datosTarjeta.nombreConsumo) nuevosErrores.nombreConsumo = true;
+
+      if (Object.keys(nuevosErrores).length > 0) {
+        setErrores(nuevosErrores);
         return null;
       }
-      return { ...datosBase, cuotaActual, totalDeCuotas, tipo: "credito" };
+
+      setErrores({});
+      return {
+        ...datosBase,
+        nombreConsumo: datosTarjeta.nombreConsumo,
+        cuotaActual: datosTarjeta.cuotaActual || 1,
+        totalDeCuotas: datosTarjeta.totalDeCuotas || 1,
+        tipo: "credito",
+      };
     },
   }));
 
   const handleChange = (campo, valor) => {
-    setDatosCuotas((prev) => ({ ...prev, [campo]: valor }));
+    setDatosTarjeta((prev) => ({ ...prev, [campo]: valor }));
   };
 
   useEffect(() => {
     if (gasto) {
-      setDatosCuotas({
+      setDatosTarjeta({
         cuotaActual: gasto.cuotaActual || "",
         totalDeCuotas: gasto.totalDeCuotas || "",
+        nombreConsumo: gasto.nombreConsumo || "",
       });
     }
   }, [gasto]);
@@ -41,15 +63,23 @@ const GastoCredito = forwardRef(({ gasto }, ref) => {
       <GastoDebito ref={gastoDebitoRef} gasto={gasto} tipo="credito" />
       <div className={css.gastoCreditoContainer}>
         <Input
+          placeholder={
+            errores.nombreConsumo ? "CAMPO REQUERIDO" : "Nombre de Consumo"
+          }
+          value={datosTarjeta.nombreConsumo}
+          onChange={(e) => handleChange("nombreConsumo", e.target.value)}
+          className={errores.nombreConsumo ? css.inputError : ""}
+        />
+        <Input
           placeholder="Cuota Actual"
           type="number"
-          value={datosCuotas.cuotaActual}
+          value={datosTarjeta.cuotaActual}
           onChange={(e) => handleChange("cuotaActual", e.target.value)}
         />
         <Input
           placeholder="Total de Cuotas"
           type="number"
-          value={datosCuotas.totalDeCuotas}
+          value={datosTarjeta.totalDeCuotas}
           onChange={(e) => handleChange("totalDeCuotas", e.target.value)}
         />
       </div>

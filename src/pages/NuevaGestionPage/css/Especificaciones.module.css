@@ -1,0 +1,75 @@
+.card {
+  margin-bottom: 20px;
+width: 600px; /* O el ancho que quieras */
+max-width: 550px;
+min-width: 550px;
+}
+.addButton:disabled {
+  background-color: #d9d9d9; /* Color gris cuando está deshabilitado */
+  color: #bfbfbf; /* Color gris claro para el texto */
+  cursor: not-allowed; /* Cambia el cursor para indicar que no se puede hacer clic */
+}
+
+.nuevoGastoTitulo {
+  margin-top: 20px;
+}
+
+.gastosTitulo {
+  margin-top: 20px;
+}
+.divider {
+  border: 0;
+  border-top: 1px solid #ddd;  /* Línea gris suave */
+  margin: 10px 0;  /* Espaciado superior e inferior */
+}
+.header {
+  display: flex;
+  justify-content: space-between; /* Esto asegura que el título y el botón estén en los extremos */
+  align-items: center; /* Alinea verticalmente el título y el botón */
+  padding: 10px 0;
+}
+
+.cardTitle {
+  font-weight: bold;
+  font-size: 18px;
+  margin-right: 20px; /* Espacio entre el título y el botón */
+}  
+
+.formContainer {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.selectBox {
+  width: 120px;
+}
+
+.buttonContainer {
+  margin-top: 5px;
+  margin-bottom: 5px;
+  display: flex;
+  gap: 10px;
+}
+
+.tipoYCheckbox {
+display: flex;
+justify-content: space-between;
+align-items: baseline; /* Alinea el checkbox y el texto en la misma línea base */
+}
+
+
+.gastosLista {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.gastosScrollWrapper {
+  width: 600px; /* Tamaño fijo del contenedor */
+  max-height: 500px; /* Máxima altura del carrusel */
+  overflow-y: auto; /* Desplazamiento vertical */
+  padding: 10px;
+  
+}

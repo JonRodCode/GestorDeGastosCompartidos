@@ -11,16 +11,32 @@ const GastoPrestamo = forwardRef(({ gasto }, ref) => {
     prestamoDe: "",
   });
 
+  const [errores, setErrores] = useState({});
+
   useImperativeHandle(ref, () => ({
     obtenerDatos: () => {
       const datosBase = gastoBaseRef.current?.obtenerDatos();
       if (!datosBase) return null;
-      const { cuotaActual, totalDeCuotas, prestamoDe } = datosPrestamo;
-      if (!cuotaActual || !totalDeCuotas || !prestamoDe) {
-        alert("Todos los campos de préstamo son obligatorios");
+
+      const nuevosErrores = {};
+
+      // Validación de "Préstamo de" (obligatorio)
+      if (!datosPrestamo.prestamoDe.trim()) nuevosErrores.prestamoDe = true;
+
+      if (Object.keys(nuevosErrores).length > 0) {
+        setErrores(nuevosErrores);
         return null;
       }
-      return { ...datosBase, cuotaActual, totalDeCuotas, prestamoDe };
+
+      setErrores({});
+
+      return {
+        ...datosBase,
+        cuotaActual: datosPrestamo.cuotaActual || 1,
+        totalDeCuotas: datosPrestamo.totalDeCuotas || 1,
+        prestamoDe: datosPrestamo.prestamoDe,
+        tipo: "prestamo",
+      };
     },
   }));
 
@@ -58,9 +74,10 @@ const GastoPrestamo = forwardRef(({ gasto }, ref) => {
           onChange={(e) => handleChange("totalDeCuotas", e.target.value)}
         />
         <Input
-          placeholder="Préstamo de"
+          placeholder={errores.prestamoDe ? "CAMPO REQUERIDO" : "Préstamo de"}
           value={datosPrestamo.prestamoDe}
           onChange={(e) => handleChange("prestamoDe", e.target.value)}
+          className={errores.prestamoDe ? css.inputError : ""}
         />
       </div>
     </div>

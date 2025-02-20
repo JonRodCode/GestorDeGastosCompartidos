@@ -1,5 +1,8 @@
 .card {
     margin-bottom: 20px;
+  width: 600px; /* O el ancho que quieras */
+  max-width: 550px;
+  min-width: 550px;
   }
   .addButton:disabled {
     background-color: #d9d9d9; /* Color gris cuando está deshabilitado */

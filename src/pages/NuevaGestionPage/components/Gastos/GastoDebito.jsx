@@ -13,8 +13,7 @@ const GastoDebito = forwardRef(({ gasto, tipo = "debito" }, ref) => {
     tipoTarjeta: "Titular",
     aNombreDe: "",
     banco: "",
-    numFinalTarjeta: "",
-    nombreConsumo: "",
+    numFinalTarjeta: ""
   });
 
   const [errores, setErrores] = useState({});
@@ -56,8 +55,7 @@ const GastoDebito = forwardRef(({ gasto, tipo = "debito" }, ref) => {
         tipoTarjeta: gasto.tipoTarjeta || "Titular",
         aNombreDe: gasto.aNombreDe || "",
         banco: gasto.banco || "",
-        numFinalTarjeta: gasto.numFinalTarjeta || "",
-        nombreConsumo: gasto.nombreConsumo || "",
+        numFinalTarjeta: gasto.numFinalTarjeta || ""
       });
       gastoBaseRef.current?.obtenerDatos();
     }
@@ -114,12 +112,7 @@ const GastoDebito = forwardRef(({ gasto, tipo = "debito" }, ref) => {
           value={datosTarjeta.numFinalTarjeta}
           onChange={(e) => handleChange("numFinalTarjeta", e.target.value)}
         />
-
-        <Input
-          placeholder="Nombre del Consumo"
-          value={datosTarjeta.nombreConsumo}
-          onChange={(e) => handleChange("nombreConsumo", e.target.value)}
-        />
+        
       </div>
     </div>
   );
