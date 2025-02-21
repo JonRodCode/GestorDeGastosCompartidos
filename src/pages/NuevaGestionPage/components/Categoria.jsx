@@ -1,14 +1,27 @@
 import { useState } from "react";
-import { Tag } from "antd";
-import NumeroInput from "../../../components/InputDesplegable";
+import { Tag, Modal } from "antd";
 import css from "../css/Categoria.module.css";
+import InputDesplegable from "../../../components/InputDesplegable";
 
-const Categoria = ({ nombre, valores, tipo, actualizarValores, activable }) => {
+const Categoria = ({ nombre, valores, tipo, actualizarValores, activable, validarEliminacion }) => {
   const [modoActivo, setModoActivo] = useState(null);
 
   const eliminarNumero = (index) => {
-    const nuevaLista = valores.filter((_, i) => i !== index);
-    actualizarValores(nombre, nuevaLista);
+    const num = valores[index];
+  
+    if (validarEliminacion) {
+      Modal.confirm({
+        title: "Confirmar eliminación",
+        content: `¿Seguro que quieres eliminar ${num}?`,
+        onOk() {
+          const nuevaLista = valores.filter((_, i) => i !== index);
+          actualizarValores(nombre, nuevaLista, num, "eliminar");
+        },
+      });
+    } else {
+      const nuevaLista = valores.filter((_, i) => i !== index);
+      actualizarValores(nombre, nuevaLista, num, "eliminar");
+    }
   };
 
   return (
@@ -30,9 +43,9 @@ const Categoria = ({ nombre, valores, tipo, actualizarValores, activable }) => {
         </div>
       </div>
       {modoActivo === "datos" && activable && (
-        <NumeroInput
+        <InputDesplegable
           placeholder={"Ingrese " + tipo}
-          onAdd={(num) => actualizarValores(nombre, [...valores, num])}
+          onAdd={(num) => actualizarValores(nombre, [...valores, num],num, "agregar")}
           onClose={() => setModoActivo(null)}
           type="text"
         />

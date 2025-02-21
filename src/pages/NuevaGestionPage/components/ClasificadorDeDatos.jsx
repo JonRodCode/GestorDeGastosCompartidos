@@ -3,7 +3,7 @@ import { Typography, Card, Dropdown, Modal, Button } from "antd";
 import InputDesplegable from "../../../components/InputDesplegable";
 import css from "../css/ClasificadorDeDatos.module.css";
 import Categoria from "./Categoria";
-import { DownOutlined } from "@ant-design/icons";
+import { DownOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
 
 const { Title } = Typography;
 
@@ -11,6 +11,7 @@ const ClasificadorDeDatos = ({
   especificaciones,
   setEspecificaciones,
   propiedad,
+  propiedadExtraAManipular,
   config,
 }) => {
   const [modo, setModo] = useState("agregar");
@@ -29,15 +30,26 @@ const ClasificadorDeDatos = ({
     }));
   };
 
-  const actualizarValores = (nombre, nuevosValores) => {
-    setEspecificaciones((prev) => ({
-      ...prev,
-      [propiedad]: {
-        ...prev[propiedad],
-        [nombre]: nuevosValores,
-      },
-    }));
-  };
+    const actualizarValores = (nombre, nuevosValores, num, tipo) => {
+      setEspecificaciones((prev) => {
+        const nuevaEspecificacion = {
+          ...prev,
+          [propiedad]: {
+            ...prev[propiedad],
+            [nombre]: nuevosValores,
+          },
+          [propiedadExtraAManipular]: { ...prev[propiedadExtraAManipular] || {} }, // Asegura que sea un objeto
+        };
+    
+        if (tipo === "agregar") {
+          nuevaEspecificacion[propiedadExtraAManipular][num] = []; 
+        } else if (tipo === "eliminar" && nuevaEspecificacion[propiedadExtraAManipular][num]) {
+          delete nuevaEspecificacion[propiedadExtraAManipular][num];
+        }
+    
+        return nuevaEspecificacion;
+      });
+    };
 
   const eliminarCategoria = () => {
     setEspecificaciones((prev) => {
@@ -164,6 +176,7 @@ const ClasificadorDeDatos = ({
                 tipo={config.elementoEnSingular }
                 actualizarValores={actualizarValores}
                 activable={!modoActivado}
+                validarEliminacion={true}
               />
             )}
 
@@ -190,7 +203,12 @@ const ClasificadorDeDatos = ({
         ))}
       </div>
       <Modal
-        title="Confirmación"
+        title={
+          <>
+            <ExclamationCircleOutlined style={{ color: "red", marginRight: 8 }} />
+            Confirmar eliminación
+          </>
+        }
         visible={mostrarConfirmacion}
         onOk={eliminarCategoria}
         onCancel={() => setMostrarConfirmacion(false)}
