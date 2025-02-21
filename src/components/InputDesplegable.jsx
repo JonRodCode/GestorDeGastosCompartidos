@@ -2,10 +2,11 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Input, Button } from "antd";
 import css from "../css/InputDesplegable.module.css";
 
-const InputDesplegable = ({ onAdd, placeholder, onClose, type = "number" }) => {
+const InputDesplegable = ({ onAdd, placeholder, onClose, type = "number", valor="" }) => {
   const [value, setValue] = useState("");
   const inputRef = useRef(null);
   const containerRef = useRef(null);
+  
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -33,6 +34,7 @@ const InputDesplegable = ({ onAdd, placeholder, onClose, type = "number" }) => {
 
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
+    setValue(valor);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [handleClickOutside]);
 
@@ -52,7 +54,7 @@ const InputDesplegable = ({ onAdd, placeholder, onClose, type = "number" }) => {
         onKeyDown={(e) => e.key === "Enter" && handleAgregar()}
       />
       <Button onClick={handleAgregar} type="primary">
-        Agregar
+        {valor ? "Modificar" : "Agregar"}
       </Button>
     </div>
   );

@@ -120,7 +120,7 @@ const PersonaConGastos = ({ nombre, gastos, setGastos }) => {
           {tipoGasto === "credito" && (
             <GastoCredito ref={gastoRef} gasto={gastoEditado} />
           )}
-          <div className={css.buttonContainer}>
+          <div className={css.buttonContainer1}>
             <Button type="primary" onClick={agregarGasto}>
               Confirmar
             </Button>
@@ -131,35 +131,31 @@ const PersonaConGastos = ({ nombre, gastos, setGastos }) => {
         </>
       )}
 
-      <Title level={4} className={css.gastosTitulo}>
+      <div className={css.buttonContainer}>
+      <Title level={4} >
         Gastos Agregados
       </Title>
+      <Button.Group className={css.buttonGroup}>
+  <Button
+    className={`${botonActivo === "modificar" ? css.modificarActivo : ""}`}
+    onClick={() => handleButtonClick("modificar")}
+  >
+    Modificar
+  </Button>
+  <Button
+    className={`${botonActivo === "eliminar" ? css.eliminarActivo : ""}`}
+    onClick={() => handleButtonClick("eliminar")}
+  >
+    Eliminar
+  </Button>
+</Button.Group>
+            </div>
 
       <div className={css.gastosLista}>
         {gastos.length === 0 ? (
           <Text type="secondary">No se han agregado gastos</Text>
         ) : (
-          <div>
-            <div className={css.buttonContainer}>
-              <Button
-                onClick={() => handleButtonClick("eliminar")}
-                style={{
-                  backgroundColor: botonActivo === "eliminar" ? "#f5222d" : "", // Rojo cuando está activo
-                  color: botonActivo === "eliminar" ? "white" : "", // Color blanco cuando está activo
-                }}
-              >
-                Eliminar
-              </Button>
-              <Button
-                onClick={() => handleButtonClick("modificar")}
-                style={{
-                  backgroundColor: botonActivo === "modificar" ? "#1890ff" : "", // Azul cuando está activo
-                  color: botonActivo === "modificar" ? "white" : "", // Color blanco cuando está activo
-                }}
-              >
-                Modificar
-              </Button>
-            </div>
+          <div>            
             <div className={css.gastosScrollWrapper}>
               <div className={css.gastosScrollContainer}>
                 {gastos.map((gasto) => (

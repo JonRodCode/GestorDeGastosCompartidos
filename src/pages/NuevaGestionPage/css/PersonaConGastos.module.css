@@ -1,8 +1,5 @@
 .card {
     margin-bottom: 20px;
-  width: 600px; /* O el ancho que quieras */
-  max-width: 550px;
-  min-width: 550px;
   }
   .addButton:disabled {
     background-color: #d9d9d9; /* Color gris cuando está deshabilitado */
@@ -45,12 +42,50 @@
   .selectBox {
     width: 120px;
   }
-  
+  .buttonContainer1 {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    display: flex;
+    gap: 10px;
+  }
   .buttonContainer {
     margin-top: 5px;
     margin-bottom: 5px;
     display: flex;
     gap: 10px;
+    justify-content: space-between;
+  }
+
+  .buttonGroup {
+    border: 1px solid #d9d9d9;
+    border-radius: 6px;
+    overflow: hidden; /* Evita bordes redondeados en intersección */
+    display: flex;
+  }
+  
+  .buttonGroup :global(.ant-btn) {
+    border: none;
+    box-shadow: none;
+    padding: 8px 16px;
+    background-color: white;
+    transition: background-color 0.2s ease-in-out;
+    border-right: 1px solid #d9d9d9; /* Línea divisoria */
+  }
+  
+  /* Quitar el borde derecho del último */
+  .buttonGroup :global(.ant-btn:last-child) {
+    border-right: none;
+  }
+  
+  /* Estilos para los botones activos */
+  .modificarActivo {
+    background-color: #1890ff !important;
+    color: white !important;
+  }
+  
+  .eliminarActivo {
+    background-color: #f5222d !important;
+    color: white !important;
   }
   
   .tipoYCheckbox {

@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useState } from "react";
 import { Tag } from "antd";
 import NumeroInput from "../../../components/InputDesplegable";
 import css from "../css/Categoria.module.css";
 
-const Categoria = ({ nombre, valores, tipo, actualizarValores }) => {
+const Categoria = ({ nombre, valores, tipo, actualizarValores, activable }) => {
   const [modoActivo, setModoActivo] = useState(null);
 
   const eliminarNumero = (index) => {
@@ -13,17 +13,23 @@ const Categoria = ({ nombre, valores, tipo, actualizarValores }) => {
 
   return (
     <>
-      <div onClick={(e) => { e.stopPropagation(); setModoActivo("datos"); }}>
+      <div
+        onClick={(e) => {
+          e.stopPropagation();
+          if (activable) setModoActivo("datos");
+        }}
+      >
         <div className={css.tituloConTags}>
           <strong>{nombre}:</strong>
           {valores.map((valor, index) => (
-            <Tag key={index} color="blue" onClick={() => eliminarNumero(index)}>
-              {valor}
-            </Tag>
+            <Tag key={index} color="blue" className={css.customTag} onClick={() => eliminarNumero(index)}>
+            {valor}
+          </Tag>
+          
           ))}
         </div>
       </div>
-      {modoActivo === "datos" && (
+      {modoActivo === "datos" && activable && (
         <NumeroInput
           placeholder={"Ingrese " + tipo}
           onAdd={(num) => actualizarValores(nombre, [...valores, num])}

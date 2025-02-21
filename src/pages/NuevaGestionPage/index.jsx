@@ -13,6 +13,7 @@ const NuevaGestionPage = () => {
   const [miembrosDelHogar, setMiembrosDelHogar] = useState([]);
 
   const [especificaciones, setEspecificaciones] = useState({
+    
     fuenteDelGasto: {},
     categorias: {},
     determinaciones: {},

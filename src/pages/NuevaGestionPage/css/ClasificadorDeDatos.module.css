@@ -1,9 +1,38 @@
 .card {
   margin-bottom: 20px;
-width: 600px; /* O el ancho que quieras */
-max-width: 550px;
-min-width: 550px;
+  width: 650px;
+  max-width: 650px;
+  min-width: 550px;
 }
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.buttonsContainer {
+  display: flex;
+  justify-content: space-between;
+}
+.placeholderText {
+  font-size: 17px; /* Más grande */
+  color: #444; /* Un gris más oscuro */
+}
+.cardTitle {
+  font-weight: bold;
+  font-size: 18px;
+  margin: 0; /* Evita que el título se desplace */
+}
+.cancelContainer {
+  display: flex;
+  justify-content: flex-end; /* Alinea el botón a la derecha */
+}
+
+.addButton {
+  margin-left: 10px; /* Espacio entre el título y el botón */
+}
+
 .addButton:disabled {
   background-color: #d9d9d9; /* Color gris cuando está deshabilitado */
   color: #bfbfbf; /* Color gris claro para el texto */
@@ -35,6 +64,15 @@ min-width: 550px;
   margin-right: 20px; /* Espacio entre el título y el botón */
 }  
 
+.textoAzul {
+   color:blue;
+   cursor: pointer;
+}
+.textoRojo {
+  color: red ;
+  cursor: pointer;
+}
+
 .formContainer {
   display: flex;
   gap: 10px;
@@ -44,13 +82,6 @@ min-width: 550px;
 
 .selectBox {
   width: 120px;
-}
-
-.buttonContainer {
-  margin-top: 5px;
-  margin-bottom: 5px;
-  display: flex;
-  gap: 10px;
 }
 
 .tipoYCheckbox {
