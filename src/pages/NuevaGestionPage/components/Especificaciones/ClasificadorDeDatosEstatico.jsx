@@ -1,5 +1,5 @@
 import { Typography, Card} from "antd";
-import css from "../css/ClasificadorDeDatos.module.css";
+import css from "../../css/ClasificadorDeDatos.module.css";
 import Categoria from "./Categoria";
 
 const { Title } = Typography;
@@ -52,7 +52,7 @@ const ClasificadorDeDatosEstatico = ({
                 tipo={config.elementoEnSingular }
                 actualizarValores={actualizarValores}
                 activable={true}                
-                validarEliminacion={false}
+                validarEliminacion={true}
               />                 
           </div>
         ))}

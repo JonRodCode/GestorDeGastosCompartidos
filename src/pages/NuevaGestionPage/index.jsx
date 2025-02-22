@@ -16,7 +16,11 @@ const NuevaGestionPage = () => {
     
     fuenteDelGasto: {},
     categorias: {},
-    determinaciones: {},
+    determinaciones: {
+      GastoEquitativo: [],
+      GastoIgualitario: [],
+      GastoPersonal: [],
+    },
     excepcionesGlobales: {} 
   });
 

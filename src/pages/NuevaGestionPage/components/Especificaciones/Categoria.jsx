@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Tag, Modal } from "antd";
-import css from "../css/Categoria.module.css";
-import InputDesplegable from "../../../components/InputDesplegable";
+import css from "../../css/Categoria.module.css";
+import InputDesplegable from "../../../../components/InputDesplegable";
 
-const Categoria = ({ nombre, valores, tipo, actualizarValores, activable, validarEliminacion }) => {
+const Categoria = ({ nombre, valores, tipo, actualizarValores, activable, validarEliminacion, fraseDeEliminacion }) => {
   const [modoActivo, setModoActivo] = useState(null);
 
   const eliminarNumero = (index) => {
@@ -12,7 +12,12 @@ const Categoria = ({ nombre, valores, tipo, actualizarValores, activable, valida
     if (validarEliminacion) {
       Modal.confirm({
         title: "Confirmar eliminación",
-        content: `¿Seguro que quieres eliminar ${num}?`,
+        content: (
+          <>
+            <p>{fraseDeEliminacion}</p>
+            <p>¿Seguro que quieres eliminar {num}?</p>
+          </>
+        ),
         onOk() {
           const nuevaLista = valores.filter((_, i) => i !== index);
           actualizarValores(nombre, nuevaLista, num, "eliminar");
@@ -26,14 +31,13 @@ const Categoria = ({ nombre, valores, tipo, actualizarValores, activable, valida
 
   return (
     <>
-      <div
-        onClick={(e) => {
+        <div className={css.tituloConTags} >
+          <div onClick={(e) => {
           e.stopPropagation();
           if (activable) setModoActivo("datos");
-        }}
-      >
-        <div className={css.tituloConTags}>
+        }}>
           <strong>{nombre}:</strong>
+          </div>
           {valores.map((valor, index) => (
             <Tag key={index} color="blue" className={css.customTag} onClick={() => eliminarNumero(index)}>
             {valor}
@@ -41,7 +45,7 @@ const Categoria = ({ nombre, valores, tipo, actualizarValores, activable, valida
           
           ))}
         </div>
-      </div>
+
       {modoActivo === "datos" && activable && (
         <InputDesplegable
           placeholder={"Ingrese " + tipo}
