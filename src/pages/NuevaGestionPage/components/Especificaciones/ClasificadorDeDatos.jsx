@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { Typography, Card, Dropdown, Modal, Button } from "antd";
+import { Typography, Card,  Modal, Button } from "antd";
 import InputDesplegable from "../../../../components/InputDesplegable";
+import ButtonDesplegable from "../../../../components/ButtonDesplegable";
 import css from "../../css/ClasificadorDeDatos.module.css";
 import Categoria from "./Categoria";
-import { DownOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
+import ClasificacionPendiente from "./clasificacionPendiente";
+import { ExclamationCircleOutlined } from "@ant-design/icons";
 
 const { Title } = Typography;
 
@@ -14,6 +16,8 @@ const ClasificadorDeDatos = ({
   propiedad,
   propiedadExtraAManipular,
   setPendientes,
+  fuentesDeGastosPendientes,
+  setfuentesDeGastosPendientes,
   config,
 }) => {
   const [modo, setModo] = useState("agregar");
@@ -21,6 +25,7 @@ const ClasificadorDeDatos = ({
   const [categoriaAEditar, setCategoriaAEditar] = useState(null);
   const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
   const [categoriaAEliminar, setCategoriaAEliminar] = useState(null);
+  
 
   const agregarElemento = (nuevoElemento) => {
     if (!nuevoElemento.trim()) return; // Evita agregar elementos vacíos
@@ -139,22 +144,22 @@ const ClasificadorDeDatos = ({
   };
 
   const modificarCategoria = (nuevoNombre) => {
-    if (!nuevoNombre.trim() || nuevoNombre === categoriaAEditar || especificaciones[propiedad]?.[nuevoNombre] !== undefined) {
+    if (!nuevoNombre.trim() || especificaciones[propiedad]?.[nuevoNombre] !== undefined) {
       Modal.error({
         title: "Error",
         content: `La categoría "${nuevoNombre}" ya existe.`,
       });
-      return; // 🔹 Cancela la función inmediatamente
+      return; // Cancela la función inmediatamente
     }
   
-    // 🟢 Modificar en pendientes si está ahí
+    // Modificar en pendientes si está ahí
     setPendientes((prev) =>
       prev.includes(categoriaAEditar)
         ? prev.map((item) => (item === categoriaAEditar ? nuevoNombre : item))
         : prev
     );
   
-    // 🔵 Modificar dentro de especificaciones[propiedadManipuladaSuperior]
+    // Modificar dentro de especificaciones[propiedadManipuladaSuperior]
     setEspecificaciones((prev) => {
       const nuevaPropiedad = Object.fromEntries(
         Object.entries(prev[propiedad]).map(([key, value]) =>
@@ -177,32 +182,8 @@ const ClasificadorDeDatos = ({
     });
   
     setCategoriaAEditar(null);
-  };
-  
-  
+  };  
 
-  const menuItems = [
-    modo !== "modificar" && {
-      key: "modificar",
-      label: "Modificar",
-      onClick: () => manejarClickBoton("modificar"),
-    },
-    modo !== "eliminar" && {
-      key: "eliminar",
-      label: "Eliminar",
-      onClick: () => manejarClickBoton("eliminar"),
-    },
-    modo !== "agregar" && {
-      key: "agregar",
-      label: "Agregar",
-      onClick: () => manejarClickBoton("agregar"),
-    },
-  ].filter(Boolean);
-
-  const manejarClickBoton = (modoSeleccionado) => {
-    setModo(modoSeleccionado);
-    setModoActivado(true);
-  };
 
   const cancelarAccion = () => {
     setCategoriaAEditar(null);
@@ -218,19 +199,17 @@ const ClasificadorDeDatos = ({
         </Title>
 
         <div className={css.buttonsContainer}>
-          <Dropdown.Button
-            className={css.addButton}
-            menu={{ items: menuItems }}
-            onClick={() => manejarClickBoton(modo)}
-            icon={<DownOutlined />}
-            disabled={modoActivado}
-          >
-            {modo.charAt(0).toUpperCase() + modo.slice(1)}{" "}
-            {config.temaDeClasificacionEnSingular}
-          </Dropdown.Button>
+          <ButtonDesplegable
+          modo={modo} setModo={setModo}
+          modoActivado={modoActivado}
+          setModoActivado={setModoActivado}
+          elementoEnSingular={config.temaDeClasificacionEnSingular}
+          />       
         </div>
       </div>
-
+      <ClasificacionPendiente 
+      pendientes={fuentesDeGastosPendientes}
+      setPendientes={setfuentesDeGastosPendientes}/>
       <div className={css.buttonsContainer}>
         {!modoActivado &&
           (Object.keys(especificaciones[propiedad]).length === 0 ? (
@@ -254,6 +233,7 @@ const ClasificadorDeDatos = ({
             }
             onClose={() => setModoActivado(false)}
             type="text"
+            estatico={true}
           />
         )}
         {modoActivado &&
@@ -277,6 +257,7 @@ const ClasificadorDeDatos = ({
         )}
       </div>
 
+     
       <hr className={css.divider} />
       <div>
         {Object.entries(especificaciones[propiedad]).map(([key, values]) => (
@@ -301,6 +282,9 @@ const ClasificadorDeDatos = ({
                 activable={!modoActivado}
                 validarEliminacion={true}
                 fraseDeEliminacion={config.fraseDeEliminacionParaSingular}
+                pendientes={fuentesDeGastosPendientes}
+                setPendientes={setfuentesDeGastosPendientes}
+
               />
             )}
 
@@ -329,9 +313,7 @@ const ClasificadorDeDatos = ({
       <Modal
         title={
           <>
-            <ExclamationCircleOutlined
-              style={{ color: "red", marginRight: 8 }}
-            />
+            <ExclamationCircleOutlined style={{ color: "red", marginRight: 8 }} />
             Confirmar eliminación
           </>
         }

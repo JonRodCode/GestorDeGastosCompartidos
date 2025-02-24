@@ -15,7 +15,13 @@ const TIPOS_GASTO = {
   credito: "Crédito",
 };
 
-const PersonaConGastos = ({ nombre, gastos, setGastos }) => {
+const PersonaConGastos = ({
+  nombre,
+  gastos,
+  setGastos,
+  setListaDeFuentesDeGastosPendientes,
+  fuentesDeGastos,
+}) => {
   const [tipoGasto, setTipoGasto] = useState("basico");
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [gastoEditado, setGastoEditado] = useState(null);
@@ -42,6 +48,10 @@ const PersonaConGastos = ({ nombre, gastos, setGastos }) => {
   const agregarGasto = () => {
     if (gastoRef.current) {
       const nuevoGasto = gastoRef.current.obtenerDatos();
+
+      if (!(nuevoGasto.fuenteDelGasto in fuentesDeGastos)) {
+        setListaDeFuentesDeGastosPendientes((prev) => [...prev, nuevoGasto.fuenteDelGasto]);
+      }
 
       if (nuevoGasto) {
         if (gastoEditado) {
@@ -132,30 +142,32 @@ const PersonaConGastos = ({ nombre, gastos, setGastos }) => {
       )}
 
       <div className={css.buttonContainer}>
-      <Title level={4} >
-        Gastos Agregados
-      </Title>
-      <Button.Group className={css.buttonGroup}>
-  <Button
-    className={`${botonActivo === "modificar" ? css.modificarActivo : ""}`}
-    onClick={() => handleButtonClick("modificar")}
-  >
-    Modificar
-  </Button>
-  <Button
-    className={`${botonActivo === "eliminar" ? css.eliminarActivo : ""}`}
-    onClick={() => handleButtonClick("eliminar")}
-  >
-    Eliminar
-  </Button>
-</Button.Group>
-            </div>
+        <Title level={4}>Gastos Agregados</Title>
+        <Button.Group className={css.buttonGroup}>
+          <Button
+            className={`${
+              botonActivo === "modificar" ? css.modificarActivo : ""
+            }`}
+            onClick={() => handleButtonClick("modificar")}
+          >
+            Modificar
+          </Button>
+          <Button
+            className={`${
+              botonActivo === "eliminar" ? css.eliminarActivo : ""
+            }`}
+            onClick={() => handleButtonClick("eliminar")}
+          >
+            Eliminar
+          </Button>
+        </Button.Group>
+      </div>
 
       <div className={css.gastosLista}>
         {gastos.length === 0 ? (
           <Text type="secondary">No se han agregado gastos</Text>
         ) : (
-          <div>            
+          <div>
             <div className={css.gastosScrollWrapper}>
               <div className={css.gastosScrollContainer}>
                 {gastos.map((gasto) => (

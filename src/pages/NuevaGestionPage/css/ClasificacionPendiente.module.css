@@ -1,0 +1,20 @@
+.tituloConTags {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Espacio entre el título y los tags */
+    flex-wrap: wrap; /* Para que los tags no desborden */
+    font-size: 15px; /* Tamaño más grande para el título */
+  }
+
+  .customTag {
+    font-size: 14px; /* Aumenta el tamaño del texto */
+    padding: 2px 6px; /* Ajusta el espacio interno */
+    border-radius: 6px; /* Bordes redondeados */
+    cursor: grab;
+    transition: all 0.3s ease;
+  }
+  
+  .customTag:hover {
+    opacity: 0.8; /* Efecto visual al pasar el mouse */
+  }
+  

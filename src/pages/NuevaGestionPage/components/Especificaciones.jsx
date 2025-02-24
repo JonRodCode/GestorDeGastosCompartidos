@@ -1,11 +1,18 @@
 //import css from "../css/Especificaciones.module.css";
-import { useState } from "react";
 import ClasificadorDeDatos from "./Especificaciones/ClasificadorDeDatos";
 import ClasificadorDeDatosEstatico from "./Especificaciones/ClasificadorDeDatosEstatico";
 import Determinador from "./Especificaciones/Determinador";
 
-const Especificaciones = ({ especificaciones, setEspecificaciones }) => {
-  const [pendientes, setPendientes] = useState([]);
+const Especificaciones = ({
+  especificaciones,
+  setEspecificaciones,
+  categoriasPendientes,
+  setCategoriasPendientes,
+  fuentesDeGastosPendientes,
+  setFuenteDeGastosPendientes
+}) => {
+  const fraseDeEliminacion =
+    "Se eliminarán todas las fuentes de gastos asociadas a la categoria seleccionada y todos los consumos asociados a cada una de esas fuentes de gastos.";
 
   return (
     <>
@@ -14,8 +21,10 @@ const Especificaciones = ({ especificaciones, setEspecificaciones }) => {
         setEspecificaciones={setEspecificaciones}
         propiedad="determinaciones"
         propiedadExtraAManipular="categorias"
-        pendientes={pendientes}
-        setPendientes={setPendientes}
+        subPropiedadExtraAManipular="fuenteDelGasto"
+        pendientes={categoriasPendientes}
+        setPendientes={setCategoriasPendientes}
+        fraseDeEliminacion={fraseDeEliminacion}
       />
 
       <ClasificadorDeDatos
@@ -24,15 +33,16 @@ const Especificaciones = ({ especificaciones, setEspecificaciones }) => {
         propiedadManipuladaSuperior="determinaciones"
         propiedad="categorias"
         propiedadExtraAManipular="fuenteDelGasto"
-        setPendientes={setPendientes}
+        setPendientes={setCategoriasPendientes}
+        fuentesDeGastosPendientes={fuentesDeGastosPendientes}
+        setfuentesDeGastosPendientes={setFuenteDeGastosPendientes}
         config={{
           elementoAClasificar: "Fuentes de Gastos",
           elementoEnSingular: "fuente de gastos",
           temaDeClasificacionEnPlural: "categorías",
           temaDeClasificacionEnSingular: "categoría",
           letra: "a",
-          fraseDeEliminacion:
-            "Se eliminarán todas las fuentes de gastos asociadas a la categoria seleccionada y todos los consumos asociados a cada una de esas fuentes de gastos.",
+          fraseDeEliminacion: fraseDeEliminacion,
           fraseDeEliminacionParaSingular:
             "Se eliminará la fuente de gastos y todos los consumos asociados a ella.",
         }}

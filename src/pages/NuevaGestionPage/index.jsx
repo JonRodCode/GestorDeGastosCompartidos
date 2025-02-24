@@ -11,7 +11,8 @@ const NuevaGestionPage = () => {
   const [activeView, setActiveView] = useState(null);
   const [personas, setPersonas] = useState([]);
   const [miembrosDelHogar, setMiembrosDelHogar] = useState([]);
-
+  const [categoriasPendientesParaDeterminar, setCategoriasPendientesParaDeterminar] = useState([]);
+  const [fuentesDeGastosPendientesParaClasificar, setFuentesDeGastosPendientesParaClasificar] = useState([]);
   const [especificaciones, setEspecificaciones] = useState({
     
     fuenteDelGasto: {},
@@ -21,8 +22,10 @@ const NuevaGestionPage = () => {
       GastoIgualitario: [],
       GastoPersonal: [],
     },
-    excepcionesGlobales: {} 
+    excepcionesGlobales: {},
+    GastosConCuotasPendientes: [], 
   });
+
 
   // Posiblemente cambiemos la forma de mostrar la respuesta
   const [nuevaRespuesta, setNuevaRespuesta] = useState(null);
@@ -100,35 +103,8 @@ const NuevaGestionPage = () => {
     );
 
     const datos = {
-      especificaciones: {
-        fuenteDelGasto: {
-          Carrefour: ["Carref*MP"],
-        },
-        categorias: {
-          Supermercado: ["Carrefour"],
-        },
-        determinaciones: {
-          GastoEquitativo: ["Supermercado"],
-        },
-        excepcionesGlobales: {
-          GastoIgualitario: [
-            {
-              tipo: "basico",
-              persona: "",
-              detalleConsumo: "Bebidas",
-              fuenteDelGasto: "Carrefour",
-              categoria: "",
-              determinacion: "",
-              monto: 0,
-              tipoDeImporte: null,
-              excepcion: null,
-              fecha: null,
-              marcado: null,
-            },
-          ],
-        },
-        GastosConCuotasPendientes: [],
-      }, // Aquí puedes agregar datos adicionales si es necesario
+      especificaciones
+       , // Aquí puedes agregar datos adicionales si es necesario
       gastos: gastosTransformados,
     };
 
@@ -206,6 +182,8 @@ const NuevaGestionPage = () => {
                       setGastos={(nuevosGastos) =>
                         actualizarGastosDePersona(persona.nombre, nuevosGastos)
                       }
+                      setListaDeFuentesDeGastosPendientes={setFuentesDeGastosPendientesParaClasificar}
+                      fuentesDeGastos={especificaciones.fuenteDelGasto}
                     />
                   ))
                 ) : (
@@ -225,6 +203,10 @@ const NuevaGestionPage = () => {
                 <Especificaciones
                   especificaciones={especificaciones}
                   setEspecificaciones={setEspecificaciones}
+                  categoriasPendientes={categoriasPendientesParaDeterminar}
+                  setCategoriasPendientes={setCategoriasPendientesParaDeterminar}
+  fuentesDeGastosPendientes = {fuentesDeGastosPendientesParaClasificar}
+  setFuenteDeGastosPendientes = {setFuentesDeGastosPendientesParaClasificar}
                 />
               </div>
             </div>

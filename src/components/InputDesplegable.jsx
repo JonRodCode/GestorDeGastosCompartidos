@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Input, Button } from "antd";
 import css from "../css/InputDesplegable.module.css";
 
-const InputDesplegable = ({ onAdd, placeholder, onClose, type = "number", valor="" }) => {
+const InputDesplegable = ({ onAdd, placeholder, onClose, type = "number", valor="",  estatico = false }) => {
   const [value, setValue] = useState("");
   const inputRef = useRef(null);
   const containerRef = useRef(null);
@@ -25,18 +25,21 @@ const InputDesplegable = ({ onAdd, placeholder, onClose, type = "number", valor=
 
   const handleClickOutside = useCallback(
     (e) => {
-      if (containerRef.current && !containerRef.current.contains(e.target)) {
+      if (!estatico && containerRef.current && !containerRef.current.contains(e.target)) {
         onClose();
       }
     },
-    [onClose]
+    [onClose, estatico]
   );
 
   useEffect(() => {
-    document.addEventListener("mousedown", handleClickOutside);
+    if (!estatico) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
     setValue(valor);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [handleClickOutside]);
+  }, [handleClickOutside, estatico]);
+
 
   return (
     <div
