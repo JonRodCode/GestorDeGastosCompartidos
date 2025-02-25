@@ -8,16 +8,38 @@ const Categoria = ({
   valores,
   tipo,
   actualizarValores,
+  actualizarCategoriasYFuentes,
   activable,
   validarEliminacion,
+  esUnValorValido,
   fraseDeEliminacion,
-  setPendientes
-  
+  setPendientes,
+  fuentesDeGastosEnUso = {},
+  temaCentral = "elemento",
 }) => {
   const [modoActivo, setModoActivo] = useState(null);
 
+  const validarEnFuentesDeGastos = (num) => {
+    if (Object.keys(fuentesDeGastosEnUso).includes(num)) {
+      const vecesEnUso = fuentesDeGastosEnUso[num];
+
+      Modal.warning({
+        title: "Elemento en uso",
+        content: `No se puede borrar "${num}" porque se encuentra en uso en ${vecesEnUso + " " + temaCentral}${vecesEnUso > 1 ? "s" : ""}.`,
+      });
+
+      return true; // Indica que el elemento está en uso
+    }
+
+    return false; // Indica que el elemento no está en uso
+  };
+
   const eliminarNumero = (index) => {
     const num = valores[index];
+
+    if (validarEnFuentesDeGastos(num)) {
+      return;
+    }
 
     if (validarEliminacion) {
       Modal.confirm({
@@ -39,26 +61,41 @@ const Categoria = ({
     }
   };
 
+  const handleDragStart = (e, valor) => {
+    e.dataTransfer.setData("text/plain", valor);
+    e.dataTransfer.setData("categoriaOrigen", nombre); // Guardamos la categoría de origen
+  };
+
   const handleDrop = (e) => {
     e.preventDefault();
     const valor = e.dataTransfer.getData("text/plain").trim(); // Recuperamos el valor
+    const categoriaDePartida =  e.dataTransfer.getData("categoriaOrigen").trim();
 
     if (!valor) return; // Evitar valores vacíos
+
+    if (!esUnValorValido(valor)) {     
+      return;
+  }
+
     if (valores.includes(valor)) return; // Evitar duplicados dentro de la misma categoría
 
-    // Agregar a la categoría
-    actualizarValores(nombre, [...valores, valor], valor, "agregar");
-
+    if (categoriaDePartida !== "PeNdIeNTeshhh"){
+      actualizarCategoriasYFuentes(categoriaDePartida, nombre, [...valores, valor], valor);
+    }
+    else{
+      actualizarValores(nombre, [...valores, valor], valor, "agregar");
+    }
     // Remover de pendientes
     setPendientes((prev) => prev.filter((item) => item !== valor));
   };
 
   return (
     <>
-      <div className={css.tituloConTags}
-      onDragOver={(e) => e.preventDefault()}
-      onDrop={handleDrop}>
-        
+      <div
+        className={css.tituloConTags}
+        onDragOver={(e) => e.preventDefault()}
+        onDrop={handleDrop}
+      >
         <div
           onClick={(e) => {
             e.stopPropagation();
@@ -73,6 +110,8 @@ const Categoria = ({
             color="blue"
             className={css.customTag}
             onClick={() => eliminarNumero(index)}
+            draggable
+            onDragStart={(e) => handleDragStart(e, valor)}
           >
             {valor}
           </Tag>

@@ -10,6 +10,7 @@ const ClasificadorDeDatosEstatico = ({
   propiedad,
   config,
 }) => {
+  
   const actualizarValores = (nombre, nuevaLista, num, accion) => {
     setEspecificaciones((prev) => {
       // Buscar si el número ya existe en alguna categoría

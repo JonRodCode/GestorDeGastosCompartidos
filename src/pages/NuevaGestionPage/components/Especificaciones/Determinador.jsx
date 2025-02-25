@@ -15,6 +15,7 @@ const Determinador = ({
   subPropiedadExtraAManipular,
   pendientes,
   setPendientes,
+  fuentesDeGastosEnUso,
   fraseDeEliminacion,
 }) => {
   const [modo, setModo] = useState("agregar");
@@ -23,7 +24,7 @@ const Determinador = ({
   const [categoriaAEliminar, setCategoriaAEliminar] = useState(null);
   const [categoriaAEditar, setCategoriaAEditar] = useState(null);
 
-  const [modoMover, setModoMover] = useState(false);
+  const [redeterminar, setRedeterminar] = useState(false);
 
   const handleDragStart = (e, valor, origen) => {
     e.dataTransfer.setData("text/plain", JSON.stringify({ valor, origen }));
@@ -34,7 +35,7 @@ const Determinador = ({
     const { valor, origen } = JSON.parse(e.dataTransfer.getData("text/plain"));
 
     // ✅ Si el modo "Mover" está apagado, solo permite mover desde "Pendientes"
-    if (!modoMover && origen !== "pendientes") return;
+    if (!redeterminar && origen !== "pendientes") return;
     if (especificaciones[propiedad][categoriaDestino].includes(valor)) return;
 
     setEspecificaciones((prev) => {
@@ -49,7 +50,7 @@ const Determinador = ({
       };
 
       // 🔄 Si el modo "Mover" está activo, elimina el valor de su categoría original
-      if (modoMover && origen !== "pendientes") {
+      if (redeterminar && origen !== "pendientes") {
         nuevasCategorias = {
           ...nuevasCategorias,
           [origen]: nuevasCategorias[origen].filter((item) => item !== valor),
@@ -66,7 +67,6 @@ const Determinador = ({
       setPendientes((prev) => prev.filter((item) => item !== valor));
     }
   };
-
 
   const modificarElemento = (nuevoValor, valorAnterior) => {
     if (
@@ -208,6 +208,27 @@ const Determinador = ({
     return copia;
   };
 
+  const validarEliminarFuentesDeGastosEnUso = (categoria) => {
+    const clavesEnUso = Object.keys(fuentesDeGastosEnUso);
+    const fuentesDeGastos =
+      especificaciones[propiedadExtraAManipular][categoria];
+
+    const coincidencias = clavesEnUso.filter((key) =>
+      fuentesDeGastos.includes(key)
+    );
+
+    if (coincidencias.length > 0) {
+      Modal.warning({
+        title: "Elementos en uso",
+        content: `No se puede borrar "${categoria}" porque los siguientes elementos se encuentran en uso: "${coincidencias.join(
+          ", "
+        )}".`,
+      });
+      return false;
+    }
+    return true;
+  };
+
   const eliminarElemento = () => {
     eliminarDePropiedadExtra(categoriaAEliminar);
     eliminarDePropiedad(categoriaAEliminar);
@@ -218,8 +239,10 @@ const Determinador = ({
 
   const ejecutarAccion = (valor) => {
     if (modoActivado && modo === "eliminar") {
-      setCategoriaAEliminar(valor);
-      setMostrarConfirmacion(true);
+      if (validarEliminarFuentesDeGastosEnUso(valor)) {
+        setCategoriaAEliminar(valor);
+        setMostrarConfirmacion(true);
+      }
     } else if (modoActivado && modo === "modificar") {
       setCategoriaAEditar(valor);
     }
@@ -236,10 +259,11 @@ const Determinador = ({
             {modoActivado && modo === "agregar" && (
               <span className={css.placeholderText}>Agregar categoría</span>
             )}
-             {modoActivado && modo === "modificar" &&
-             categoriaAEditar !== null && (
-              <span className={css.placeholderText}>Modificar categoría</span>
-            )}
+            {modoActivado &&
+              modo === "modificar" &&
+              categoriaAEditar !== null && (
+                <span className={css.placeholderText}>Modificar categoría</span>
+              )}
             <ButtonDesplegable
               modo={modo}
               setModo={setModo}
@@ -247,7 +271,10 @@ const Determinador = ({
               setModoActivado={setModoActivado}
               elementoEnSingular={"categoria"}
               accionesAdicionalesParaCancelar={cancelarAccion}
-              cuandoMostrarBotonCancelar={["agregar", categoriaAEditar !== null && "modificar"].filter(Boolean)}
+              cuandoMostrarBotonCancelar={[
+                "agregar",
+                categoriaAEditar !== null && "modificar",
+              ].filter(Boolean)}
             />
           </div>
         </div>
@@ -255,15 +282,15 @@ const Determinador = ({
           <div>
             <Button
               type="primary"
-              onClick={() => setModoMover(!modoMover)}
-              disabled={modoMover}
+              onClick={() => setRedeterminar(!redeterminar)}
+              disabled={redeterminar}
             >
               Redeterminar
             </Button>
 
-            {modoMover && (
+            {redeterminar && (
               <Button
-                onClick={() => setModoMover(false)}
+                onClick={() => setRedeterminar(false)}
                 danger
                 size="small"
                 ghost
@@ -313,8 +340,14 @@ const Determinador = ({
                     <Tag
                       key={index}
                       color="blue"
-                      className={modoMover ? css.modoMoverTag : css.customTag}
-                      draggable={modoMover}
+                      className={
+                        modoActivado
+                          ? css.modoSeleccionable
+                          : redeterminar
+                          ? css.modoMoverTag
+                          : css.customTag
+                      }
+                      draggable={redeterminar}
                       onDragStart={(e) =>
                         handleDragStart(e, valor, determinacion)
                       }
@@ -337,7 +370,9 @@ const Determinador = ({
               <Tag
                 key={index}
                 color="orange"
-                className={css.modoMoverTag}
+                className={
+                  modoActivado ? css.modoSeleccionable : css.modoMoverTag
+                }
                 draggable={!modoActivado}
                 onDragStart={(e) => handleDragStart(e, valor, "pendientes")}
                 onClick={() => {

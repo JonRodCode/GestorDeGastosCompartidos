@@ -9,7 +9,9 @@ const Especificaciones = ({
   categoriasPendientes,
   setCategoriasPendientes,
   fuentesDeGastosPendientes,
-  setFuenteDeGastosPendientes
+  setFuenteDeGastosPendientes,
+  fuentesDeGastosEnUso,
+  //setFuentesDeGastosEnUso,
 }) => {
   const fraseDeEliminacion =
     "Se eliminarán todas las fuentes de gastos asociadas a la categoria seleccionada y todos los consumos asociados a cada una de esas fuentes de gastos.";
@@ -24,6 +26,7 @@ const Especificaciones = ({
         subPropiedadExtraAManipular="fuenteDelGasto"
         pendientes={categoriasPendientes}
         setPendientes={setCategoriasPendientes}
+        fuentesDeGastosEnUso={fuentesDeGastosEnUso}
         fraseDeEliminacion={fraseDeEliminacion}
       />
 
@@ -36,6 +39,7 @@ const Especificaciones = ({
         setPendientes={setCategoriasPendientes}
         fuentesDeGastosPendientes={fuentesDeGastosPendientes}
         setfuentesDeGastosPendientes={setFuenteDeGastosPendientes}
+        fuentesDeGastosEnUso={fuentesDeGastosEnUso}
         config={{
           elementoAClasificar: "Fuentes de Gastos",
           elementoEnSingular: "fuente de gastos",

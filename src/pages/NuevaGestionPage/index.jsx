@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Typography, Button, Spin, Alert } from "antd";
+import { Typography, Button, Spin, Alert, Modal } from "antd";
+import { DownOutlined, UpOutlined } from "@ant-design/icons";
 import MiembrosInput from "../../components/MiembrosInput";
 import PersonaConGastos from "./components/PersonaConGastos";
 import Especificaciones from "./components/Especificaciones";
@@ -9,10 +10,12 @@ const { Title } = Typography;
 
 const NuevaGestionPage = () => {
   const [activeView, setActiveView] = useState(null);
+  const [mostrarInput, setMostrarInput] = useState(false);
   const [personas, setPersonas] = useState([]);
   const [miembrosDelHogar, setMiembrosDelHogar] = useState([]);
   const [categoriasPendientesParaDeterminar, setCategoriasPendientesParaDeterminar] = useState([]);
   const [fuentesDeGastosPendientesParaClasificar, setFuentesDeGastosPendientesParaClasificar] = useState([]);
+  const [fuentesDeGastosEnUso, setFuentesDeGastosEnUso] = useState({});
   const [especificaciones, setEspecificaciones] = useState({
     
     fuenteDelGasto: {},
@@ -95,7 +98,25 @@ const NuevaGestionPage = () => {
     }
   };
 
+  const validarQueNoHayPendientes = () => {
+    if (categoriasPendientesParaDeterminar.length > 0 ||
+      fuentesDeGastosPendientesParaClasificar.length > 0){
+        Modal.warning({
+          title: "Clasificación pendiente",
+          content: "Faltan elementos por clasificar o determinar. Por favor, complete la clasificación en 'Especificaciones' para poder continuar.",
+          okText: "Aceptar",
+        });
+        return false;
+      }
+      return true;
+  };
+
   const enviarDatos = async () => {
+
+    if (!validarQueNoHayPendientes()){
+      return;
+    }
+
     setLoading(true);
     // Convertir cada gasto en el formato correcto según su tipo
     const gastosTransformados = personas.flatMap((persona) =>
@@ -162,15 +183,26 @@ const NuevaGestionPage = () => {
       <div>
         {activeView === "view1" && (
           <div>
-            <Title level={3} className={css.subtitle}>
-              Cargar Gastos Por Persona
-            </Title>
-            <MiembrosInput
-              personas={personas}
-              setPersonas={setPersonas}
-              miembrosDelHogar={miembrosDelHogar}
-              setMiembrosDelHogar={setMiembrosDelHogar}
-            />
+            <div className={css.cargarPersona}>
+            <Button
+          type="text"
+          icon={mostrarInput ? <UpOutlined /> : <DownOutlined />}
+          onClick={() => setMostrarInput(!mostrarInput)}
+        />
+        <Title level={3} className={css.subtitle}>
+          Cargar Gastos Por Persona
+        </Title>
+        
+      </div>
+
+      {mostrarInput && (
+        <MiembrosInput
+          personas={personas}
+          setPersonas={setPersonas}
+          miembrosDelHogar={miembrosDelHogar}
+          setMiembrosDelHogar={setMiembrosDelHogar}
+        />
+      )}
             <div className={css.mainContainer}>
               <div className={css.leftSection}>
                 {personas.length !== 0 ? (
@@ -182,8 +214,11 @@ const NuevaGestionPage = () => {
                       setGastos={(nuevosGastos) =>
                         actualizarGastosDePersona(persona.nombre, nuevosGastos)
                       }
+                      listaDeFuentesDeGastosPendientes={fuentesDeGastosPendientesParaClasificar}
                       setListaDeFuentesDeGastosPendientes={setFuentesDeGastosPendientesParaClasificar}
                       fuentesDeGastos={especificaciones.fuenteDelGasto}
+                      fuentesDeGastosEnUso={fuentesDeGastosEnUso}
+                      setFuentesDeGastosEnUso={setFuentesDeGastosEnUso}
                     />
                   ))
                 ) : (
@@ -207,6 +242,8 @@ const NuevaGestionPage = () => {
                   setCategoriasPendientes={setCategoriasPendientesParaDeterminar}
   fuentesDeGastosPendientes = {fuentesDeGastosPendientesParaClasificar}
   setFuenteDeGastosPendientes = {setFuentesDeGastosPendientesParaClasificar}
+  fuentesDeGastosEnUso={fuentesDeGastosEnUso}
+                      setFuentesDeGastosEnUso={setFuentesDeGastosEnUso}
                 />
               </div>
             </div>

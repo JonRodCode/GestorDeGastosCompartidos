@@ -19,8 +19,11 @@ const PersonaConGastos = ({
   nombre,
   gastos,
   setGastos,
+  listaDeFuentesDeGastosPendientes,
   setListaDeFuentesDeGastosPendientes,
   fuentesDeGastos,
+  //fuentesDeGastosEnUso,
+  setFuentesDeGastosEnUso,
 }) => {
   const [tipoGasto, setTipoGasto] = useState("basico");
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
@@ -45,24 +48,46 @@ const PersonaConGastos = ({
     setGastoEditado(null);
   };
 
+  const agregarFuenteDeGasto = (fuenteDelGasto) => {
+    if (
+      !(
+        fuenteDelGasto in fuentesDeGastos ||
+        listaDeFuentesDeGastosPendientes.includes(fuenteDelGasto)
+      )
+    ) {
+      setListaDeFuentesDeGastosPendientes((prev) => [...prev, fuenteDelGasto]);
+    }
+
+    setFuentesDeGastosEnUso((prev) => {
+      return {
+        ...prev,
+        [fuenteDelGasto]: (prev[fuenteDelGasto] || 0) + 1, // Si existe, suma 1; si no, inicia en 1
+      };
+    });
+  };
+
+  const modificarFuenteDelGastoSiEsEditada = (fuenteDelGasto) => {
+    if (fuenteDelGasto === gastoEditado.fuenteDelGasto) {
+      return;
+    }
+    agregarFuenteDeGasto(fuenteDelGasto);
+    restar1UnaFuenteDeGastoEnUso(gastoEditado);
+  };
+
   const agregarGasto = () => {
     if (gastoRef.current) {
       const nuevoGasto = gastoRef.current.obtenerDatos();
 
-      if (!(nuevoGasto.fuenteDelGasto in fuentesDeGastos)) {
-        setListaDeFuentesDeGastosPendientes((prev) => [...prev, nuevoGasto.fuenteDelGasto]);
-      }
-
       if (nuevoGasto) {
         if (gastoEditado) {
-          // Si estamos editando un gasto, actualizamos ese gasto
+          modificarFuenteDelGastoSiEsEditada(nuevoGasto.fuenteDelGasto);
           setGastos(
             gastos.map((gasto) =>
               gasto.id === gastoEditado.id ? { ...gasto, ...nuevoGasto } : gasto
             )
           );
         } else {
-          // Si no estamos editando, agregamos un nuevo gasto
+          agregarFuenteDeGasto(nuevoGasto.fuenteDelGasto);
           setGastos([...gastos, { id: Date.now(), ...nuevoGasto }]);
         }
         setMostrarFormulario(false);
@@ -79,8 +104,25 @@ const PersonaConGastos = ({
     formularioRef.current?.focus();
   };
 
-  const eliminarGasto = (id) => {
-    setGastos(gastos.filter((g) => g.id !== id));
+  const restar1UnaFuenteDeGastoEnUso = (gasto) => {
+    setFuentesDeGastosEnUso((prev) => {
+      const copia = { ...prev };
+
+      if (copia[gasto.fuenteDelGasto]) {
+        copia[gasto.fuenteDelGasto] -= 1;
+
+        if (copia[gasto.fuenteDelGasto] === 0) {
+          delete copia[gasto.fuenteDelGasto];
+        }
+      }
+      return copia;
+    });
+  };
+
+  const eliminarGasto = (gasto) => {
+    restar1UnaFuenteDeGastoEnUso(gasto);
+    setGastos(gastos.filter((g) => g.id !== gasto.id));
+
   };
 
   return (
@@ -266,7 +308,7 @@ const PersonaConGastos = ({
                       {botonActivo === "eliminar" && (
                         <p
                           style={{ color: "red", cursor: "pointer" }}
-                          onClick={() => eliminarGasto(gasto.id)}
+                          onClick={() => eliminarGasto(gasto)}
                         >
                           Eliminar
                         </p>

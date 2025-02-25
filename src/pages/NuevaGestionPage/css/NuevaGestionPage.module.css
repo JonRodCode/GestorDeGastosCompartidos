@@ -34,3 +34,8 @@
     align-items: flex-start; /* Centra los elementos */
     width: 100%;
 }
+.cargarPersona {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}

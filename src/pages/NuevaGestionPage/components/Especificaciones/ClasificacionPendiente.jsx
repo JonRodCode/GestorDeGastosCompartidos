@@ -4,6 +4,7 @@ import css from "../../css/ClasificacionPendiente.module.css"; // Asegurate de t
 const ClasificacionPendiente = ({ pendientes }) => {
     const handleDragStart = (e, valor) => {
         e.dataTransfer.setData("text/plain", valor); // Guardamos el valor correctamente
+        e.dataTransfer.setData("categoriaOrigen", "PeNdIeNTeshhh"); // Guardamos la categoría de origen
       };   
   
       return (
@@ -14,7 +15,7 @@ const ClasificacionPendiente = ({ pendientes }) => {
               {pendientes.map((pendiente, index) => (
                 <Tag
                   key={index}
-                  color="blue"
+                  color="orange"
                   draggable
                   onDragStart={(e) => handleDragStart(e, pendiente)}
                   className={css.customTag}

@@ -55,6 +55,14 @@
     cursor: grab;
   }
 
+  .modoSeleccionable {
+    font-size: 16px; /* Aumenta el tamaño del texto */
+    padding: 4px 7px; /* Ajusta el espacio interno */
+    border-radius: 6px; /* Bordes redondeados */
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+
   .addButton {
     margin-left: 10px; /* Espacio entre el título y el botón */
   }
