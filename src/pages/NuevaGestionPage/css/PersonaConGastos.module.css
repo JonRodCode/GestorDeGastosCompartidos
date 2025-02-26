@@ -1,7 +1,7 @@
 .card {
     margin-bottom: 20px;
-    width: 650px;
-    max-width: 650px;
+    width: 850px;
+    max-width: 850px;
     min-width: 550px;
   }
   .addButton:disabled {
@@ -88,7 +88,6 @@
   align-items: baseline; /* Alinea el checkbox y el texto en la misma línea base */
 }
 
-  
   .gastosLista {
     width: 100%;
     display: flex;
@@ -96,7 +95,7 @@
 }
 
 .gastosScrollWrapper {
-    width: 600px; /* Tamaño fijo del contenedor */
+    width: 800px; /* Tamaño fijo del contenedor */
     max-height: 500px; /* Máxima altura del carrusel */
     overflow-y: auto; /* Desplazamiento vertical */
     padding: 10px;

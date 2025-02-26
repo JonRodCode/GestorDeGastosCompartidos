@@ -5,9 +5,9 @@ const EstructuraDatos = ({ especificaciones }) => {
 
   return (
     <div className={css.container}>
-      <Row gutter={[16, 16]}>
+     <Row gutter={[16, 16]} wrap={true}>
         {/* 🔹 Columna de Determinaciones */}
-        <Col span={8}>
+        <Col xs={24} sm={12} md={8}>
           <Card title="Determinaciones" bordered={false} className={css.card}>
             {Object.keys(determinaciones).map((determinacion) => (
               <Card
@@ -23,7 +23,9 @@ const EstructuraDatos = ({ especificaciones }) => {
                     </Tag>
                   ))
                 ) : (
+                  <div className={css.noDataContainer}>
                   <Tag color="gray">Sin datos</Tag>
+                </div>
                 )}
               </Card>
             ))}
@@ -31,7 +33,7 @@ const EstructuraDatos = ({ especificaciones }) => {
         </Col>
 
         {/* 🔹 Columna de Categorías */}
-        <Col span={8}>
+        <Col xs={24} sm={12} md={8}>
           <Card title="Categorías" bordered={false} className={css.card}>
             {
             Object.keys(fuenteDelGasto).length > 0 ? (
@@ -49,7 +51,9 @@ const EstructuraDatos = ({ especificaciones }) => {
                     </Tag>
                   ))
                 ) : (
+                  <div className={css.noDataContainer}>
                   <Tag color="gray">Sin datos</Tag>
+                </div>
                 )}
               </Card>
             ))
@@ -60,7 +64,7 @@ const EstructuraDatos = ({ especificaciones }) => {
           </Card>
         </Col>
         {/* 🔹 Columna de Fuentes de Gasto */}
-        <Col span={8}>
+        <Col xs={24} sm={12} md={8}>
           <Card title="Fuentes de Gasto" bordered={false} className={css.card}>
             {
             Object.keys(fuenteDelGasto).length > 0 ? (
@@ -78,7 +82,9 @@ const EstructuraDatos = ({ especificaciones }) => {
                     </Tag>
                   ))
                 ) : (
+                  <div className={css.noDataContainer}>
                   <Tag color="gray">Sin datos</Tag>
+                </div>
                 )}
               </Card>
             ))

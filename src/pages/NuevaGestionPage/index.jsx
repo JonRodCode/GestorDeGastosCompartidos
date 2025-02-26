@@ -125,7 +125,7 @@ const NuevaGestionPage = () => {
     return true;
   };
 
-  const enviarDatos = async () => {
+  const clasificarDatos = async () => {
     if (!validarQueNoHayPendientes()) {
       return;
     }
@@ -301,8 +301,8 @@ const NuevaGestionPage = () => {
           </div>
         )}
       </div>
-      <Button onClick={enviarDatos} disabled={loading} type="primary">
-        {loading ? <Spin size="small" /> : "Enviar Datos"}
+      <Button onClick={clasificarDatos} disabled={loading} type="primary">
+        {loading ? <Spin size="small" /> : "Clasificar Gastos"}
       </Button>
       {nuevaRespuesta && (
         <pre

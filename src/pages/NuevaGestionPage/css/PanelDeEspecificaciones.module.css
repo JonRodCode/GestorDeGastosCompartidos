@@ -1,11 +1,12 @@
 .container {
   margin-bottom: 20px;
-  display: flex;
-  gap: 10px;
+  width: 100%;
+    max-width: 850px;
+    min-width: 550px;
 }
 
 .card {
-  width: 230px; 
+  width: 280px; 
   background-color: #f5f5f5;
   border-radius: 10px;
   border: 2px solid #d9d9d9;
@@ -16,7 +17,10 @@
 }
 
 .subCard {
-  width: 180px; 
+  width: 100%; /* Ocupa todo el ancho disponible en .card */
+  min-width: 200px; /* Ancho mínimo mayor */
+  max-width: 100%; /* Evita que crezca demasiado */
+  min-width: 180px;
   margin-top: 10px;
   border-radius: 8px;
   background: white;
@@ -24,9 +28,34 @@
   box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
 }
 
+
 .noDataContainer {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100%;
+}
+
+.rowContainer {
+  display: flex;
+  flex-wrap: wrap; /* Permite que las columnas bajen de línea */
+  gap: 16px; /* Espacio entre columnas */
+  justify-content: center; /* Centra las columnas */
+}
+
+.colItem {
+  flex: 1 1 300px; /* Mínimo 300px, pero se adapta */
+  max-width: 33%; /* Para 3 columnas en pantallas grandes */
+}
+
+@media (max-width: 768px) {
+  .colItem {
+    max-width: 50%; /* En pantallas medianas, 2 columnas */
+  }
+}
+
+@media (max-width: 480px) {
+  .colItem {
+    max-width: 100%; /* En móviles, 1 columna */
+  }
 }

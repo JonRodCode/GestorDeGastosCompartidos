@@ -1,34 +1,44 @@
 import { Upload, Button,  message } from "antd";
 import { UploadOutlined, SaveOutlined } from "@ant-design/icons";
 
-const PanelDeCargaDeDatos = ({ setEspecificaciones, especificaciones }) => {
+const PanelDeCargaDeDatos = ({ setEspecificaciones, especificaciones, tipoDeCaptura = "objeto", elemento = "", setCargoDatos = false }) => {
   
   const manejarArchivo = (info) => {
     const archivo = info.file;
     const extension = archivo.name.split(".").pop().toLowerCase();
-
+  
     if (extension !== "txt" && extension !== "json") {
       message.error("❌ Solo se permiten archivos .txt o .json");
       return;
     }
-    
+  
     if (archivo) {
       const lector = new FileReader();
       lector.onload = (e) => {
         try {
           const contenido = e.target.result;
-          const nuevoEstado = JSON.parse(contenido);
-          setEspecificaciones(nuevoEstado);
+          const datos = JSON.parse(contenido);
+  
+          // Validación según el tipo esperado
+          if (tipoDeCaptura === "objeto" && (typeof datos !== "object" || Array.isArray(datos) || datos === null)) {
+            throw new Error("El archivo seleccionado no es válido.");
+          }
+          if (tipoDeCaptura === "array" && !Array.isArray(datos)) {
+            throw new Error("El archivo seleccionado no es válido.");
+          }
+  
+          setEspecificaciones(datos);
+          setCargoDatos(true);
           message.success("Archivo cargado con éxito");
         } catch (error) {
-          message.error("Error al parsear el archivo");
+          message.error(error.message);
           console.error("Error al parsear el archivo:", error);
         }
       };
       lector.readAsText(archivo);
     }
   };
-
+  
   const guardarArchivo = async () => {
     try {
       if (!window.showSaveFilePicker) {
@@ -37,7 +47,6 @@ const PanelDeCargaDeDatos = ({ setEspecificaciones, especificaciones }) => {
       }
   
       const opciones = {
-        suggestedName: "especificaciones.json",
         types: [
           {
             description: "Archivo JSON",
@@ -70,7 +79,7 @@ const PanelDeCargaDeDatos = ({ setEspecificaciones, especificaciones }) => {
     <>
       {/* Botón para cargar */}
       <Upload beforeUpload={() => false} onChange={manejarArchivo} showUploadList={false}>
-        <Button icon={<UploadOutlined />}>Cargar</Button>
+        <Button icon={<UploadOutlined />}>Cargar {elemento}</Button>
       </Upload>
 
       {/* Botón para guardar */}
@@ -80,7 +89,7 @@ const PanelDeCargaDeDatos = ({ setEspecificaciones, especificaciones }) => {
         style={{ marginTop: 10 }}
         type="primary"
       >
-        Guardar
+        Guardar {elemento}
       </Button>
     </>
   );
