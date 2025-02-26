@@ -364,7 +364,7 @@ const esUnValorValido = (valor) => {
                 fraseDeEliminacion={config.fraseDeEliminacionParaSingular}
                 pendientes={fuentesDeGastosPendientes}
                 setPendientes={setfuentesDeGastosPendientes}
-                fuentesDeGastosEnUso={fuentesDeGastosEnUso}
+                elementosEnUso={fuentesDeGastosEnUso}
                 esUnValorValido={esUnValorValido}
               />
             )}

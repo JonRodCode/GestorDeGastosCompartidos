@@ -1,6 +1,7 @@
 import { Typography, Card, Modal } from "antd";
 import css from "../../css/ClasificadorDeDatos.module.css";
 import Categoria from "./Categoria";
+import ClasificacionPendiente from "./clasificacionPendiente";
 
 const { Title } = Typography;
 
@@ -8,6 +9,9 @@ const ClasificadorDeDatosEstatico = ({
   especificaciones,
   setEspecificaciones,
   propiedad,
+  pendientes,
+  setPendientes,
+  elementosEnUso,
   config,
 }) => {
   
@@ -36,6 +40,34 @@ const ClasificadorDeDatosEstatico = ({
     });
   };
 
+  const esUnValorValido = (valor) => {
+    return (
+        (especificaciones[propiedad] &&
+            Object.values(especificaciones[propiedad]).some(arr => arr.includes(valor))) ||
+            pendientes.includes(valor) // Aceptar también valores de pendientes
+    );
+  };
+  const actualizarCategoriasYValores = (categoria, nombre, nuevosValores, num) => {
+    setEspecificaciones((prev) => {
+      // 1. Eliminar el valor de la categoría actual
+      const valoresActuales = prev[propiedad][categoria] || [];
+      const nuevosValoresCategoria = valoresActuales .filter((item) => item !== num);
+
+     
+      // 3. Crear la nueva especificación con todos los cambios
+      const nuevaEspecificacion = {
+        ...prev,
+        [propiedad]: {
+          ...prev[propiedad],
+          [categoria]: nuevosValoresCategoria,  // Categoría sin el valor eliminado
+          [nombre]: nuevosValores,  // Nueva categoría con el valor agregado
+        }
+      };
+
+      return nuevaEspecificacion;
+    });
+};
+
   return (
     <Card className={css.card}>
       <div className={css.header}>
@@ -43,6 +75,10 @@ const ClasificadorDeDatosEstatico = ({
           Clasificar {config.elementoAClasificar}
         </Title>
       </div>
+      <ClasificacionPendiente
+        pendientes={pendientes}
+        setPendientes={setPendientes}
+      />
 
       <div className={css.buttonsContainer}>
         {Object.keys(especificaciones[propiedad]).length === 0 ? (
@@ -65,8 +101,12 @@ const ClasificadorDeDatosEstatico = ({
               valores={values}
               tipo={config.elementoEnSingular}
               actualizarValores={actualizarValores}
+              actualizarCategoriasYFuentes={actualizarCategoriasYValores}
               activable={true}
+              esUnValorValido={esUnValorValido}
               validarEliminacion={true}
+              setPendientes={setPendientes}
+              elementosEnUso={elementosEnUso}
             />
           </div>
         ))}

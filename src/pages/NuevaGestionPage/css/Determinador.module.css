@@ -25,7 +25,7 @@
 .bloque {
   width: 45%;
   padding: 10px;
-  border: 2px dashed #ccc;
+  border: 2px dashed #c4c4c4;
   min-height: 150px;
   background: #f9f9f9;
   border-radius: 8px;

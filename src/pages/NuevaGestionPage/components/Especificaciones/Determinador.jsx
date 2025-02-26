@@ -341,7 +341,7 @@ const Determinador = ({
                       key={index}
                       color="blue"
                       className={
-                        modoActivado
+                        modoActivado && modo !== "agregar"
                           ? css.modoSeleccionable
                           : redeterminar
                           ? css.modoMoverTag
@@ -371,9 +371,11 @@ const Determinador = ({
                 key={index}
                 color="orange"
                 className={
-                  modoActivado ? css.modoSeleccionable : css.modoMoverTag
+                  modoActivado && modo !== "agregar"
+                    ? css.modoSeleccionable
+                    : css.modoMoverTag
                 }
-                draggable={!modoActivado}
+                draggable={!modoActivado || modo === "agregar"}
                 onDragStart={(e) => handleDragStart(e, valor, "pendientes")}
                 onClick={() => {
                   ejecutarAccion(valor);
@@ -396,6 +398,8 @@ const Determinador = ({
           open={mostrarConfirmacion}
           onOk={eliminarElemento}
           onCancel={() => setMostrarConfirmacion(false)}
+          okText="Sí, eliminar"
+          cancelText="Cancelar"
         >
           <p>{fraseDeEliminacion}</p>
           <p>¿Seguro que quieres eliminar {categoriaAEliminar}?</p>

@@ -59,37 +59,28 @@
     justify-content: space-between;
   }
 
-  .buttonGroup {
-    border: 1px solid #d9d9d9;
-    border-radius: 6px;
-    overflow: hidden; /* Evita bordes redondeados en intersección */
-    display: flex;
-  }
+ 
   
-  .buttonGroup :global(.ant-btn) {
-    border: none;
-    box-shadow: none;
-    padding: 8px 16px;
-    background-color: white;
-    transition: background-color 0.2s ease-in-out;
-    border-right: 1px solid #d9d9d9; /* Línea divisoria */
-  }
-  
-  /* Quitar el borde derecho del último */
-  .buttonGroup :global(.ant-btn:last-child) {
-    border-right: none;
-  }
   
   /* Estilos para los botones activos */
   .modificarActivo {
-    background-color: #1890ff !important;
-    color: white !important;
+    color:  #1890ff  !important;
+    border: 1px solid transparent !important;
+    border-color:  #1890ff  !important;
+    border-radius: 6px;
+    padding: 8px 16px;
+    transition: all 0.3s;
   }
   
   .eliminarActivo {
-    background-color: #f5222d !important;
-    color: white !important;
-  }
+    color: #f5222d !important; /* Texto rojo como el color principal */
+    border: 1px solid transparent !important;
+    border-color: #f5222d !important; /* Borde rojo al hacer hover */
+    border-radius: 6px;
+    padding: 8px 16px;
+    transition: all 0.3s;
+}
+
   
   .tipoYCheckbox {
   display: flex;

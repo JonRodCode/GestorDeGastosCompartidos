@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { Card, Button, Select, Tooltip, Typography, Checkbox } from "antd";
+import { Card, Button, Select, Tooltip, Typography, Checkbox, Modal } from "antd";
 import GastoBasico from "./Gastos/GastoBasico";
 import GastoPrestamo from "./Gastos/GastoPrestamo";
 import GastoDebito from "./Gastos/GastoDebito";
@@ -23,7 +23,11 @@ const PersonaConGastos = ({
   setListaDeFuentesDeGastosPendientes,
   fuentesDeGastos,
   //fuentesDeGastosEnUso,
-  setFuentesDeGastosEnUso,
+  setFuentesDeGastosEnUso,  
+  listaDeConsumosPendientes,
+  setListaDeConsumosPendientes,
+  //consumosEnUso,
+  setConsumosEnUso,
 }) => {
   const [tipoGasto, setTipoGasto] = useState("basico");
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
@@ -48,52 +52,102 @@ const PersonaConGastos = ({
     setGastoEditado(null);
   };
 
-  const agregarFuenteDeGasto = (fuenteDelGasto) => {
-    if (
-      !(
-        fuenteDelGasto in fuentesDeGastos ||
-        listaDeFuentesDeGastosPendientes.includes(fuenteDelGasto)
-      )
-    ) {
-      setListaDeFuentesDeGastosPendientes((prev) => [...prev, fuenteDelGasto]);
+  const agregarElemento = (elemento, elementos, elementosPendientes, setElementosPendientes, setElementosEnUso) => {
+    if (!elemento) return;
+    const existeEnElementos = Array.isArray(elementos) 
+      ? elementos.includes(elemento) 
+      : elemento in elementos;
+  
+    if (!(existeEnElementos || elementosPendientes.includes(elemento))) {
+      setElementosPendientes((prev) => [...prev, elemento]);
     }
-
-    setFuentesDeGastosEnUso((prev) => {
-      return {
-        ...prev,
-        [fuenteDelGasto]: (prev[fuenteDelGasto] || 0) + 1, // Si existe, suma 1; si no, inicia en 1
-      };
-    });
+  
+    setElementosEnUso((prev) => ({
+      ...prev,
+      [elemento]: (prev[elemento] || 0) + 1, // Si existe, suma 1; si no, inicia en 1
+    }));
   };
+  
 
   const modificarFuenteDelGastoSiEsEditada = (fuenteDelGasto) => {
     if (fuenteDelGasto === gastoEditado.fuenteDelGasto) {
       return;
     }
-    agregarFuenteDeGasto(fuenteDelGasto);
-    restar1UnaFuenteDeGastoEnUso(gastoEditado);
+    agregarElemento(fuenteDelGasto, fuentesDeGastos, 
+      listaDeFuentesDeGastosPendientes, setListaDeFuentesDeGastosPendientes,
+      setFuentesDeGastosEnUso);
+      restar1UnElementoEnUso(gastoEditado.fuenteDelGasto, setFuentesDeGastosEnUso);
+  };
+
+  const modificarConsumoSiEsEditado = (consumo, consumos) => {
+    if (!consumo) return;
+    if (consumo === gastoEditado.nombreConsumo) {
+      return;
+    }    
+
+    agregarElemento(consumo, consumos, 
+      listaDeConsumosPendientes, setListaDeConsumosPendientes,
+        setConsumosEnUso);
+
+        restar1UnElementoEnUso(gastoEditado.nombreConsumo,setConsumosEnUso);
   };
 
   const agregarGasto = () => {
     if (gastoRef.current) {
       const nuevoGasto = gastoRef.current.obtenerDatos();
 
+      if (!validarConcordanciaEntreConsumoYFuenteDeGasto(nuevoGasto)){
+        return;
+      };
+
+      const consumos = Object.values(fuentesDeGastos).flat();
+
       if (nuevoGasto) {
         if (gastoEditado) {
           modificarFuenteDelGastoSiEsEditada(nuevoGasto.fuenteDelGasto);
+          modificarConsumoSiEsEditado(nuevoGasto.nombreConsumo, consumos)
           setGastos(
             gastos.map((gasto) =>
               gasto.id === gastoEditado.id ? { ...gasto, ...nuevoGasto } : gasto
             )
           );
         } else {
-          agregarFuenteDeGasto(nuevoGasto.fuenteDelGasto);
+          agregarElemento(nuevoGasto.fuenteDelGasto, fuentesDeGastos, 
+            listaDeFuentesDeGastosPendientes, setListaDeFuentesDeGastosPendientes,
+            setFuentesDeGastosEnUso
+          );
+          agregarElemento(nuevoGasto.nombreConsumo, consumos, 
+            listaDeConsumosPendientes, setListaDeConsumosPendientes,
+        setConsumosEnUso);
+          
           setGastos([...gastos, { id: Date.now(), ...nuevoGasto }]);
         }
         setMostrarFormulario(false);
       }
     }
   };
+
+  const validarConcordanciaEntreConsumoYFuenteDeGasto = (nuevoGasto) => {
+    const { fuenteDelGasto, nombreConsumo } = nuevoGasto;
+
+    if (!fuentesDeGastos[fuenteDelGasto]) return true; // Si la fuente no existe en el objeto, no validamos
+    if (!nombreConsumo) return true; // Si nombreConsumo es null o undefined, tampoco validamos
+
+    const consumos = Object.values(fuentesDeGastos).flat();
+    if (!consumos.includes(nombreConsumo)) {return true};
+
+    const esValido = fuentesDeGastos[fuenteDelGasto].includes(nombreConsumo);
+
+    if (!esValido) {
+        Modal.warning({
+            title: "Inconsistencia detectada",
+            content: `El consumo "${nombreConsumo}" no pertenece a la fuente de gasto "${fuenteDelGasto}". Modifique los campos o recategorice en "Especificaciones"`,
+        });
+    }
+
+    return esValido;
+};
+
 
   const seleccionarGasto = (gasto) => {
     setGastoEditado(gasto);
@@ -104,15 +158,17 @@ const PersonaConGastos = ({
     formularioRef.current?.focus();
   };
 
-  const restar1UnaFuenteDeGastoEnUso = (gasto) => {
-    setFuentesDeGastosEnUso((prev) => {
+  const restar1UnElementoEnUso = (elemento, setElementoEnUso) => {
+    if (!elemento) return;
+
+    setElementoEnUso((prev) => {
       const copia = { ...prev };
 
-      if (copia[gasto.fuenteDelGasto]) {
-        copia[gasto.fuenteDelGasto] -= 1;
+      if (copia[elemento]) {
+        copia[elemento] -= 1;
 
-        if (copia[gasto.fuenteDelGasto] === 0) {
-          delete copia[gasto.fuenteDelGasto];
+        if (copia[elemento] === 0) {
+          delete copia[elemento];
         }
       }
       return copia;
@@ -120,10 +176,24 @@ const PersonaConGastos = ({
   };
 
   const eliminarGasto = (gasto) => {
-    restar1UnaFuenteDeGastoEnUso(gasto);
-    setGastos(gastos.filter((g) => g.id !== gasto.id));
-
-  };
+    
+    Modal.confirm({
+        title: "Confirmar eliminación",
+        content: `¿Estás seguro de que quieres eliminar el gasto "${gasto.tipo}"?`,
+        okText: "Sí, eliminar",
+        cancelText: "Cancelar",
+        onOk: () => {
+            restar1UnElementoEnUso(gasto.fuenteDelGasto, setFuentesDeGastosEnUso);
+            restar1UnElementoEnUso(gasto.nombreConsumo, setConsumosEnUso);
+            setGastos(gastos.filter((g) => g.id !== gasto.id));
+            if (gastos.length === 1) {
+        
+              setBotonActivo("");
+            };
+        },
+        
+    });
+};
 
   return (
     <Card className={css.card}>
@@ -185,12 +255,13 @@ const PersonaConGastos = ({
 
       <div className={css.buttonContainer}>
         <Title level={4}>Gastos Agregados</Title>
-        <Button.Group className={css.buttonGroup}>
+        <div>
           <Button
             className={`${
               botonActivo === "modificar" ? css.modificarActivo : ""
             }`}
             onClick={() => handleButtonClick("modificar")}
+            disabled={gastos.length === 0}
           >
             Modificar
           </Button>
@@ -199,10 +270,11 @@ const PersonaConGastos = ({
               botonActivo === "eliminar" ? css.eliminarActivo : ""
             }`}
             onClick={() => handleButtonClick("eliminar")}
+            disabled={gastos.length === 0}
           >
             Eliminar
           </Button>
-        </Button.Group>
+          </div>
       </div>
 
       <div className={css.gastosLista}>
@@ -288,14 +360,14 @@ const PersonaConGastos = ({
                             <strong>Últimos dígitos de la Tarjeta:</strong>{" "}
                             {gasto.numFinalTarjeta}
                           </p>
-                          <p>
-                            <strong>Nombre del Consumo:</strong>{" "}
-                            {gasto.nombreConsumo}
-                          </p>
                         </>
                       )}
                       {gasto.tipo === "credito" && (
                         <>
+                          <p>
+                            <strong>Nombre del Consumo:</strong>{" "}
+                            {gasto.nombreConsumo}
+                          </p>
                           <p>
                             <strong>Cuota Actual:</strong> {gasto.cuotaActual}
                           </p>

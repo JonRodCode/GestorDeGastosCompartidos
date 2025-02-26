@@ -12,16 +12,16 @@ const Categoria = ({
   activable,
   validarEliminacion,
   esUnValorValido,
-  fraseDeEliminacion,
+  fraseDeEliminacion = "",
   setPendientes,
-  fuentesDeGastosEnUso = {},
+  elementosEnUso = {},
   temaCentral = "elemento",
 }) => {
   const [modoActivo, setModoActivo] = useState(null);
 
   const validarEnFuentesDeGastos = (num) => {
-    if (Object.keys(fuentesDeGastosEnUso).includes(num)) {
-      const vecesEnUso = fuentesDeGastosEnUso[num];
+    if (Object.keys(elementosEnUso).includes(num)) {
+      const vecesEnUso = elementosEnUso[num];
 
       Modal.warning({
         title: "Elemento en uso",
@@ -44,6 +44,8 @@ const Categoria = ({
     if (validarEliminacion) {
       Modal.confirm({
         title: "Confirmar eliminación",
+        okText: "Sí, eliminar",
+        cancelText: "Cancelar",
         content: (
           <>
             <p>{fraseDeEliminacion}</p>
