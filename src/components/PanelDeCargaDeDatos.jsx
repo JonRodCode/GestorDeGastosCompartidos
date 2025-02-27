@@ -1,7 +1,7 @@
 import { Upload, Button,  message } from "antd";
 import { UploadOutlined, SaveOutlined } from "@ant-design/icons";
 
-const PanelDeCargaDeDatos = ({ setEspecificaciones, especificaciones, tipoDeCaptura = "objeto", elemento = "", setCargoDatos = false }) => {
+const PanelDeCargaDeDatos = ({ setEspecificaciones, especificaciones, tipoDeCaptura = "objeto", elemento = "", setCargoDatos }) => {
   
   const manejarArchivo = (info) => {
     const archivo = info.file;
@@ -28,7 +28,9 @@ const PanelDeCargaDeDatos = ({ setEspecificaciones, especificaciones, tipoDeCapt
           }
   
           setEspecificaciones(datos);
-          setCargoDatos(true);
+          if (setCargoDatos){
+            setCargoDatos(true);
+          }
           message.success("Archivo cargado con éxito");
         } catch (error) {
           message.error(error.message);

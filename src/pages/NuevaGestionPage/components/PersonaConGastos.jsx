@@ -31,11 +31,14 @@ const PersonaConGastos = ({
   setGastos,
   listaDeFuentesDeGastosPendientes,
   setListaDeFuentesDeGastosPendientes,
-  fuentesDeGastos,
+  especificaciones,
+  setEspecificaciones,
   setFuentesDeGastosEnUso,
   listaDeConsumosPendientes,
   setListaDeConsumosPendientes,
   setConsumosEnUso,
+  elementoAReclasificar,
+  setElementoAReclasificar,
 }) => {
   const [tipoGasto, setTipoGasto] = useState("basico");
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
@@ -67,10 +70,10 @@ const PersonaConGastos = ({
       ? elementos.includes(elemento)
       : elemento in elementos;
 
-      if (!(existeEnElementos || elementosPendientes.includes(elemento))) {
-        return false;
-      }
-      return true;
+    if (!(existeEnElementos || elementosPendientes.includes(elemento))) {
+      return false;
+    }
+    return true;
   };
 
   const agregarElemento = (
@@ -80,15 +83,28 @@ const PersonaConGastos = ({
     setElementosPendientes,
     setElementosEnUso
   ) => {
-    if (!elemento) return;    
+    if (!elemento) return;
 
-    if (existeElemento(elemento, elementos, elementosPendientes)) {
+    if (!existeElemento(elemento, elementos, elementosPendientes)) {
       setElementosPendientes((prev) => [...prev, elemento]);
     }
+
     setElementosEnUso((prev) => ({
       ...prev,
       [elemento]: (prev[elemento] || 0) + 1, // Si existe, suma 1; si no, inicia en 1
     }));
+  };
+
+  const agregarConsumo = (nuevoGasto) => {
+    setEspecificaciones((prev) => {
+      return {
+        ...prev, // Copia el estado actual
+        fuenteDelGasto: {
+          ...prev.fuenteDelGasto, // Copia el objeto `fuenteDelGasto`
+          [nuevoGasto.fuenteDelGasto]: [nuevoGasto.nombreConsumo], // Agrega o actualiza la clave
+        },
+      };
+    });
   };
 
   const modificarFuenteDelGastoSiEsEditada = (fuenteDelGasto) => {
@@ -97,7 +113,7 @@ const PersonaConGastos = ({
     }
     agregarElemento(
       fuenteDelGasto,
-      fuentesDeGastos,
+      especificaciones.fuenteDelGasto,
       listaDeFuentesDeGastosPendientes,
       setListaDeFuentesDeGastosPendientes,
       setFuentesDeGastosEnUso
@@ -133,7 +149,7 @@ const PersonaConGastos = ({
         return;
       }
 
-      const consumos = Object.values(fuentesDeGastos).flat();
+      const consumos = Object.values(especificaciones.fuenteDelGasto).flat();
 
       if (nuevoGasto) {
         if (gastoEditado) {
@@ -147,18 +163,21 @@ const PersonaConGastos = ({
         } else {
           agregarElemento(
             nuevoGasto.fuenteDelGasto,
-            fuentesDeGastos,
+            especificaciones.fuenteDelGasto,
             listaDeFuentesDeGastosPendientes,
             setListaDeFuentesDeGastosPendientes,
             setFuentesDeGastosEnUso
           );
-          agregarElemento(
-            nuevoGasto.nombreConsumo,
-            consumos,
-            listaDeConsumosPendientes,
-            setListaDeConsumosPendientes,
-            setConsumosEnUso
-          );
+          if (nuevoGasto.tipo === "credito") {
+            agregarElemento(
+              nuevoGasto.nombreConsumo,
+              consumos,
+              listaDeConsumosPendientes,
+              setListaDeConsumosPendientes,
+              setConsumosEnUso
+            );
+            agregarConsumo(nuevoGasto);
+          }
 
           setGastos([...gastos, { id: Date.now(), ...nuevoGasto }]);
         }
@@ -169,16 +188,23 @@ const PersonaConGastos = ({
 
   const validarConcordanciaEntreConsumoYFuenteDeGasto = (nuevoGasto) => {
     const { fuenteDelGasto, nombreConsumo } = nuevoGasto;
-
-    if (!fuentesDeGastos[fuenteDelGasto]) return true; // Si la fuente no existe en el objeto, no validamos
     if (!nombreConsumo) return true; // Si nombreConsumo es null o undefined, tampoco validamos
 
-    const consumos = Object.values(fuentesDeGastos).flat();
+    const consumos = Object.values(especificaciones.fuenteDelGasto).flat();
     if (!consumos.includes(nombreConsumo)) {
       return true;
     }
 
-    const esValido = fuentesDeGastos[fuenteDelGasto].includes(nombreConsumo);
+    if (!especificaciones.fuenteDelGasto[fuenteDelGasto]) {
+      Modal.warning({
+        title: "Inconsistencia detectada",
+        content: `El consumo "${nombreConsumo}" ya pertenece a otra fuente de gasto. Modifique los campos o recategorice en "Especificaciones"`,
+      });
+      return false;
+    }
+
+    const esValido =
+      especificaciones.fuenteDelGasto[fuenteDelGasto].includes(nombreConsumo);
 
     if (!esValido) {
       Modal.warning({
@@ -233,16 +259,59 @@ const PersonaConGastos = ({
     });
   };
 
+  const eliminarConsumosDePendientes = () => {
+    const consumos = Object.values(especificaciones.fuenteDelGasto).flat();
+    console.log(consumos);
+  
+    setListaDeConsumosPendientes((prev) =>
+      prev.filter((pendiente) => !consumos.includes(pendiente))
+    );
+  };
+  useEffect(() => {
+    if (listaDeConsumosPendientes.length > 0) {
+      eliminarConsumosDePendientes();
+    }
+  }, [listaDeConsumosPendientes]);
+  
+
   useEffect(() => {
     if (cargoGastos) {
-      
-      gastos.forEach((elemento, indice) => {
-
-      })
-
-      setCargoGastos(false); 
+      gastos.forEach((gasto) => {
+        agregarElemento(
+          gasto.fuenteDelGasto,
+          especificaciones.fuenteDelGasto,
+          listaDeFuentesDeGastosPendientes,
+          setListaDeFuentesDeGastosPendientes,
+          setFuentesDeGastosEnUso
+        );
+        if (gasto.tipo === "credito") {
+          const consumos = Object.values(especificaciones.fuenteDelGasto).flat();
+          agregarElemento(
+            gasto.nombreConsumo,
+            consumos,
+            listaDeConsumosPendientes,
+            setListaDeConsumosPendientes,
+            setConsumosEnUso
+          );
+          agregarConsumo(gasto);
+        }
+      });  
+      setCargoGastos(false);
     }
   }, [cargoGastos]);
+
+  useEffect(() => {
+    if (elementoAReclasificar.length !== 0) {
+      const nuevosGastos = gastos.map((gasto) =>
+        gasto.nombreConsumo === elementoAReclasificar[0]
+          ? { ...gasto, fuenteDelGasto: elementoAReclasificar[1] }
+          : gasto
+      );
+      setGastos(nuevosGastos); // Pasar directamente el array
+      setElementoAReclasificar([]);
+    }
+  }, [elementoAReclasificar]);
+  
   
 
   return (
@@ -255,17 +324,17 @@ const PersonaConGastos = ({
             onClick={() => setMostrarPanelDeCarga(!mostrarPanelDeCarga)}
           />
           <span className={css.cardTitle}>{nombre}</span>
-        <div>
-          {mostrarPanelDeCarga && (
-            <PanelDeCargaDeDatos
-              especificaciones={gastos}
-              setEspecificaciones={setGastos}
-              tipoDeCaptura={"array"}
-              elemento="gastos"
-              setCargoDatos={setCargoGastos}
-            />
-          )}
-        </div>
+          <div>
+            {mostrarPanelDeCarga && (
+              <PanelDeCargaDeDatos
+                especificaciones={gastos}
+                setEspecificaciones={setGastos}
+                tipoDeCaptura={"array"}
+                elemento="gastos"
+                setCargoDatos={setCargoGastos}
+              />
+            )}
+          </div>
         </div>
         <Button
           type="primary"

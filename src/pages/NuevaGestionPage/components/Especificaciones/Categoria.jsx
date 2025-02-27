@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Tag, Modal } from "antd";
 import css from "../../css/Categoria.module.css";
 import InputDesplegable from "../../../../components/InputDesplegable";
@@ -15,9 +15,13 @@ const Categoria = ({
   fraseDeEliminacion = "",
   setPendientes,
   elementosEnUso = {},
+  accionarTrasReclasificar = false,
   temaCentral = "elemento",
+  setElementoAReclasificar,
 }) => {
   const [modoActivo, setModoActivo] = useState(null);
+  const [ejecutarReclasificacion, setEjecutarReclasificacion] = useState(false);
+  const [nuevoValor, setNuevoValor] = useState([]);
 
   const validarEnFuentesDeGastos = (num) => {
     if (Object.keys(elementosEnUso).includes(num)) {
@@ -25,7 +29,9 @@ const Categoria = ({
 
       Modal.warning({
         title: "Elemento en uso",
-        content: `No se puede borrar "${num}" porque se encuentra en uso en ${vecesEnUso + " " + temaCentral}${vecesEnUso > 1 ? "s" : ""}.`,
+        content: `No se puede borrar "${num}" porque se encuentra en uso en ${
+          vecesEnUso + " " + temaCentral
+        }${vecesEnUso > 1 ? "s" : ""}.`,
       });
 
       return true; // Indica que el elemento está en uso
@@ -65,31 +71,75 @@ const Categoria = ({
 
   const handleDragStart = (e, valor) => {
     e.dataTransfer.setData("text/plain", valor);
-    e.dataTransfer.setData("categoriaOrigen", nombre); // Guardamos la categoría de origen
+    e.dataTransfer.setData("categoriaOrigen", nombre);
   };
 
   const handleDrop = (e) => {
     e.preventDefault();
     const valor = e.dataTransfer.getData("text/plain").trim(); // Recuperamos el valor
-    const categoriaDePartida =  e.dataTransfer.getData("categoriaOrigen").trim();
+    const categoriaDePartida = e.dataTransfer.getData("categoriaOrigen").trim();
 
-    if (!valor) return; // Evitar valores vacíos
+    if (categoriaDePartida !== nombre) {
+      if (
+        accionarTrasReclasificar &&
+        Object.keys(elementosEnUso).includes(valor)
+      ) {
+        const vecesEnUso = elementosEnUso[valor];
+        Modal.confirm({
+          title: "Confirmar reclasificación",
+          okText: "Continuar",
+          cancelText: "Cancelar",
+          content: (
+            <>
+              <p>
+                {'"'}
+                {valor}
+                {'"'} está en uso en {vecesEnUso} {temaCentral}
+                {vecesEnUso > 1 ? "s" : ""}.
+              </p>
+              <p>
+                Si continúa, se reclasificará y actualizará en todas sus
+                apariciones.
+              </p>
+            </>
+          ),
+          onOk() {
+            setEjecutarReclasificacion(true);
+          },
+        });
+      }
 
-    if (!esUnValorValido(valor)) {     
-      return;
-  }
+      if (!valor) return; // Evitar valores vacíos
 
-    if (valores.includes(valor)) return; // Evitar duplicados dentro de la misma categoría
+      if (!esUnValorValido(valor)) {
+        return;
+      }
 
-    if (categoriaDePartida !== "PeNdIeNTeshhh"){
-      actualizarCategoriasYFuentes(categoriaDePartida, nombre, [...valores, valor], valor);
+      if (valores.includes(valor)) return; // Evitar duplicados dentro de la misma categoría
+
+      if (categoriaDePartida !== "PeNdIeNTeshhh") {
+        actualizarCategoriasYFuentes(
+          categoriaDePartida,
+          nombre,
+          [...valores, valor],
+          valor
+        );
+      } else {
+        actualizarValores(nombre, [...valores, valor], valor, "agregar");
+      }
+      // Remover de pendientes
+      setPendientes((prev) => prev.filter((item) => item !== valor));
+
+      setNuevoValor([valor, nombre]);
     }
-    else{
-      actualizarValores(nombre, [...valores, valor], valor, "agregar");
-    }
-    // Remover de pendientes
-    setPendientes((prev) => prev.filter((item) => item !== valor));
   };
+
+  useEffect(() => {
+    if (ejecutarReclasificacion) {
+      setElementoAReclasificar(nuevoValor);
+      setEjecutarReclasificacion(false); // Resetear para evitar ejecuciones repetidas
+    }
+  }, [ejecutarReclasificacion]);
 
   return (
     <>

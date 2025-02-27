@@ -27,6 +27,7 @@ const NuevaGestionPage = () => {
   const [fuentesDeGastosEnUso, setFuentesDeGastosEnUso] = useState({});
   const [consumosPendientesParaClasificar, setConsumosPendientesParaClasificar] = useState([]);
   const [consumosEnUso, setConsumosEnUso] = useState({});
+  const [elementoAReclasificar, setElementoAReclasificar] = useState([]);
   const [especificaciones, setEspecificaciones] = useState({
     fuenteDelGasto: {},
     categorias: {},
@@ -232,7 +233,9 @@ const NuevaGestionPage = () => {
                           fuentesDeGastosPendientesParaClasificar                        }
                         setListaDeFuentesDeGastosPendientes={
                           setFuentesDeGastosPendientesParaClasificar                        }
-                        fuentesDeGastos={especificaciones.fuenteDelGasto}
+                        
+                        especificaciones={especificaciones}
+                        setEspecificaciones={setEspecificaciones}
                         fuentesDeGastosEnUso={fuentesDeGastosEnUso}
                         setFuentesDeGastosEnUso={setFuentesDeGastosEnUso}
 
@@ -240,7 +243,8 @@ const NuevaGestionPage = () => {
                   setListaDeConsumosPendientes={setConsumosPendientesParaClasificar}
                   consumosEnUso={consumosEnUso}
                   setConsumosEnUso={setConsumosEnUso}
-
+                  elementoAReclasificar={elementoAReclasificar}
+                  setElementoAReclasificar={setElementoAReclasificar}
                       />
                     ))
                   : !mostrarInputPersonas && <p>Agregue una persona</p>}
@@ -295,6 +299,7 @@ const NuevaGestionPage = () => {
                   consumosPendientesParaClasificar={consumosPendientesParaClasificar}
                   setConsumosPendientesParaClasificar={setConsumosPendientesParaClasificar}
                   consumosEnUso={consumosEnUso}
+                  setElementoAReclasificar={setElementoAReclasificar}
                 />
               </div>
             </div>

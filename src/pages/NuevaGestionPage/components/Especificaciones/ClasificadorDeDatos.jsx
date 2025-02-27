@@ -16,6 +16,7 @@ const ClasificadorDeDatos = ({
   propiedad,
   propiedadExtraAManipular,
   setPendientes,
+  setPendienteConsumos,
   fuentesDeGastosPendientes,
   setfuentesDeGastosPendientes,
   fuentesDeGastosEnUso,
@@ -112,7 +113,14 @@ const esUnValorValido = (valor) => {
       };
 
       if (tipo === "agregar") {
-        nuevaEspecificacion[propiedadExtraAManipular][num] = [];
+        if (!nuevaEspecificacion[propiedadExtraAManipular][num]) {
+          nuevaEspecificacion[propiedadExtraAManipular][num] = []; // Solo si no existe
+        }
+        setPendienteConsumos((prev) =>
+          prev.filter((valor) => !nuevaEspecificacion[propiedadExtraAManipular][num].includes(valor))
+        );
+        
+        
       } else if (
         tipo === "eliminar" &&
         nuevaEspecificacion[propiedadExtraAManipular][num]
@@ -275,7 +283,6 @@ const esUnValorValido = (valor) => {
         <Title level={3} className={css.cardTitle}>
           Clasificar {config.elementoAClasificar}
         </Title>
-
         <div className={css.buttonsContainer}>
           <ButtonDesplegable
             modo={modo}
@@ -286,10 +293,18 @@ const esUnValorValido = (valor) => {
           />
         </div>
       </div>
+      <div className={css.buttonsContainer}>
       <ClasificacionPendiente
         pendientes={fuentesDeGastosPendientes}
-        setPendientes={setfuentesDeGastosPendientes}
+        titulo={"Pendientes de clasificar: "}
+        tagsMovibles={true}
       />
+
+{modoActivado && fuentesDeGastosPendientes.length !== 0 && (
+          <Button onClick={cancelarAccion} danger>
+            Cancelar
+          </Button>)}
+      </div>
       <div className={css.buttonsContainer}>
         {!modoActivado &&
           (Object.keys(especificaciones[propiedad]).length === 0 ? (
@@ -330,7 +345,7 @@ const esUnValorValido = (valor) => {
               No hay {config.temaDeClasificacionEnPlural} agregad{config.letra}s
             </span>
           )}
-        {modoActivado && (
+        {modoActivado && fuentesDeGastosPendientes.length === 0 && (
           <Button onClick={cancelarAccion} danger>
             Cancelar
           </Button>
@@ -366,6 +381,7 @@ const esUnValorValido = (valor) => {
                 setPendientes={setfuentesDeGastosPendientes}
                 elementosEnUso={fuentesDeGastosEnUso}
                 esUnValorValido={esUnValorValido}
+                temaCentral="gasto"
               />
             )}
 

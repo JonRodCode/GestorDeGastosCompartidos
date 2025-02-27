@@ -17,7 +17,8 @@ const Especificaciones = ({
   fuentesDeGastosEnUso,
   consumosPendientesParaClasificar,
   setConsumosPendientesParaClasificar,
-  consumosEnUso
+  consumosEnUso,
+  setElementoAReclasificar
 }) => {
   const fraseDeEliminacion =
     "Se eliminarán todas las fuentes de gastos asociadas a la categoria seleccionada y todos los consumos asociados a cada una de esas fuentes de gastos.";
@@ -55,6 +56,7 @@ const Especificaciones = ({
                 propiedadManipuladaSuperior="determinaciones"
                 propiedad="categorias"
                 propiedadExtraAManipular="fuenteDelGasto"
+                setPendienteConsumos={setConsumosPendientesParaClasificar}
                 setPendientes={setCategoriasPendientes}
                 fuentesDeGastosPendientes={fuentesDeGastosPendientes}
                 setfuentesDeGastosPendientes={setFuenteDeGastosPendientes}
@@ -77,8 +79,9 @@ const Especificaciones = ({
                 propiedad="fuenteDelGasto"
                 pendientes={consumosPendientesParaClasificar}
                 setPendientes={setConsumosPendientesParaClasificar}
-  elementosEnUso={consumosEnUso}
-  
+                elementosEnUso={consumosEnUso}
+                pendientesDelSuperior={fuentesDeGastosPendientes}
+                setElementoAReclasificar={setElementoAReclasificar}
                 config={{
                   elementoAClasificar: "Consumos de Tarjeta de Credito",
                   elementoEnSingular: "nombre de consumo",
