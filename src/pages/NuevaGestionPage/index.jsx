@@ -181,6 +181,100 @@ const NuevaGestionPage = () => {
       setLoading(false);
     }
   };
+
+  const verificarCategorias = (existentes, nuevas, pendientes, setPendientes) => {
+    let valido = true;
+  
+    Object.keys(nuevas.categorias).forEach((categoria) => {
+      if (pendientes.includes(categoria)) {
+        setPendientes((prev) => prev.filter((c) => c !== categoria));
+      } else {
+        const existenteEn = Object.entries(existentes.determinaciones).find(([_, lista]) =>
+          lista.includes(categoria)
+        );
+  
+        if (existenteEn && existenteEn[0] !== nuevas.categorias[categoria]) {
+          valido = false;
+        }
+      }
+    });
+  
+    return valido;
+  };
+  
+  
+  const verificarFuentesDeGasto = (existentes, nuevas, pendientes, setPendientes) => {
+    let valido = true;
+  
+    Object.keys(nuevas.fuenteDelGasto).forEach((fuente) => {
+      if (pendientes.includes(fuente)) {
+        setPendientes((prev) => prev.filter((f) => f !== fuente));
+      } else {
+        const existenteEn = Object.entries(existentes.categorias).find(([_, lista]) =>
+          lista.includes(fuente)
+        );
+  
+        if (existenteEn && existenteEn[0] !== nuevas.fuenteDelGasto[fuente]) {
+          valido = false;
+        }
+      }
+    });
+  
+    return valido;
+  };
+  const verificarConsumos = (existentes, nuevas, pendientes, setPendientes) => {
+    let valido = true;
+  
+    Object.keys(nuevas.consumos).forEach((consumo) => {
+      if (pendientes.includes(consumo)) {
+        setPendientes((prev) => prev.filter((c) => c !== consumo));
+      } else {
+        const existenteEn = Object.entries(existentes.fuenteDelGasto).find(([_, lista]) =>
+          lista.includes(consumo)
+        );
+  
+        if (existenteEn && existenteEn[0] !== nuevas.consumos[consumo]) {
+          valido = false;
+        }
+      }
+    });
+  
+    return valido;
+  };
+  
+  
+  
+  const verificarEspecificacionesNuevas = (
+    nuevas
+  ) => {
+    const categoriasValidas = verificarCategorias(
+      especificaciones,
+      nuevas,
+      categoriasPendientesParaDeterminar,
+      setCategoriasPendientesParaDeterminar
+    );
+  
+    if (!categoriasValidas) return false;
+  
+    const fuentesValidas = verificarFuentesDeGasto(
+      especificaciones,
+      nuevas,
+      fuentesDeGastosPendientesParaClasificar,
+      setFuentesDeGastosPendientesParaClasificar
+    );
+  
+    if (!fuentesValidas) return false;
+  
+    const consumosValidos = verificarConsumos(
+      especificaciones,
+      nuevas,
+      consumosPendientesParaClasificar,
+      setConsumosPendientesParaClasificar
+    );
+  
+    return consumosValidos;
+  };
+  
   
 /* 
   const eliminarFuentesDePendientes = () => {
@@ -321,6 +415,7 @@ const NuevaGestionPage = () => {
                 especificaciones={especificaciones}
                 setEspecificaciones={setEspecificaciones}
                 setCargoDatos={setCargoDatos}
+                verificarEspecificacionesNuevas={verificarEspecificacionesNuevas}
               />
             )}
             <div className={css.mainContainer}>

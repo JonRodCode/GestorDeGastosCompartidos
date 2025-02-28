@@ -1,14 +1,20 @@
 import { Upload, Button,  message, Modal } from "antd";
 import { UploadOutlined, SaveOutlined } from "@ant-design/icons";
 
-const PanelDeCargaDeDatos = ({ cargarDato, setEspecificaciones, especificaciones, tipoDeCaptura = "objeto", elemento = "", setCargoDatos }) => {
-  
-  const cargaGeneral = (listaDeDatos) => {
-    listaDeDatos.forEach((dato) => {
-      cargarDato(dato);
+const PanelDeCargaDeDatos = ({ verificarEspecificacionesNuevas, setEspecificaciones, especificaciones, tipoDeCaptura = "objeto", elemento = "", setCargoDatos }) => {
+    
+  const hayDatos = (objeto) => {
+    return Object.entries(objeto).some(([key, value]) => {
+      if (key === "determinaciones" && typeof value === "object" && value !== null) {0
+        return Object.values(value).some((arr) => Array.isArray(arr) && arr.length > 0);
+      } else if (Array.isArray(value)) {
+        return value.length > 0; 
+      } else if (typeof value === "object" && value !== null) {
+        return Object.keys(value).length > 0 || hayDatos(value);
+      }
+      return false;
     });
-  };
-  
+  }
 
   const manejarArchivo = (info) => {
     const archivo = info.file;
@@ -34,9 +40,10 @@ const PanelDeCargaDeDatos = ({ cargarDato, setEspecificaciones, especificaciones
             throw new Error("El archivo seleccionado no es válido.");
           }
 
-          if (tipoDeCaptura === "array") {
-            if (especificaciones.length === 0) {
-              cargaGeneral(datos);
+          if (tipoDeCaptura === "objeto") {
+            if (!hayDatos(especificaciones)) {
+              setEspecificaciones(datos);
+              message.success("Archivo cargado con éxito");
             }
             else {
               console.log(especificaciones);
@@ -48,10 +55,18 @@ const PanelDeCargaDeDatos = ({ cargarDato, setEspecificaciones, especificaciones
                 cancelText: "Eliminar y cargar nuevos",
                 onOk: () => {
                   console.log("El usuario decidió mantener los elementos.");
-                },
 
+                  if (verificarEspecificacionesNuevas(datos)){
+                    setEspecificaciones(datos);
+                    message.success("Archivo cargado con éxito");
+                  }
+                  else{
+                    message.success("INCONSISTENCIAAAAA");
+                  }
+                },
                 onCancel: () => {
-                  cargaGeneral(datos);
+                  setEspecificaciones(datos);
+                  message.success("Archivo cargado con éxito");
                 }
               });
             }
@@ -60,7 +75,6 @@ const PanelDeCargaDeDatos = ({ cargarDato, setEspecificaciones, especificaciones
           if (setCargoDatos){
             setCargoDatos(true);
           }
-          message.success("Archivo cargado con éxito");
         } catch (error) {
           message.error(error.message);
           console.error("Error al parsear el archivo:", error);
