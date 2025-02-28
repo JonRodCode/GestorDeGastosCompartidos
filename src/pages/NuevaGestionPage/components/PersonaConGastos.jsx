@@ -14,7 +14,7 @@ import GastoDebito from "./Gastos/GastoDebito";
 import GastoCredito from "./Gastos/GastoCredito";
 import css from "../css/PersonaConGastos.module.css";
 import { DownOutlined, UpOutlined } from "@ant-design/icons";
-import PanelDeCargaDeDatos from "../../../components/PanelDeCargaDeDatos";
+import PanelDeCargaDeGastos from "./Gastos/PanelDeCargaDeGastos";
 
 const { Option } = Select;
 const { Title, Text } = Typography;
@@ -26,6 +26,7 @@ const TIPOS_GASTO = {
 };
 
 const PersonaConGastos = ({
+  agregarMuchosGastos,
   nombre,
   gastos,
   setGastos,
@@ -47,7 +48,7 @@ const PersonaConGastos = ({
   const formularioRef = useRef(null); // Referencia al formulario
   const [botonActivo, setBotonActivo] = useState("");
   const [mostrarPanelDeCarga, setMostrarPanelDeCarga] = useState(false);
-  const [cargoGastos, setCargoGastos] = useState(false);
+  const [seCargaronGastos, setSeCargaronGastos] = useState(false)
 
   // Función para manejar el clic en los botones
   const handleButtonClick = (accion) => {
@@ -97,11 +98,17 @@ const PersonaConGastos = ({
 
   const agregarConsumo = (nuevoGasto) => {
     setEspecificaciones((prev) => {
+      const listaActual = prev.fuenteDelGasto[nuevoGasto.fuenteDelGasto] || [];
+
       return {
-        ...prev, // Copia el estado actual
+        ...prev,
         fuenteDelGasto: {
-          ...prev.fuenteDelGasto, // Copia el objeto `fuenteDelGasto`
-          [nuevoGasto.fuenteDelGasto]: [nuevoGasto.nombreConsumo], // Agrega o actualiza la clave
+          ...prev.fuenteDelGasto,
+          [nuevoGasto.fuenteDelGasto]: listaActual.includes(
+            nuevoGasto.nombreConsumo
+          )
+            ? listaActual // Si ya existe, no lo agregamos
+            : [...listaActual, nuevoGasto.nombreConsumo], // Si no está, lo agregamos
         },
       };
     });
@@ -186,7 +193,97 @@ const PersonaConGastos = ({
     }
   };
 
-  const validarConcordanciaEntreConsumoYFuenteDeGasto = (nuevoGasto) => {
+  const elGastoYaExiste = (gasto, lista1, lista2) => {
+    return (
+      lista1.some((item) => item.id === gasto.id) ||
+      lista2.some((item) => item.id === gasto.id)
+    );
+  };
+
+  const agregarMuchosGastosValidados = (
+    listaDeGastos,
+    eliminarValoresAnteriores = false
+  ) => {
+    if (eliminarValoresAnteriores){
+        setFuentesDeGastosEnUso({})
+        setConsumosEnUso({})
+    }
+    const listaDeGastosValidados = [];
+    let contadorDeInsonsistencias = 0;
+
+    listaDeGastos.forEach((gasto) => {
+      let esValido = !elGastoYaExiste(gasto, gastos, listaDeGastosValidados); // Se invierte la lógica
+
+      if (esValido) {
+        if (gasto.tipo === "credito") {
+          if (
+            validarConcordanciaEntreConsumoYFuenteDeGasto(gasto, true, false)
+          ) {
+            const consumos = Object.values(
+              especificaciones.fuenteDelGasto
+            ).flat();
+            agregarElemento(
+              gasto.nombreConsumo,
+              consumos,
+              listaDeConsumosPendientes,
+              setListaDeConsumosPendientes,
+              setConsumosEnUso
+            );
+            agregarConsumo(gasto);
+          } else {
+            console.log("Entra???");
+            contadorDeInsonsistencias += 1;
+            esValido = false;
+          }
+        }
+
+        if (esValido) {
+          agregarElemento(
+            gasto.fuenteDelGasto,
+            especificaciones.fuenteDelGasto,
+            listaDeFuentesDeGastosPendientes,
+            setListaDeFuentesDeGastosPendientes,
+            setFuentesDeGastosEnUso
+          );
+          listaDeGastosValidados.push(gasto);
+        }
+      }
+    });
+
+    if (listaDeGastosValidados.length > 0) {
+      agregarMuchosGastos(
+        nombre,
+        listaDeGastosValidados,
+        eliminarValoresAnteriores
+      );
+      setSeCargaronGastos(true);
+    }
+    if (contadorDeInsonsistencias > 0) {
+      Modal.info({
+        title: "Inconsistencia detectada",
+        content: (
+          <>
+            <p>
+              No se pudieron cargar todos los gastos debido a inconsistencias
+              entre los campos &quot;Fuente del gasto&quot; y &quot;Nombre del
+              Consumo&quot;.
+            </p>
+            <p>Cantidad de gastos no cargados: {contadorDeInsonsistencias}.</p>
+            <p>
+              Puede recategorizar en &quot;Especificaciones&quot;, y volver a
+              intentarlo.
+            </p>
+          </>
+        ),
+      });
+    }
+  };
+
+  const validarConcordanciaEntreConsumoYFuenteDeGasto = (
+    nuevoGasto,
+    cargandoDatos = false,
+    mostrarAdvertencias = true
+  ) => {
     const { fuenteDelGasto, nombreConsumo } = nuevoGasto;
     if (!nombreConsumo) return true; // Si nombreConsumo es null o undefined, tampoco validamos
 
@@ -195,22 +292,26 @@ const PersonaConGastos = ({
       return true;
     }
 
-    if (!especificaciones.fuenteDelGasto[fuenteDelGasto]) {
-      Modal.warning({
-        title: "Inconsistencia detectada",
-        content: `El consumo "${nombreConsumo}" ya pertenece a otra fuente de gasto. Modifique los campos o recategorice en "Especificaciones"`,
-      });
+    if (!especificaciones.fuenteDelGasto[fuenteDelGasto] && !cargandoDatos) {
+      if (mostrarAdvertencias) {
+        Modal.warning({
+          title: "Inconsistencia detectada",
+          content: `El consumo "${nombreConsumo}" ya pertenece a otra fuente de gasto. Modifique los campos o recategorice en "Especificaciones"`,
+        });
+      }
       return false;
     }
 
     const esValido =
       especificaciones.fuenteDelGasto[fuenteDelGasto].includes(nombreConsumo);
 
-    if (!esValido) {
+    if (!esValido && !cargandoDatos) {
       Modal.warning({
         title: "Inconsistencia detectada",
         content: `El consumo "${nombreConsumo}" no pertenece a la fuente de gasto "${fuenteDelGasto}". Modifique los campos o recategorice en "Especificaciones"`,
       });
+    } else if (!esValido && cargandoDatos) {
+      return false;
     }
 
     return esValido;
@@ -242,63 +343,55 @@ const PersonaConGastos = ({
     });
   };
 
-  const eliminarGasto = (gasto) => {
-    Modal.confirm({
-      title: "Confirmar eliminación",
-      content: `¿Estás seguro de que quieres eliminar el gasto "${gasto.tipo}"?`,
-      okText: "Sí, eliminar",
-      cancelText: "Cancelar",
-      onOk: () => {
-        restar1UnElementoEnUso(gasto.fuenteDelGasto, setFuentesDeGastosEnUso);
-        restar1UnElementoEnUso(gasto.nombreConsumo, setConsumosEnUso);
-        setGastos(gastos.filter((g) => g.id !== gasto.id));
-        if (gastos.length === 1) {
-          setBotonActivo("");
-        }
-      },
+  const eliminarElementosEnUso = (gasto) => {
+    restar1UnElementoEnUso(gasto.fuenteDelGasto, setFuentesDeGastosEnUso);
+    restar1UnElementoEnUso(gasto.nombreConsumo, setConsumosEnUso);
+    setGastos(gastos.filter((g) => g.id !== gasto.id));
+    if (gastos.length === 1) {
+      setBotonActivo("");
+    }
+  };
+
+  const eliminarGasto = (gasto, confirmar = true) => {
+    if (confirmar) {
+      Modal.confirm({
+        title: "Confirmar eliminación",
+        content: `¿Estás seguro de que quieres eliminar el gasto "${gasto.tipo}"?`,
+        okText: "Sí, eliminar",
+        cancelText: "Cancelar",
+        onOk: () => {
+          eliminarElementosEnUso(gasto);
+        },
+      });
+    } else {
+      eliminarElementosEnUso(gasto);
+    }
+  };
+
+  const eliminarConsumosPendientesClasificados = () => {
+    setListaDeConsumosPendientes((pendientes) => {
+        return pendientes.filter((consumoPendiente) => {
+            const keyEncontrada = Object.entries(especificaciones["fuenteDelGasto"])
+                .find((entrada) => entrada[1].includes(consumoPendiente))?.[0];
+
+            if (keyEncontrada) {
+                const fuentesDeGastosActuales = Object.values(especificaciones.categorias).flat();
+                return !fuentesDeGastosActuales.includes(keyEncontrada);
+            }
+
+            return true;
+        });
     });
-  };
-
-  const eliminarConsumosDePendientes = () => {
-    const consumos = Object.values(especificaciones.fuenteDelGasto).flat();
-    console.log(consumos);
-  
-    setListaDeConsumosPendientes((prev) =>
-      prev.filter((pendiente) => !consumos.includes(pendiente))
-    );
-  };
+};
   useEffect(() => {
-    if (listaDeConsumosPendientes.length > 0) {
-      eliminarConsumosDePendientes();
+    if(seCargaronGastos){
+      setListaDeFuentesDeGastosPendientes((prev) => [...new Set(prev)]);
+      setListaDeConsumosPendientes((prev) => [...new Set(prev)]);
+      eliminarConsumosPendientesClasificados();
+      setSeCargaronGastos(false);
     }
-  }, [listaDeConsumosPendientes]);
+  }, [seCargaronGastos]);
   
-
-  useEffect(() => {
-    if (cargoGastos) {
-      gastos.forEach((gasto) => {
-        agregarElemento(
-          gasto.fuenteDelGasto,
-          especificaciones.fuenteDelGasto,
-          listaDeFuentesDeGastosPendientes,
-          setListaDeFuentesDeGastosPendientes,
-          setFuentesDeGastosEnUso
-        );
-        if (gasto.tipo === "credito") {
-          const consumos = Object.values(especificaciones.fuenteDelGasto).flat();
-          agregarElemento(
-            gasto.nombreConsumo,
-            consumos,
-            listaDeConsumosPendientes,
-            setListaDeConsumosPendientes,
-            setConsumosEnUso
-          );
-          agregarConsumo(gasto);
-        }
-      });  
-      setCargoGastos(false);
-    }
-  }, [cargoGastos]);
 
   useEffect(() => {
     if (elementoAReclasificar.length !== 0) {
@@ -311,8 +404,6 @@ const PersonaConGastos = ({
       setElementoAReclasificar([]);
     }
   }, [elementoAReclasificar]);
-  
-  
 
   return (
     <Card className={css.card}>
@@ -326,12 +417,12 @@ const PersonaConGastos = ({
           <span className={css.cardTitle}>{nombre}</span>
           <div>
             {mostrarPanelDeCarga && (
-              <PanelDeCargaDeDatos
+              <PanelDeCargaDeGastos
                 especificaciones={gastos}
-                setEspecificaciones={setGastos}
+                nombreDePersona={nombre}
+                agregarMuchosGastos={agregarMuchosGastosValidados}
                 tipoDeCaptura={"array"}
                 elemento="gastos"
-                setCargoDatos={setCargoGastos}
               />
             )}
           </div>

@@ -164,10 +164,14 @@ const esUnValorValido = (valor) => {
   const validarEliminarFuentesDeGastosEnUso = (categoria) => {
     const clavesEnUso = Object.keys(fuentesDeGastosEnUso);
     const fuentesDeGastos = especificaciones[propiedad][categoria];
-
+    
+    if (!Array.isArray(fuentesDeGastos)) {
+      return false;
+  }
     const coincidencias = clavesEnUso.filter((key) =>
       fuentesDeGastos.includes(key)
     );
+    
 
     if (coincidencias.length > 0) {
       Modal.warning({

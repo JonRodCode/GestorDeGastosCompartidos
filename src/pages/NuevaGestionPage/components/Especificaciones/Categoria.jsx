@@ -22,7 +22,6 @@ const Categoria = ({
   const [modoActivo, setModoActivo] = useState(null);
   const [ejecutarReclasificacion, setEjecutarReclasificacion] = useState(false);
   const [nuevoValor, setNuevoValor] = useState([]);
-
   const validarEnFuentesDeGastos = (num) => {
     if (Object.keys(elementosEnUso).includes(num)) {
       const vecesEnUso = elementosEnUso[num];
@@ -79,11 +78,27 @@ const Categoria = ({
     const valor = e.dataTransfer.getData("text/plain").trim(); // Recuperamos el valor
     const categoriaDePartida = e.dataTransfer.getData("categoriaOrigen").trim();
 
-    if (categoriaDePartida !== nombre) {
+    if (!valor) return; // Evitar valores vacíos
+    if (!esUnValorValido(valor)) {
+      return;
+    }
+    if (valores.includes(valor)) return; // Evitar duplicados dentro de la misma categoría
+
+    if (categoriaDePartida === "PeNdIeNTeshhh") {
+      actualizarValores(nombre, [...valores, valor], valor, "agregar");
+      // Remover de pendientes
+      setPendientes((prev) => prev.filter((item) => item !== valor));
+      setNuevoValor([valor, nombre]);
+      return;
+    }
+
+    else if (categoriaDePartida !== nombre) {
+      
       if (
         accionarTrasReclasificar &&
         Object.keys(elementosEnUso).includes(valor)
       ) {
+        console.log("ACAAAANOOOO")
         const vecesEnUso = elementosEnUso[valor];
         Modal.confirm({
           title: "Confirmar reclasificación",
@@ -104,36 +119,34 @@ const Categoria = ({
             </>
           ),
           onOk() {
-            setEjecutarReclasificacion(true);
+            setEjecutarReclasificacion(true); 
+              actualizarCategoriasYFuentes(
+                categoriaDePartida,
+                nombre,
+                [...valores, valor],
+                valor
+              );
+            // Remover de pendientes
+            setNuevoValor([valor, nombre]);
+          },
+          onCancel() {
+            return;
           },
         });
       }
-
-      if (!valor) return; // Evitar valores vacíos
-
-      if (!esUnValorValido(valor)) {
-        return;
-      }
-
-      if (valores.includes(valor)) return; // Evitar duplicados dentro de la misma categoría
-
-      if (categoriaDePartida !== "PeNdIeNTeshhh") {
+      else{
         actualizarCategoriasYFuentes(
           categoriaDePartida,
           nombre,
           [...valores, valor],
           valor
         );
-      } else {
-        actualizarValores(nombre, [...valores, valor], valor, "agregar");
-      }
       // Remover de pendientes
-      setPendientes((prev) => prev.filter((item) => item !== valor));
-
       setNuevoValor([valor, nombre]);
-    }
-  };
 
+      }
+    } 
+  };
   useEffect(() => {
     if (ejecutarReclasificacion) {
       setElementoAReclasificar(nuevoValor);

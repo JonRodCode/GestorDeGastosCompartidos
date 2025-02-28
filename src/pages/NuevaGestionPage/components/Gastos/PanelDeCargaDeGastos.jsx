@@ -1,33 +1,36 @@
-import { Upload, Button,  message, Modal } from "antd";
+import { Upload, Button, message, Modal } from "antd";
 import { UploadOutlined, SaveOutlined } from "@ant-design/icons";
 
-const PanelDeCargaDeDatos = ({ cargarDato, setEspecificaciones, especificaciones, tipoDeCaptura = "objeto", elemento = "", setCargoDatos }) => {
-  
-  const cargaGeneral = (listaDeDatos) => {
-    listaDeDatos.forEach((dato) => {
-      cargarDato(dato);
-    });
-  };
-  
+const PanelDeCargaDeGastos = ({
+  agregarMuchosGastos,
+  especificaciones,
+  tipoDeCaptura = "objeto",
+  elemento = "",
+}) => {
 
   const manejarArchivo = (info) => {
     const archivo = info.file;
     const extension = archivo.name.split(".").pop().toLowerCase();
-  
+
     if (extension !== "txt" && extension !== "json") {
       message.error("❌ Solo se permiten archivos .txt o .json");
       return;
     }
-  
+
     if (archivo) {
       const lector = new FileReader();
       lector.onload = (e) => {
         try {
           const contenido = e.target.result;
           const datos = JSON.parse(contenido);
-  
+
           // Validación según el tipo esperado
-          if (tipoDeCaptura === "objeto" && (typeof datos !== "object" || Array.isArray(datos) || datos === null)) {
+          if (
+            tipoDeCaptura === "objeto" &&
+            (typeof datos !== "object" ||
+              Array.isArray(datos) ||
+              datos === null)
+          ) {
             throw new Error("El archivo seleccionado no es válido.");
           }
           if (tipoDeCaptura === "array" && !Array.isArray(datos)) {
@@ -36,31 +39,31 @@ const PanelDeCargaDeDatos = ({ cargarDato, setEspecificaciones, especificaciones
 
           if (tipoDeCaptura === "array") {
             if (especificaciones.length === 0) {
-              cargaGeneral(datos);
-            }
-            else {
+              agregarMuchosGastos(datos);
+              console.log("Ejecutando agregarMuchosGastos con datos:", datos);
+            } else {
               console.log(especificaciones);
               console.log(especificaciones.length);
               Modal.confirm({
-                title: `Carga de ${elemento}s`,
-                content: "¿Desea mantener los elementos ya cargados o eliminarlos y cargar los nuevos?",
+                title: `Carga de gastos`,
+                content:
+                  "¿Desea mantener los elementos ya cargados o eliminarlos y cargar los nuevos?",
                 okText: "Mantener existentes",
                 cancelText: "Eliminar y cargar nuevos",
                 onOk: () => {
-                  console.log("El usuario decidió mantener los elementos.");
+                  agregarMuchosGastos(datos);
+                  console.log("Ejecutando agregarMuchosGastos DESDE ACA:", datos);
+                  message.success("Archivo cargado con éxito");
                 },
 
                 onCancel: () => {
-                  cargaGeneral(datos);
-                }
+                  agregarMuchosGastos(datos,true);
+                  message.success("Archivo cargado con éxito");
+                },
               });
             }
-          } 
-  
-          if (setCargoDatos){
-            setCargoDatos(true);
           }
-          message.success("Archivo cargado con éxito");
+         
         } catch (error) {
           message.error(error.message);
           console.error("Error al parsear el archivo:", error);
@@ -69,14 +72,14 @@ const PanelDeCargaDeDatos = ({ cargarDato, setEspecificaciones, especificaciones
       lector.readAsText(archivo);
     }
   };
-  
+
   const guardarArchivo = async () => {
     try {
       if (!window.showSaveFilePicker) {
         message.error("❌ Tu navegador no soporta la selección de archivos.");
         return;
       }
-  
+
       const opciones = {
         types: [
           {
@@ -85,16 +88,16 @@ const PanelDeCargaDeDatos = ({ cargarDato, setEspecificaciones, especificaciones
           },
         ],
       };
-  
+
       const handle = await window.showSaveFilePicker(opciones);
       if (!handle) return; // Si el usuario canceló, no hacer nada.
-  
+
       const writable = await handle.createWritable();
       const contenido = JSON.stringify(especificaciones, null, 2);
-  
+
       await writable.write(contenido);
       await writable.close();
-  
+
       message.success("✅ Datos guardados con éxito.");
     } catch (error) {
       if (error.name === "AbortError") {
@@ -109,7 +112,11 @@ const PanelDeCargaDeDatos = ({ cargarDato, setEspecificaciones, especificaciones
   return (
     <>
       {/* Botón para cargar */}
-      <Upload beforeUpload={() => false} onChange={manejarArchivo} showUploadList={false}>
+      <Upload
+        beforeUpload={() => false}
+        onChange={manejarArchivo}
+        showUploadList={false}
+      >
         <Button icon={<UploadOutlined />}>Cargar {elemento}</Button>
       </Upload>
 
@@ -126,5 +133,4 @@ const PanelDeCargaDeDatos = ({ cargarDato, setEspecificaciones, especificaciones
   );
 };
 
-export default PanelDeCargaDeDatos;
-
+export default PanelDeCargaDeGastos;

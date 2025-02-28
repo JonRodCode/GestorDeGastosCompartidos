@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Typography, Button, Spin, Alert, Modal } from "antd";
 import { DownOutlined, UpOutlined } from "@ant-design/icons";
 import MiembrosInput from "../../components/MiembrosInput";
@@ -40,17 +40,31 @@ const NuevaGestionPage = () => {
     GastosConCuotasPendientes: [],
   });
   const [vistaActualEspecificaciones, setVistaActualEspecificaciones] = useState("Panel general");
-
+  const [cargoDatos, setCargoDatos] = useState(false);
   // Posiblemente cambiemos la forma de mostrar la respuesta
   const [nuevaRespuesta, setNuevaRespuesta] = useState(null);
   const [loading, setLoading] = useState(false);
 
   // Función para actualizar los gastos de una persona específica
+  
   const actualizarGastosDePersona = (nombre, nuevosGastos) => {
     setPersonas((prevPersonas) =>
       prevPersonas.map((persona) =>
         persona.nombre === nombre
           ? { ...persona, gastos: nuevosGastos }
+          : persona
+      )
+    );
+  };
+
+  const agregarMuchosGastos = (nombre, listaDeGastos, eliminarValoresAnteriores = false) => {
+    setPersonas((prevPersonas) =>
+      prevPersonas.map((persona) =>
+        persona.nombre === nombre
+          ? {
+              ...persona,
+              gastos: eliminarValoresAnteriores ? [...listaDeGastos] : [...(persona.gastos || []), ...listaDeGastos],
+            }
           : persona
       )
     );
@@ -167,6 +181,38 @@ const NuevaGestionPage = () => {
       setLoading(false);
     }
   };
+  
+/* 
+  const eliminarFuentesDePendientes = () => {
+    const fuentes = Object.values(especificaciones.categorias).flat();
+    console.log(fuentes);
+  
+    setFuentesDeGastosPendientesParaClasificar((prev) =>
+      prev.filter((pendiente) => !fuentes.includes(pendiente))
+    );
+  };
+  const eliminarConsumosDePendientes = () => {
+    const consumos = Object.values(especificaciones.fuenteDelGasto).flat();
+    
+    setConsumosPendientesParaClasificar((prev) =>
+      prev.filter((pendiente) => !consumos.includes(pendiente))
+    );
+  };
+
+ useEffect(() => {
+      if (cargoDatos) {
+        if (consumosPendientesParaClasificar.length > 0) {
+          eliminarConsumosDePendientes();}
+      }
+    }, [fuentesDeGastosPendientesParaClasificar]);
+
+  useEffect(() => {
+      if (cargoDatos) {
+        if (fuentesDeGastosPendientesParaClasificar.length > 0) {
+          eliminarFuentesDePendientes();        }
+        setCargoDatos(false);
+      }
+    }, [cargoDatos]);*/
 
   return (
     <div className={css.container}>
@@ -220,15 +266,13 @@ const NuevaGestionPage = () => {
                 {personas.length !== 0
                   ? personas.map((persona, index) => (
                       <PersonaConGastos
+                      agregarMuchosGastos={agregarMuchosGastos}
                         key={index}
                         nombre={persona.nombre}
                         gastos={persona.gastos || []} // Asegurar que siempre tenga un array
-                        setGastos={(nuevosGastos) =>
-                          actualizarGastosDePersona(
-                            persona.nombre,
-                            nuevosGastos
-                          )
-                        }
+                        setGastos={(nuevosGastos) => {
+                          actualizarGastosDePersona(persona.nombre, nuevosGastos);
+                        }}
                         listaDeFuentesDeGastosPendientes={
                           fuentesDeGastosPendientesParaClasificar                        }
                         setListaDeFuentesDeGastosPendientes={
@@ -276,6 +320,7 @@ const NuevaGestionPage = () => {
               <PanelDeCargaDeDatos
                 especificaciones={especificaciones}
                 setEspecificaciones={setEspecificaciones}
+                setCargoDatos={setCargoDatos}
               />
             )}
             <div className={css.mainContainer}>

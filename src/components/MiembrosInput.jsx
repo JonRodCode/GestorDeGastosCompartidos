@@ -8,7 +8,7 @@ const MiembrosInput = ({ personas, setPersonas, miembrosDelHogar, setMiembrosDel
   const agregarPersona = () => {
     if (!nuevaPersona.trim()) return;
     const nuevaCantidadDeMiembros = personas.length + 1;
-    setPersonas(prevPersonas => [...prevPersonas, { id: nuevaCantidadDeMiembros, nombre: nuevaPersona }]);
+    setPersonas(prevPersonas => [...prevPersonas, { id: nuevaCantidadDeMiembros, nombre: nuevaPersona, gastos: [] }]);
     setMiembrosDelHogar(prevMiembrosDelHogar => [...prevMiembrosDelHogar, nuevaPersona]);
     setNuevaPersona("");
   };
