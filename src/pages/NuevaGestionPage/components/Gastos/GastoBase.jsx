@@ -22,9 +22,18 @@ const GastoBase = forwardRef(({ tipo, gasto }, ref) => {
   const [errores, setErrores] = useState({});
 
   const handleChange = (campo, valor) => {
+    if (campo === "monto") {
+      const montoNumerico = parseFloat(valor);
+      if (isNaN(montoNumerico) || montoNumerico <= 0) {
+        setErrores((prev) => ({ ...prev, monto: "Debe ser mayor a 0" }));
+        return;
+      }
+      setErrores((prev) => ({ ...prev, monto: undefined })); // Limpia el error si es válido
+    }
+  
     setDatos((prev) => ({ ...prev, [campo]: valor }));
   };
-
+  
   // Pre-cargar los datos cuando 'gasto' cambia
   useEffect(() => {
     if (gasto) {
@@ -66,19 +75,21 @@ const GastoBase = forwardRef(({ tipo, gasto }, ref) => {
       <Input placeholder="Detalle de Consumo" value={datos.detalle} onChange={(e) => handleChange("detalle", e.target.value)} />
       
       <Input
-  placeholder={errores.fuenteDelGasto ? "CAMPO REQUERIDO" : "Fuente del Gasto"}
+  placeholder={errores.fuenteDelGasto ? "Fuente del Gasto - REQUERIDO" : "Fuente del Gasto"}
   value={datos.fuenteDelGasto}
   onChange={(e) => handleChange("fuenteDelGasto", e.target.value)}
   className={errores.fuenteDelGasto ? css.inputError : ""}
 />
 
 <Input
-  placeholder={errores.monto ? "CAMPO REQUERIDO" : "Monto"}
+  placeholder={errores.monto ? "El monto debe ser mayor a 0 - REQUERIDO" : "Monto"}
   type="number"
   value={datos.monto}
   onChange={(e) => handleChange("monto", e.target.value)}
   className={errores.monto ? css.inputError : ""}
+  min={1} // Esto evita que el usuario seleccione valores negativos con las flechas
 />
+
 
       <Select
         value={datos.tipoImporte}

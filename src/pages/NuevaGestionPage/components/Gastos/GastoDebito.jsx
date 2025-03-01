@@ -43,9 +43,17 @@ const GastoDebito = forwardRef(({ gasto, tipo = "debito" }, ref) => {
   }));
 
   const handleChange = (campo, valor) => {
+    if (campo === "numFinalTarjeta") {
+      const soloNumeros = valor.replace(/\D/g, ""); // Elimina caracteres no numéricos
+      if (soloNumeros.length > 4) return; // Impide más de 4 caracteres
+      setDatosTarjeta((prev) => ({ ...prev, [campo]: soloNumeros }));
+      return;
+    }
+  
     setDatosTarjeta((prev) => ({ ...prev, [campo]: valor }));
     setErrores((prev) => ({ ...prev, [campo]: false })); // Quita el error al escribir
   };
+  
 
   useEffect(() => {
     if (gasto) {
@@ -66,13 +74,6 @@ const GastoDebito = forwardRef(({ gasto, tipo = "debito" }, ref) => {
       <div className={css.formContainer}>
         <GastoBase ref={gastoBaseRef} tipo={tipo} gasto={gasto} />
 
-        <Input
-          placeholder={errores.mesDelResumen ? "CAMPO REQUERIDO" : "Mes del Resumen"}
-          value={datosTarjeta.mesDelResumen}
-          onChange={(e) => handleChange("mesDelResumen", e.target.value)}
-          className={errores.mesDelResumen ? css.inputError : ""}
-        />
-
         <Select
           value={datosTarjeta.tarjeta}
           onChange={(value) => handleChange("tarjeta", value)}
@@ -92,7 +93,7 @@ const GastoDebito = forwardRef(({ gasto, tipo = "debito" }, ref) => {
         </Select>
 
         <Input
-          placeholder={errores.aNombreDe ? "CAMPO REQUERIDO" : "A Nombre De"}
+          placeholder={errores.aNombreDe ? "A Nombre De - REQUERIDO" : "A Nombre De"}
           value={datosTarjeta.aNombreDe}
           onChange={(e) => handleChange("aNombreDe", e.target.value)}
           disabled={datosTarjeta.tipoTarjeta !== "Extensión"}
@@ -100,18 +101,22 @@ const GastoDebito = forwardRef(({ gasto, tipo = "debito" }, ref) => {
         />
 
         <Input
-          placeholder={errores.banco ? "CAMPO REQUERIDO" : "Banco"}
+          placeholder={errores.banco ? "Banco - REQUERIDO" : "Banco"}
           value={datosTarjeta.banco}
           onChange={(e) => handleChange("banco", e.target.value)}
           className={errores.banco ? css.inputError : ""}
         />
 
-        <Input
-          placeholder="Últimos dígitos de la Tarjeta"
-          type="number"
-          value={datosTarjeta.numFinalTarjeta}
-          onChange={(e) => handleChange("numFinalTarjeta", e.target.value)}
-        />
+<Input
+  placeholder="Últimos 4 dígitos de la Tarjeta"
+  type="text"
+  value={datosTarjeta.numFinalTarjeta}
+  onChange={(e) => handleChange("numFinalTarjeta", e.target.value)}
+  maxLength={4} // Limita la cantidad de caracteres
+  pattern="\d{4}" // Asegura que solo se acepten 4 dígitos
+  inputMode="numeric" // En móviles, muestra teclado numérico
+/>
+
         
       </div>
     </div>

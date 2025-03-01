@@ -1,15 +1,26 @@
 import { useState } from 'react';
-import { Input, Button } from 'antd';
+import { Input, Button, Modal } from 'antd';
+import { ExclamationCircleOutlined } from "@ant-design/icons";
 import css from '../css/MiembrosInput.module.css';
 
 const MiembrosInput = ({ personas, setPersonas, miembrosDelHogar, setMiembrosDelHogar }) => {
   const [nuevaPersona, setNuevaPersona] = useState("");
-
+  const [modalVisible, setModalVisible] = useState(false);
+  
   const agregarPersona = () => {
-    if (!nuevaPersona.trim()) return;
+    const nombreLimpio = nuevaPersona.trim();
+    if (!nombreLimpio) return;
+
+    const nombreRepetido = personas.some(persona => persona.nombre.toLowerCase() === nombreLimpio.toLowerCase());
+
+    if (nombreRepetido) {
+      setModalVisible(true);
+      return;
+    }
+
     const nuevaCantidadDeMiembros = personas.length + 1;
-    setPersonas(prevPersonas => [...prevPersonas, { id: nuevaCantidadDeMiembros, nombre: nuevaPersona, gastos: [] }]);
-    setMiembrosDelHogar(prevMiembrosDelHogar => [...prevMiembrosDelHogar, nuevaPersona]);
+    setPersonas(prevPersonas => [...prevPersonas, { id: nuevaCantidadDeMiembros, nombre: nombreLimpio, gastos: [] }]);
+    setMiembrosDelHogar(prevMiembrosDelHogar => [...prevMiembrosDelHogar, nombreLimpio]);
     setNuevaPersona("");
   };
 
@@ -44,6 +55,25 @@ const MiembrosInput = ({ personas, setPersonas, miembrosDelHogar, setMiembrosDel
           Miembros: {miembrosDelHogar.join(", ")}
         </label>
       </div>
+
+      {/* Modal de advertencia */}
+      <Modal
+      title={
+            <>
+              <ExclamationCircleOutlined
+                style={{ color: "red", marginRight: 8 }}
+              />
+              Nombre duplicado
+            </>
+          }
+        open={modalVisible}
+        onOk={() => setModalVisible(false)}
+        onCancel={() => setModalVisible(false)}
+        okText="Entendido"
+        cancelButtonProps={{ style: { display: "none" } }} // Oculta el botón "Cancelar"
+      >
+        <p>Ya existe una persona con ese nombre. Por favor, elige otro.</p>
+      </Modal>
     </div>
   );
 };

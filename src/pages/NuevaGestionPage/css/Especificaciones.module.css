@@ -5,6 +5,8 @@
   align-items: center;
 }
 
+.containerPanel {}
+
 .segmented {
   background: #f8f9fa;
   border-radius: 8px;

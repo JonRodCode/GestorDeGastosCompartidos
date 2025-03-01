@@ -51,8 +51,8 @@ const GastoCredito = forwardRef(({ gasto }, ref) => {
   useEffect(() => {
     if (gasto) {
       setDatosTarjeta({
-        cuotaActual: gasto.cuotaActual || "",
-        totalDeCuotas: gasto.totalDeCuotas || "",
+        cuotaActual: Math.max(1, gasto.cuotaActual || ""),
+        totalDeCuotas: Math.max(1, gasto.totalDeCuotas || ""),
         nombreConsumo: gasto.nombreConsumo || "",
       });
     }
@@ -64,7 +64,7 @@ const GastoCredito = forwardRef(({ gasto }, ref) => {
       <div className={css.gastoCreditoContainer}>
         <Input
           placeholder={
-            errores.nombreConsumo ? "CAMPO REQUERIDO" : "Nombre de Consumo"
+            errores.nombreConsumo ? "Nombre de Consumo - REQUERIDO" : "Nombre de Consumo"
           }
           value={datosTarjeta.nombreConsumo}
           onChange={(e) => handleChange("nombreConsumo", e.target.value)}

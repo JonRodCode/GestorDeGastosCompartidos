@@ -32,8 +32,8 @@ const GastoPrestamo = forwardRef(({ gasto }, ref) => {
 
       return {
         ...datosBase,
-        cuotaActual: datosPrestamo.cuotaActual || 1,
-        totalDeCuotas: datosPrestamo.totalDeCuotas || 1,
+        cuotaActual: Math.max(1, datosPrestamo.cuotaActual || 1),
+        totalDeCuotas: Math.max(1, datosPrestamo.totalDeCuotas || 1),
         prestamoDe: datosPrestamo.prestamoDe,
         tipo: "prestamo",
       };
@@ -74,7 +74,7 @@ const GastoPrestamo = forwardRef(({ gasto }, ref) => {
           onChange={(e) => handleChange("totalDeCuotas", e.target.value)}
         />
         <Input
-          placeholder={errores.prestamoDe ? "CAMPO REQUERIDO" : "Préstamo de"}
+          placeholder={errores.prestamoDe ? "Préstamo de - REQUERIDO" : "Préstamo de"}
           value={datosPrestamo.prestamoDe}
           onChange={(e) => handleChange("prestamoDe", e.target.value)}
           className={errores.prestamoDe ? css.inputError : ""}
