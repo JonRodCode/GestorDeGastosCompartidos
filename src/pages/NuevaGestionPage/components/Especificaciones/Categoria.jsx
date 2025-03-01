@@ -98,7 +98,6 @@ const Categoria = ({
         accionarTrasReclasificar &&
         Object.keys(elementosEnUso).includes(valor)
       ) {
-        console.log("ACAAAANOOOO")
         const vecesEnUso = elementosEnUso[valor];
         Modal.confirm({
           title: "Confirmar reclasificación",

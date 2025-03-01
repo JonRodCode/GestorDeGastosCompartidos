@@ -137,3 +137,20 @@
 .gastosScrollWrapper::-webkit-scrollbar-thumb:hover {
     background: #555;
 }
+
+/* CSS Module */
+.contenedorPersona {
+  display: flex;
+  align-items: center; /* Alinea los elementos verticalmente */
+}
+
+.eliminarPersona {
+  color: red;
+  cursor: pointer;
+  margin: 0; /* Elimina márgenes innecesarios */
+  padding: 0; /* Asegura que no tenga relleno extra */
+  line-height: 1; /* Evita que el texto tenga un alto innecesario */
+  display: flex;
+  align-items: center; /* Ajusta la alineación dentro del propio elemento */
+}
+

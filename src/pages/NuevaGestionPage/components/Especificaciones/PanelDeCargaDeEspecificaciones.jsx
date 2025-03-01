@@ -158,7 +158,7 @@ const PanelDeCargaDeEspecificaciones = ({
         onChange={manejarArchivo}
         showUploadList={false}
       >
-        <Button icon={<UploadOutlined />}>Cargar {elemento}</Button>
+        <Button icon={<UploadOutlined />}>Cargar</Button>
       </Upload>
 
       {/* Botón para guardar */}
@@ -168,7 +168,7 @@ const PanelDeCargaDeEspecificaciones = ({
         style={{ marginTop: 10 }}
         type="primary"
       >
-        Guardar {elemento}
+        Guardar
       </Button>
     </>
   );

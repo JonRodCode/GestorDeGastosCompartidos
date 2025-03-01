@@ -15,6 +15,8 @@ const NuevaGestionPage = () => {
     useState(false);
   const [personas, setPersonas] = useState([]);
   const [miembrosDelHogar, setMiembrosDelHogar] = useState([]);
+  const [eliminarPersona, setEliminarPersona] = useState(false);
+  const [personaAEliminar, setPersonaAEliminar] = useState("");
   const [
     categoriasPendientesParaDeterminar,
     setCategoriasPendientesParaDeterminar,
@@ -23,12 +25,17 @@ const NuevaGestionPage = () => {
     fuentesDeGastosPendientesParaClasificar,
     setFuentesDeGastosPendientesParaClasificar,
   ] = useState([]);
-  const [fuentesDeGastosEnUso, setFuentesDeGastosEnUso] = useState({});
+
+  const [fuentesDeGastosEnUsoPorPersona, setFuentesDeGastosEnUsoPorPersona] =
+    useState({});
+
   const [
     consumosPendientesParaClasificar,
     setConsumosPendientesParaClasificar,
   ] = useState([]);
-  const [consumosEnUso, setConsumosEnUso] = useState({});
+
+  const [consumosEnUsoPorPersona, setConsumosEnUsoPorPersona] = useState({});
+
   const [elementoAReclasificar, setElementoAReclasificar] = useState([]);
   const [especificaciones, setEspecificaciones] = useState({
     fuenteDelGasto: {},
@@ -222,7 +229,10 @@ const NuevaGestionPage = () => {
               <Button
                 type="text"
                 icon={mostrarInputPersonas ? <UpOutlined /> : <DownOutlined />}
-                onClick={() => setMostrarInputPersonas(!mostrarInputPersonas)}
+                onClick={() => {
+                  setMostrarInputPersonas(!mostrarInputPersonas);
+                  setEliminarPersona(false);
+                }}
               />
               <Title level={3} className={css.subtitle}>
                 Cargar Gastos Por Persona
@@ -235,6 +245,10 @@ const NuevaGestionPage = () => {
                 setPersonas={setPersonas}
                 miembrosDelHogar={miembrosDelHogar}
                 setMiembrosDelHogar={setMiembrosDelHogar}
+                eliminarPersona={eliminarPersona}
+                personaAEliminar={personaAEliminar}
+                setEliminarPersona={setEliminarPersona}
+                setPersonaAEliminar={setPersonaAEliminar}
               />
             )}
             <div className={css.mainContainer}>
@@ -245,6 +259,8 @@ const NuevaGestionPage = () => {
                         agregarMuchosGastos={agregarMuchosGastos}
                         key={index}
                         nombre={persona.nombre}
+                        eliminarPersona={eliminarPersona}
+                        setPersonaAEliminar={setPersonaAEliminar}
                         gastos={persona.gastos || []} // Asegurar que siempre tenga un array
                         setGastos={(nuevosGastos) => {
                           actualizarGastosDePersona(
@@ -260,16 +276,16 @@ const NuevaGestionPage = () => {
                         }
                         especificaciones={especificaciones}
                         setEspecificaciones={setEspecificaciones}
-                        fuentesDeGastosEnUso={fuentesDeGastosEnUso}
-                        setFuentesDeGastosEnUso={setFuentesDeGastosEnUso}
+                        setFuentesDeGastosEnUsoPorPersona={
+                          setFuentesDeGastosEnUsoPorPersona
+                        }
                         listaDeConsumosPendientes={
                           consumosPendientesParaClasificar
                         }
                         setListaDeConsumosPendientes={
                           setConsumosPendientesParaClasificar
                         }
-                        consumosEnUso={consumosEnUso}
-                        setConsumosEnUso={setConsumosEnUso}
+                        setConsumosEnUsoPorPersona={setConsumosEnUsoPorPersona}
                         elementoAReclasificar={elementoAReclasificar}
                         setElementoAReclasificar={setElementoAReclasificar}
                       />
@@ -295,14 +311,12 @@ const NuevaGestionPage = () => {
                   setMostrarInputEspecificaciones(!mostrarInputEspecificaciones)
                 }
               />
-              <Title level={3} >
-                Especificaciones
-              </Title>
-            </div>            
+              <Title level={3}>Especificaciones</Title>
+            </div>
             <div className={css.mainContainer}>
               <div className={css.leftSection}>
                 <Especificaciones
-                mostrarInputEspecificaciones={mostrarInputEspecificaciones}
+                  mostrarInputEspecificaciones={mostrarInputEspecificaciones}
                   especificaciones={especificaciones}
                   setEspecificaciones={setEspecificaciones}
                   vista={vistaActualEspecificaciones}
@@ -317,14 +331,16 @@ const NuevaGestionPage = () => {
                   setFuenteDeGastosPendientes={
                     setFuentesDeGastosPendientesParaClasificar
                   }
-                  fuentesDeGastosEnUso={fuentesDeGastosEnUso}
+                  fuentesDeGastosEnUsoPorPersona={
+                    fuentesDeGastosEnUsoPorPersona
+                  }
                   consumosPendientesParaClasificar={
                     consumosPendientesParaClasificar
                   }
                   setConsumosPendientesParaClasificar={
                     setConsumosPendientesParaClasificar
                   }
-                  consumosEnUso={consumosEnUso}
+                  consumosEnUsoPorPersona={consumosEnUsoPorPersona}
                   setElementoAReclasificar={setElementoAReclasificar}
                 />
               </div>

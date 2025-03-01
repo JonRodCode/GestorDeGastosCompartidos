@@ -1,11 +1,19 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Input, Button, Modal } from 'antd';
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import css from '../css/MiembrosInput.module.css';
 
-const MiembrosInput = ({ personas, setPersonas, miembrosDelHogar, setMiembrosDelHogar }) => {
+const MiembrosInput = ({ personas, setPersonas, miembrosDelHogar, setMiembrosDelHogar, eliminarPersona, personaAEliminar, setEliminarPersona, setPersonaAEliminar }) => {
   const [nuevaPersona, setNuevaPersona] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
+
+  useEffect(() => {
+    if (personaAEliminar !== "") {
+      setPersonas(prev => prev.filter(persona => persona.nombre !== personaAEliminar));
+      setMiembrosDelHogar(prev => prev.filter(nombre => nombre !== personaAEliminar));
+      setPersonaAEliminar("");
+    }
+  }, [personaAEliminar]);
   
   const agregarPersona = () => {
     const nombreLimpio = nuevaPersona.trim();
@@ -24,11 +32,8 @@ const MiembrosInput = ({ personas, setPersonas, miembrosDelHogar, setMiembrosDel
     setNuevaPersona("");
   };
 
-  const eliminarUltimaPersona = () => {
-    if (personas.length === 0) return;
-    const ultimaPersona = personas[personas.length - 1];
-    setPersonas(prevPersonas => prevPersonas.slice(0, -1));
-    setMiembrosDelHogar(prevMiembrosDelHogar => prevMiembrosDelHogar.filter(nombre => nombre !== ultimaPersona.nombre));
+  const activarODesactivarModoEliminarPersona = () => {
+    setEliminarPersona(!eliminarPersona);
   };
 
   return (
@@ -45,8 +50,10 @@ const MiembrosInput = ({ personas, setPersonas, miembrosDelHogar, setMiembrosDel
         <Button type="primary" className={css.button} onClick={agregarPersona}>
           Agregar persona
         </Button>
-        <Button type="primary" className={css.button} onClick={eliminarUltimaPersona}>
-          Eliminar última persona
+        <Button onClick={activarODesactivarModoEliminarPersona}  className={`${
+                      eliminarPersona ? css.eliminarActivo : ""
+                    }`}>
+          Eliminar persona
         </Button>        
       </div>
       <div className={css.infoContainer}>
