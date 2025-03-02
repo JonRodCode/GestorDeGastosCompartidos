@@ -441,7 +441,21 @@ const PersonaConGastos = ({
       okText: "Eliminar",
       cancelText: "Cancelar",
       okType: "danger",
-      onOk: () => setPersonaAEliminar(nombre),
+      onOk: () => {
+        setPersonaAEliminar(nombre);
+        
+        setFuentesDeGastosEnUsoPorPersona(prev => {
+          const nuevoEstado = { ...prev };
+          delete nuevoEstado[nombre];
+          return nuevoEstado;
+        });
+      
+        setConsumosEnUsoPorPersona(prev => {
+          const nuevoEstado = { ...prev };
+          delete nuevoEstado[nombre];
+          return nuevoEstado;
+        });
+      }      
     });
   };
   

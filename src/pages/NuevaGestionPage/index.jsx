@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Typography, Button, Spin, Alert, Modal } from "antd";
 import { DownOutlined, UpOutlined } from "@ant-design/icons";
 import MiembrosInput from "../../components/MiembrosInput";
