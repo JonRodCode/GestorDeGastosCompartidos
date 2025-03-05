@@ -10,6 +10,8 @@ const { Title } = Typography;
 const DistribucionRapidaPage = () => {
   const [personas, setPersonas] = useState([]);
   const [miembrosDelHogar, setMiembrosDelHogar] = useState([]);
+  const [eliminarPersona, setEliminarPersona] = useState(false);
+  const [personaAEliminar, setPersonaAEliminar] = useState("");
   const personasRef = useRef([]);
   const [nuevaRespuesta, setNuevaRespuesta] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -18,31 +20,31 @@ const DistribucionRapidaPage = () => {
     const nuevosDatos = [];
 
     personasRef.current.forEach((persona) => {
-      if (persona){
+      if (persona) {
         nuevosDatos.push(persona.obtenerDatosPropios());
       }
     });
-    console.log(nuevosDatos)
+    console.log(nuevosDatos);
     return nuevosDatos;
   };
 
   const enviarDatos = async () => {
     setLoading(true);
-    const datos = obtenerDatosPersonas(); 
-   
+    const datos = obtenerDatosPersonas();
+
     try {
       const response = await fetch("http://localhost:6061/resumen", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(datos)
+        body: JSON.stringify(datos),
       });
 
       if (response.ok) {
         const respuesta = await response.json();
         console.log("Respuesta del servidor:", respuesta);
-        setNuevaRespuesta(respuesta)
+        setNuevaRespuesta(respuesta);
       } else {
         console.error("Error en la petición");
         setNuevaRespuesta(null);
@@ -55,7 +57,6 @@ const DistribucionRapidaPage = () => {
     }
   };
 
-
   return (
     <div className={css.container}>
       <Title level={2} className={css.title}>
@@ -64,18 +65,22 @@ const DistribucionRapidaPage = () => {
       <Title level={3} className={css.subtitle}>
         Cargar Gastos Por Persona
       </Title>
-  
+
       {/* Input y botones */}
-      <MiembrosInput 
-        personas={personas} 
-        setPersonas={setPersonas} 
-        miembrosDelHogar={miembrosDelHogar} 
+      <MiembrosInput
+        personas={personas}
+        setPersonas={setPersonas}
+        miembrosDelHogar={miembrosDelHogar}
         setMiembrosDelHogar={setMiembrosDelHogar}
+        eliminarPersona={eliminarPersona}
+        personaAEliminar={personaAEliminar}
+        setEliminarPersona={setEliminarPersona}
+        setPersonaAEliminar={setPersonaAEliminar}
       />
       <Button type="primary" onClick={enviarDatos}>
-          Enviar Datos
-        </Button>
-  
+        Enviar Datos
+      </Button>
+
       {/* Contenedor principal con Personas y Resumen General */}
       <div className={css.mainContainer}>
         {/* Personas */}
@@ -87,24 +92,28 @@ const DistribucionRapidaPage = () => {
                 nombre={persona.nombre}
                 miembrosHogar={miembrosDelHogar}
                 ref={(el) => (personasRef.current[index] = el)}
+                eliminarPersona={eliminarPersona}
+                        setPersonaAEliminar={setPersonaAEliminar}
               />
             ))
           ) : (
             <p>Agregue una persona</p>
           )}
         </div>
-  
+
         {/* Resumen General alineado con la primera card */}
         <div className={css.rightSection}>
           <div className={css.responseWrapper}>
-            {nuevaRespuesta && <RespuestaServicio nuevaRespuesta={nuevaRespuesta} />}
-            {!nuevaRespuesta && !loading && <p>No se ha recibido respuesta aún.</p>}
+            {nuevaRespuesta && (
+              <RespuestaServicio nuevaRespuesta={nuevaRespuesta} />
+            )}
+            {!nuevaRespuesta && !loading && (
+              <p>No se ha recibido respuesta aún.</p>
+            )}
           </div>
         </div>
       </div>
-  
-     
-  
+
       {/* Cargando */}
       {loading && <p>Cargando...</p>}
     </div>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Tag, Modal } from "antd";
 import css from "../../css/Categoria.module.css";
-import InputDesplegable from "../../../../components/InputDesplegable";
+import InputDesplegable from "../../../../../components/InputDesplegable";
 
 const Categoria = ({
   nombre,

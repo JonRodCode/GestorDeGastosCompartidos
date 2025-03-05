@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Typography, Card, Modal, Button } from "antd";
-import InputDesplegable from "../../../../components/InputDesplegable";
-import ButtonDesplegable from "../../../../components/ButtonDesplegable";
+import InputDesplegable from "../../../../../components/InputDesplegable";
+import ButtonDesplegable from "../../../../../components/ButtonDesplegable";
 import css from "../../css/ClasificadorDeDatos.module.css";
 import Categoria from "./Categoria";
 import ClasificacionPendiente from "./clasificacionPendiente";

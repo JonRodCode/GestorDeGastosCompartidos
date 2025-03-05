@@ -47,3 +47,20 @@
   gap: 5px;
   cursor: pointer;
 }
+
+.eliminarPersona {
+  color: red;
+  cursor: pointer;
+  margin: 0; /* Elimina márgenes innecesarios */
+  padding: 0; /* Asegura que no tenga relleno extra */
+  line-height: 1; /* Evita que el texto tenga un alto innecesario */
+  display: flex;
+  align-items: center; /* Ajusta la alineación dentro del propio elemento */
+  font-weight: normal; /* Evita que se vea en negrita */
+}
+
+.cardTitleContainer {
+  display: flex;
+  gap: 10px; /* Espacio entre los textos */
+  align-items: center;
+}

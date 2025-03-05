@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Typography, Card, Tag, Button, Modal } from "antd";
-import InputDesplegable from "../../../../components/InputDesplegable";
-import ButtonDesplegable from "../../../../components/ButtonDesplegable";
+import InputDesplegable from "../../../../../components/InputDesplegable";
+import ButtonDesplegable from "../../../../../components/ButtonDesplegable";
 import css from "../../css/Determinador.module.css";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 

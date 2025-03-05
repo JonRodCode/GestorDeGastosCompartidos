@@ -1,14 +1,15 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Typography, Button, Spin, Alert, Modal } from "antd";
 import { DownOutlined, UpOutlined } from "@ant-design/icons";
-import MiembrosInput from "../../components/MiembrosInput";
+import MiembrosInput from "../../../components/MiembrosInput";
 import PersonaConGastos from "./components/PersonaConGastos";
 import Especificaciones from "./components/Especificaciones";
 import css from "./css/NuevaGestionPage.module.css";
 
 const { Title } = Typography;
 
-const NuevaGestionPage = () => {
+const NuevaGestionIngresoDatos = () => {
   const [activeView, setActiveView] = useState(null);
   const [mostrarInputPersonas, setMostrarInputPersonas] = useState(false);
   const [mostrarInputEspecificaciones, setMostrarInputEspecificaciones] =
@@ -51,8 +52,9 @@ const NuevaGestionPage = () => {
   const [vistaActualEspecificaciones, setVistaActualEspecificaciones] =
     useState("Panel general");
   // Posiblemente cambiemos la forma de mostrar la respuesta
-  const [nuevaRespuesta, setNuevaRespuesta] = useState(null);
+  const [nuevaRespuesta, setNuevaRespuesta] = useState("No se cargo nada");
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   // Función para actualizar los gastos de una persona específica
 
@@ -87,6 +89,7 @@ const NuevaGestionPage = () => {
 
   const mapearGasto = (personaNombre, gasto) => {
     const gastoBase = {
+      id:gasto.id,
       tipo: gasto.tipo,
       persona: personaNombre,
       detalleConsumo: gasto.detalleConsumo || "",
@@ -156,7 +159,7 @@ const NuevaGestionPage = () => {
   };
 
   const clasificarDatos = async () => {
-    if (!validarQueNoHayPendientes()) {
+    if (!(validarQueNoHayPendientes() && condicionesAprobadasParaClasificacion())) {
       return;
     }
 
@@ -184,17 +187,48 @@ const NuevaGestionPage = () => {
       if (response.ok) {
         const respuesta = await response.json();
         console.log("Respuesta del servidor:", respuesta);
+        setTimeout(() => {
+          setLoading(false);
         setNuevaRespuesta(respuesta);
+        sessionStorage.setItem("miObjeto", JSON.stringify(respuesta));
+          navigate("/NuevaGestion/AnalisisClasificacion");
+      }, 5000); 
+
       } else {
         console.error("Error en la petición");
         setNuevaRespuesta(null);
+        setLoading(false);
       }
     } catch (error) {
       console.error("Hubo un error:", error);
       setNuevaRespuesta(null);
-    } finally {
       setLoading(false);
+    } 
+  };
+
+  const condicionesAprobadasParaClasificacion = () => {
+    if (personas.length < 2){
+      Modal.warning({
+        title: "Faltan personas",
+        content:
+          "Deben ser como minimo 2 personas para la clasificación",
+        okText: "Aceptar",
+        onOk:  () =>{
+          return false;}
+        
+      });
     }
+    else if ((Object.values(fuentesDeGastosEnUsoPorPersona).flat()) < 1) {
+      Modal.warning({
+        title: "Faltan gastos",
+        content:
+          "Por lo menos debe haber 1 gasto",
+        okText: "Aceptar",
+        onOk:  () =>{
+          return false;}
+      });
+    }
+    return true;
   };
 
   return (
@@ -350,23 +384,11 @@ const NuevaGestionPage = () => {
       </div>
       <Button onClick={clasificarDatos} disabled={loading} type="primary">
         {loading ? <Spin size="small" /> : "Clasificar Gastos"}
-      </Button>
-      {nuevaRespuesta && (
-        <pre
-          style={{
-            background: "#f0f0f0",
-            padding: "10px",
-            borderRadius: "5px",
-            marginTop: "10px",
-          }}
-        >
-          {JSON.stringify(nuevaRespuesta, null, 2)}
-        </pre>
-      )}
+      </Button>    
 
       {!nuevaRespuesta && !loading && (
         <Alert
-          message="No hay datos aún"
+          message="No se pudo comunicar con el servidor"
           type="info"
           showIcon
           style={{ marginTop: "10px" }}
@@ -376,4 +398,4 @@ const NuevaGestionPage = () => {
   );
 };
 
-export default NuevaGestionPage;
+export default NuevaGestionIngresoDatos;
