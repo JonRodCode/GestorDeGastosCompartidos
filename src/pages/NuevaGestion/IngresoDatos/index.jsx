@@ -10,7 +10,7 @@ import css from "./css/NuevaGestionPage.module.css";
 const { Title } = Typography;
 
 const NuevaGestionIngresoDatos = () => {
-  const [activeView, setActiveView] = useState(null);
+  const [activeView, setActiveView] = useState("view1");
   const [mostrarInputPersonas, setMostrarInputPersonas] = useState(false);
   const [mostrarInputEspecificaciones, setMostrarInputEspecificaciones] =
     useState(false);
@@ -92,7 +92,7 @@ const NuevaGestionIngresoDatos = () => {
       id:gasto.id,
       tipo: gasto.tipo,
       persona: personaNombre,
-      detalleConsumo: gasto.detalleConsumo || "",
+      detalle: gasto.detalle || "",
       fuenteDelGasto: gasto.fuenteDelGasto || "",
       categoria: gasto.categoria || "",
       determinacion: gasto.determinacion || "",
@@ -115,7 +115,6 @@ const NuevaGestionIngresoDatos = () => {
       case "debito":
         return {
           ...gastoBase,
-          mesDelResumen: gasto.mesDelResumen || "",
           tarjeta: gasto.tarjeta || "Visa",
           tipoTarjeta: gasto.tipoTarjeta || "Titular",
           aNombreDe: gasto.aNombreDe || "",
@@ -126,7 +125,6 @@ const NuevaGestionIngresoDatos = () => {
       case "credito":
         return {
           ...gastoBase,
-          mesDelResumen: gasto.mesDelResumen || "",
           tarjeta: gasto.tarjeta || "Visa",
           tipoTarjeta: gasto.tipoTarjeta || "Titular",
           aNombreDe: gasto.aNombreDe || "",
@@ -158,19 +156,29 @@ const NuevaGestionIngresoDatos = () => {
     return true;
   };
 
+  const listaPersonasSiTienenGastosONo = () => {
+    let listaDePersonasConOSinGastos = [];
+    listaDePersonasConOSinGastos = personas.map(persona => ({
+        nombre: persona.nombre,
+        gastos: persona.gastos.length > 0
+    }));
+
+    return listaDePersonasConOSinGastos;
+};
+
+
   const clasificarDatos = async () => {
     if (!(validarQueNoHayPendientes() && condicionesAprobadasParaClasificacion())) {
       return;
     }
 
     setLoading(true);
-    // Convertir cada gasto en el formato correcto según su tipo
     const gastosTransformados = personas.flatMap((persona) =>
       persona.gastos.map((gasto) => mapearGasto(persona.nombre, gasto))
     );
 
     const datos = {
-      especificaciones, // Aquí puedes agregar datos adicionales si es necesario
+      especificaciones, 
       gastos: gastosTransformados,
     };
 
@@ -190,9 +198,11 @@ const NuevaGestionIngresoDatos = () => {
         setTimeout(() => {
           setLoading(false);
         setNuevaRespuesta(respuesta);
-        sessionStorage.setItem("miObjeto", JSON.stringify(respuesta));
-          navigate("/NuevaGestion/AnalisisClasificacion");
-      }, 5000); 
+        const nombresDePersonas =listaPersonasSiTienenGastosONo();
+        sessionStorage.setItem("listaDePersonas", JSON.stringify(nombresDePersonas));
+        sessionStorage.setItem("gastosClasificados", JSON.stringify(respuesta));
+        navigate("/NuevaGestion/AnalisisClasificacion");
+      }, 2000); 
 
       } else {
         console.error("Error en la petición");
@@ -207,11 +217,11 @@ const NuevaGestionIngresoDatos = () => {
   };
 
   const condicionesAprobadasParaClasificacion = () => {
-    if (personas.length < 2){
+    if (personas.length < 1){
       Modal.warning({
-        title: "Faltan personas",
+        title: "Faltan datos",
         content:
-          "Deben ser como minimo 2 personas para la clasificación",
+          "Como minimo debe agregar 1 persona con sus gastos para la clasificación",
         okText: "Aceptar",
         onOk:  () =>{
           return false;}
@@ -220,9 +230,9 @@ const NuevaGestionIngresoDatos = () => {
     }
     else if ((Object.values(fuentesDeGastosEnUsoPorPersona).flat()) < 1) {
       Modal.warning({
-        title: "Faltan gastos",
+        title: "Faltan datos",
         content:
-          "Por lo menos debe haber 1 gasto",
+          "Como minimo debe agregar 1 gasto",
         okText: "Aceptar",
         onOk:  () =>{
           return false;}

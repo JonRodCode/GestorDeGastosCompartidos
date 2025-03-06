@@ -1,0 +1,17 @@
+.buttonContainer {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .defaultButton {
+    background-color: #1677ff;
+    border: none;
+    color: white;
+  }
+  
+  .activeButton {
+    background-color: #5c9ad4;
+    border: none;
+    color: white;
+    box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.3);
+  }  

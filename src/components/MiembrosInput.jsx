@@ -3,7 +3,9 @@ import { Input, Button, Modal } from 'antd';
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import css from '../css/MiembrosInput.module.css';
 
-const MiembrosInput = ({ personas, setPersonas, miembrosDelHogar, setMiembrosDelHogar, eliminarPersona, personaAEliminar, setEliminarPersona, setPersonaAEliminar }) => {
+const MiembrosInput = ({ personas, setPersonas, miembrosDelHogar,
+  setMiembrosDelHogar, eliminarPersona, personaAEliminar, setEliminarPersona,
+  setPersonaAEliminar, tipoDeOperacionDePersona = "gastos" }) => {
   const [nuevaPersona, setNuevaPersona] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -18,7 +20,6 @@ const MiembrosInput = ({ personas, setPersonas, miembrosDelHogar, setMiembrosDel
   const agregarPersona = () => {
     const nombreLimpio = nuevaPersona.trim();
     if (!nombreLimpio) return;
-
     const nombreRepetido = personas.some(persona => persona.nombre.toLowerCase() === nombreLimpio.toLowerCase());
 
     if (nombreRepetido) {
@@ -27,7 +28,18 @@ const MiembrosInput = ({ personas, setPersonas, miembrosDelHogar, setMiembrosDel
     }
 
     const nuevaCantidadDeMiembros = personas.length + 1;
-    setPersonas(prevPersonas => [...prevPersonas, { id: nuevaCantidadDeMiembros, nombre: nombreLimpio, gastos: [] }]);
+if (tipoDeOperacionDePersona === "gastos"){
+  setPersonas(prevPersonas => [...prevPersonas, { id: nuevaCantidadDeMiembros, nombre: nombreLimpio, gastos: [] }]);
+}
+else if (tipoDeOperacionDePersona === "ganancias") {
+  setPersonas(prevPersonas => [...prevPersonas, { id: nuevaCantidadDeMiembros,
+    nombre: nombreLimpio,
+    gastos: false, 
+    ganancias: [],
+    personasACargo: 0
+   }]);
+}
+    
     setMiembrosDelHogar(prevMiembrosDelHogar => [...prevMiembrosDelHogar, nombreLimpio]);
     setNuevaPersona("");
   };

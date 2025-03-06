@@ -1,241 +1,148 @@
-import { Table, Input, Button, Modal, Form, InputNumber } from "antd";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button, Spin, Alert } from "antd";
+import css from "./css/AnalisisClasificacion.module.css"
+import Personas from "./components/Personas";
+import GastosClasificados from "./components/GastosClasificados";
 
 const NuevaGestionAnalisisClasificacion = () => {
+  const [activeView, setActiveView] = useState("view1");
   const [data, setData] = useState(
-    JSON.parse(sessionStorage.getItem("miObjeto"))
-  );
-  const [filteredData, setFilteredData] = useState(data);
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [editData, setEditData] = useState(null); // Guardamos los datos de la fila seleccionada
-  const [form] = Form.useForm(); // Formulario de Ant Design
+    JSON.parse(sessionStorage.getItem("gastosClasificados"))  );
+  const personasGuardadas = JSON.parse(sessionStorage.getItem("listaDePersonas")) || [];    
+  const personasConCampos = personasGuardadas.map(persona => ({
+    ...persona,
+    ganancias: [],
+    personasACargo: 0, 
+  }));
+  
+  const [listaDePersonas, setListaDePersonas] = useState(personasConCampos);
 
-  // Filtro por cada columna
-  const handleFilterChange = (value, key) => {
-    const filtered = data.filter((item) =>
-      item[key].toString().toLowerCase().includes(value.toLowerCase())
-    );
-    setFilteredData(filtered);
+  const [nuevaRespuesta, setNuevaRespuesta] = useState("No se cargo nada");
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+
+  const prepararDatos = () => {
+    return listaDePersonas.map(persona => {
+      // Filtrar los gastos de la persona
+      const gastosPersona = data.filter(gasto => gasto.persona === persona.nombre);
+  
+      // Clasificar los gastos según las condiciones dadas
+      const gastosEquitativosPagados = gastosPersona.filter(gasto => 
+        (gasto.tipo === "basico" || gasto.tipo === "debito") && gasto.determinacion === "GastoEquitativo"
+      ).map(gasto => gasto.monto);
+  
+      const gastosEquitativosPendientes = gastosPersona.filter(gasto => 
+        (gasto.tipo === "prestamo" || gasto.tipo === "credito") && gasto.determinacion === "GastoEquitativo"
+      ) .map(gasto => gasto.monto);
+  
+      const gastosIgualitariosPagados = gastosPersona.filter(gasto => 
+        (gasto.tipo === "basico" || gasto.tipo === "debito") && gasto.determinacion === "GastoIgualitario"
+      ).map(gasto => gasto.monto);
+  
+      const gastosIgualitariosPendientes = gastosPersona.filter(gasto => 
+        (gasto.tipo === "prestamo" || gasto.tipo === "credito") && gasto.determinacion === "GastoIgualitario"
+      ).map(gasto => gasto.monto);
+  
+      return {
+        nombre: persona.nombre,
+        personasACargo: persona.personasACargo,
+        ganancias: persona.ganancias.map(g => g.monto),
+        gastosEquitativosPagados,
+        gastosEquitativosPendientes,
+        gastosIgualitariosPagados,
+        gastosIgualitariosPendientes,
+        gastosPersonalesDeOtros: {}
+      };
+    });
   };
 
-  const handleEdit = (record) => {
-    setEditData(record); // Guardamos los datos de la fila seleccionada
-    form.setFieldsValue(record); // Establecemos los valores del formulario con los datos de la fila seleccionada
-    setIsModalVisible(true); // Abrimos el modal
+
+
+  const distribuirGastos = async () => {
+    setLoading(true);
+    const datos = prepararDatos();
+    console.log(datos)
+    try {
+      const response = await fetch(
+        "http://localhost:6061/resumen",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(datos),
+        }
+      );
+
+      if (response.ok) {
+        const respuesta = await response.json();
+        console.log("Respuesta del servidor:", respuesta);
+        setTimeout(() => {
+          setLoading(false);
+        setNuevaRespuesta(respuesta);
+        sessionStorage.setItem("resumenDeDistribucion", JSON.stringify(respuesta));
+        //navigate("/NuevaGestion/AnalisisClasificacion");
+      }, 2000); 
+
+      } else {
+        console.error("Error en la petición");
+        setNuevaRespuesta(null);
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error("Hubo un error:", error);
+      setNuevaRespuesta(null);
+      setLoading(false);
+    } 
   };
-
-  const handleSave = () => {
-    form
-      .validateFields()
-      .then((values) => {
-        // Actualizamos solo la fila editada
-        const updatedData = data.map((item) =>
-          item.id === editData.id ? { ...item, ...values } : item
-        );
-        // Actualizamos los datos filtrados
-        setData(updatedData);
-        setFilteredData(updatedData);
-
-        // Cerramos el modal
-        setIsModalVisible(false);
-      })
-      .catch((info) => {
-        console.log("Validación fallida:", info);
-      });
-  };
-
-  const columns = [
-    {
-      title: "Tipo",
-      dataIndex: "tipo",
-      key: "tipo",
-      filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
-        <div style={{ padding: 8 }}>
-          <Input
-            placeholder="Buscar Tipo"
-            value={selectedKeys[0]}
-            onChange={(e) => setSelectedKeys([e.target.value])}
-            onPressEnter={() => confirm()}
-            style={{ width: 188, marginBottom: 8, display: "block" }}
-          />
-          <Button type="link" onClick={() => clearFilters && clearFilters()} style={{ width: 90 }}>
-            Limpiar
-          </Button>
-          <Button type="link" onClick={() => confirm()} style={{ width: 90 }}>
-            Filtrar
-          </Button>
-        </div>
-      ),
-      onFilter: (value, record) => record.tipo.toString().toLowerCase().includes(value.toLowerCase()),
-    },
-    {
-      title: "Persona",
-      dataIndex: "persona",
-      key: "persona",
-      filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
-        <div style={{ padding: 8 }}>
-          <Input
-            placeholder="Buscar Persona"
-            value={selectedKeys[0]}
-            onChange={(e) => setSelectedKeys([e.target.value])}
-            onPressEnter={() => confirm()}
-            style={{ width: 188, marginBottom: 8, display: "block" }}
-          />
-          <Button type="link" onClick={() => clearFilters && clearFilters()} style={{ width: 90 }}>
-            Limpiar
-          </Button>
-          <Button type="link" onClick={() => confirm()} style={{ width: 90 }}>
-            Filtrar
-          </Button>
-        </div>
-      ),
-      onFilter: (value, record) => record.persona.toString().toLowerCase().includes(value.toLowerCase()),
-    },
-    {
-      title: "Fuente del Gasto",
-      dataIndex: "fuenteDelGasto",
-      key: "fuenteDelGasto",
-      filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
-        <div style={{ padding: 8 }}>
-          <Input
-            placeholder="Buscar Fuente"
-            value={selectedKeys[0]}
-            onChange={(e) => setSelectedKeys([e.target.value])}
-            onPressEnter={() => confirm()}
-            style={{ width: 188, marginBottom: 8, display: "block" }}
-          />
-          <Button type="link" onClick={() => clearFilters && clearFilters()} style={{ width: 90 }}>
-            Limpiar
-          </Button>
-          <Button type="link" onClick={() => confirm()} style={{ width: 90 }}>
-            Filtrar
-          </Button>
-        </div>
-      ),
-      onFilter: (value, record) =>
-        record.fuenteDelGasto.toString().toLowerCase().includes(value.toLowerCase()),
-    },
-    {
-      title: "Categoria",
-      dataIndex: "categoria",
-      key: "categoria",
-      filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
-        <div style={{ padding: 8 }}>
-          <Input
-            placeholder="Buscar Categoria"
-            value={selectedKeys[0]}
-            onChange={(e) => setSelectedKeys([e.target.value])}
-            onPressEnter={() => confirm()}
-            style={{ width: 188, marginBottom: 8, display: "block" }}
-          />
-          <Button type="link" onClick={() => clearFilters && clearFilters()} style={{ width: 90 }}>
-            Limpiar
-          </Button>
-          <Button type="link" onClick={() => confirm()} style={{ width: 90 }}>
-            Filtrar
-          </Button>
-        </div>
-      ),
-      onFilter: (value, record) =>
-        record.categoria.toString().toLowerCase().includes(value.toLowerCase()),
-    },
-    {
-      title: "Monto",
-      dataIndex: "monto",
-      key: "monto",
-      filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
-        <div style={{ padding: 8 }}>
-          <InputNumber
-            placeholder="Buscar Monto"
-            value={selectedKeys[0]}
-            onChange={(value) => setSelectedKeys([value])}
-            style={{ width: 188, marginBottom: 8, display: "block" }}
-          />
-          <Button type="link" onClick={() => clearFilters && clearFilters()} style={{ width: 90 }}>
-            Limpiar
-          </Button>
-          <Button type="link" onClick={() => confirm()} style={{ width: 90 }}>
-            Filtrar
-          </Button>
-        </div>
-      ),
-      onFilter: (value, record) =>
-        record.monto.toString().toLowerCase().includes(value.toString().toLowerCase()),
-    },
-    {
-      title: "Acciones",
-      key: "acciones",
-      render: (_, record) => (
-        <Button onClick={() => handleEdit(record)} type="link">
-          Editar
-        </Button>
-      ),
-    },
-  ];
 
   return (
     <>
       <h1>Gestión de Análisis de Clasificación</h1>
-      <Table
-        dataSource={filteredData}
-        columns={columns}
-        rowKey="key"
-        onChange={(pagination, filters, sorter) => console.log("onChange", pagination, filters, sorter)}
-      />
+      <div className={css.buttonContainer}>
+        <Button
+          className={
+            activeView === "view1" ? css.activeButton : css.defaultButton
+          }
+          onClick={() => setActiveView("view1")}
+        >
+          Gastos
+        </Button>
+        <Button
+          className={
+            activeView === "view2" ? css.activeButton : css.defaultButton
+          }
+          onClick={() => setActiveView("view2")}
+        >
+          Personas
+        </Button>
+      </div>
 
-      {/* Modal para editar datos */}
-      <Modal
-        title="Editar Fila"
-        visible={isModalVisible}
-        onOk={handleSave}
-        onCancel={() => setIsModalVisible(false)}
-        footer={[
-          <Button key="cancel" onClick={() => setIsModalVisible(false)}>
-            Cancelar
-          </Button>,
-          <Button key="submit" type="primary" onClick={handleSave}>
-            Guardar
-          </Button>,
-        ]}
-      >
-        <Form form={form} layout="vertical">
-          <Form.Item
-            label="Tipo"
-            name="tipo"
-            rules={[{ required: true, message: "Por favor ingrese el tipo" }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            label="Persona"
-            name="persona"
-            rules={[{ required: true, message: "Por favor ingrese la persona" }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            label="Fuente del Gasto"
-            name="fuenteDelGasto"
-            rules={[{ required: true, message: "Por favor ingrese la fuente del gasto" }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            label="Categoria"
-            name="categoria"
-            rules={[{ required: true, message: "Por favor ingrese la categoría" }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            label="Monto"
-            name="monto"
-            rules={[{ required: true, message: "Por favor ingrese el monto" }]}
-          >
-            <InputNumber min={1} />
-          </Form.Item>
-        </Form>
-      </Modal>
+      {activeView === "view1" && (
+        <GastosClasificados
+        data={data}
+        setData={setData}
+        />)}
+        {activeView === "view2" && (
+      <Personas
+      listaDePersonas={listaDePersonas}
+      setListaDePersonas={setListaDePersonas}
+      />)}
+    <div>
+     <Button onClick={distribuirGastos} disabled={loading} type="primary">
+        {loading ? <Spin size="small" /> : "Distribuir Gastos"}
+      </Button>
+      {!nuevaRespuesta && !loading && (
+        <Alert
+          message="No se pudo comunicar con el servidor"
+          type="info"
+          showIcon
+          style={{ marginTop: "10px" }}
+        />
+      )} 
+      </div>       
+      <pre>{JSON.stringify(nuevaRespuesta, null, 2)}</pre>
+      <pre>{JSON.stringify(data, null, 2)}</pre>
     </>
   );
 };

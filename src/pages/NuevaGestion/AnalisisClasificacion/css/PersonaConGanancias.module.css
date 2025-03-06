@@ -1,0 +1,100 @@
+.card {
+    margin-bottom: 20px;
+    width: 850px;
+    max-width: 850px;
+    min-width: 550px;
+  }
+.header {
+    display: flex;
+    justify-content: space-between; /* Esto asegura que el título y el botón estén en los extremos */
+    align-items: center; /* Alinea verticalmente el título y el botón */
+    padding: 10px 0;
+  }
+  
+  .cardTitle {
+    font-weight: bold;
+    font-size: 22px;
+    margin-right: 20px; /* Espacio entre el título y el botón */
+  }  
+
+  .buttonsContainer {
+    display: flex;
+  justify-content: space-between;
+  }
+
+  .placeholderText {
+    font-size: 17px; /* Más grande */
+    color: #444; /* Un gris más oscuro */
+  }
+
+  .gananciaItem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .contenedor {
+    display: flex;
+    align-items: center;
+    gap: 10px;  /* Agrega un pequeño espacio entre gananciaInfo y los botones */
+    width: 100%;
+    padding: 5px 10px;
+  }
+  
+  .gananciaInfo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    width: 80%;  /* Menos ancho */
+    position: relative; /* Asegura que los span flotantes no muevan el contenido */
+    margin-left: 35px; /* Ajusta hacia la izquierda */
+  }
+  
+
+.gananciaInfo:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+.botonesAccion {
+  display: flex;
+  gap: 18px; /* Espaciado entre los botones */
+}
+
+.gananciaFuente {
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+}
+
+.gananciaMonto {
+  font-size: 16px;
+  color: #007bff;
+  font-weight: bold;
+}
+
+.personasACargo {
+  margin-top: 20px;
+  display: flex;
+  align-items: center; /* Alinea verticalmente */
+  gap: 10px; /* Espacio entre elementos */
+}
+
+.eliminarPersona {
+  color: red;
+  cursor: pointer;
+  margin: 0; /* Elimina márgenes innecesarios */
+  padding: 0; /* Asegura que no tenga relleno extra */
+  line-height: 1; /* Evita que el texto tenga un alto innecesario */
+  display: flex;
+  align-items: center; /* Ajusta la alineación dentro del propio elemento */
+}
+
+.contenedorPersona {
+  display: flex;
+  align-items: center; /* Alinea los elementos verticalmente */
+}

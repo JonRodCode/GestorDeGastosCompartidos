@@ -8,7 +8,6 @@ const { Option } = Select;
 const GastoDebito = forwardRef(({ gasto, tipo = "debito" }, ref) => {
   const gastoBaseRef = useRef();
   const [datosTarjeta, setDatosTarjeta] = useState({
-    mesDelResumen: "",
     tarjeta: "Visa",
     tipoTarjeta: "Titular",
     aNombreDe: "",
@@ -58,7 +57,6 @@ const GastoDebito = forwardRef(({ gasto, tipo = "debito" }, ref) => {
   useEffect(() => {
     if (gasto) {
       setDatosTarjeta({
-        mesDelResumen: gasto.mesDelResumen || "",
         tarjeta: gasto.tarjeta || "Visa",
         tipoTarjeta: gasto.tipoTarjeta || "Titular",
         aNombreDe: gasto.aNombreDe || "",

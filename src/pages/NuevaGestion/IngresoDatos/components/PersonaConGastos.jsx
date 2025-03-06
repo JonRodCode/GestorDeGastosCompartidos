@@ -628,10 +628,6 @@ const PersonaConGastos = ({
                         gasto.tipo === "credito") && (
                         <>
                           <p>
-                            <strong>Mes del Resumen:</strong>{" "}
-                            {gasto.mesDelResumen}
-                          </p>
-                          <p>
                             <strong>Tarjeta:</strong> {gasto.tarjeta}
                           </p>
                           <p>
