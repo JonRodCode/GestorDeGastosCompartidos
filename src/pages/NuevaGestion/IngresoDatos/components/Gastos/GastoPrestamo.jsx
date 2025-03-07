@@ -1,88 +1,122 @@
-import { forwardRef, useImperativeHandle, useRef, useEffect, useState } from "react";
+import {
+  forwardRef,
+  useImperativeHandle,
+  useRef,
+  useEffect,
+  useState,
+} from "react";
 import GastoBase from "./GastoBase";
-import { Input } from "antd";
+import { Input, message } from "antd";
 import css from "../../css/Gastos/GastoBase.module.css";
 
-const GastoPrestamo = forwardRef(({ gasto }, ref) => {
-  const gastoBaseRef = useRef();
-  const [datosPrestamo, setDatosPrestamo] = useState({
-    cuotaActual: "",
-    totalDeCuotas: "",
-    prestamoDe: "",
-  });
+const GastoPrestamo = forwardRef(
+  ({ gasto, excepcion = false, usoDirecto = true }, ref) => {
+    const gastoBaseRef = useRef();
+    const [datosPrestamo, setDatosPrestamo] = useState({
+      cuotaActual: "",
+      totalDeCuotas: "",
+      prestamoDe: "",
+    });
 
-  const [errores, setErrores] = useState({});
+    const [errores, setErrores] = useState({});
 
-  useImperativeHandle(ref, () => ({
-    obtenerDatos: () => {
-      const datosBase = gastoBaseRef.current?.obtenerDatos();
-      if (!datosBase) return null;
+    useImperativeHandle(ref, () => ({
+      obtenerDatos: () => {
+        const datosBase = gastoBaseRef.current?.obtenerDatos();
+        if (!datosBase) return null;
 
-      const nuevosErrores = {};
+        const nuevosErrores = {};
 
-      // Validación de "Préstamo de" (obligatorio)
-      if (!datosPrestamo.prestamoDe.trim()) nuevosErrores.prestamoDe = true;
+        // Validación de "Préstamo de" (obligatorio)
+        if (excepcion) {
+          const tieneDatosExtras = datosPrestamo.prestamoDe.trim();
+          const tieneDatosBase =
+            datosBase.detalle.trim() ||
+            datosBase.fuenteDelGasto.trim() ||
+            (datosBase.monto && parseFloat(datosBase.monto) > 0);
 
-      if (Object.keys(nuevosErrores).length > 0) {
-        setErrores(nuevosErrores);
-        return null;
+          if (!tieneDatosBase && !tieneDatosExtras) {
+            nuevosErrores.generico = "Debe completar al menos un campo correspondiente al tipo de gasto";
+            message.error(nuevosErrores.generico);
+          }
+        } else {
+          // Validación normal para excepcion false (puedes ajustar según necesites)
+          if (!datosPrestamo.prestamoDe.trim())
+            nuevosErrores.prestamoDe = "Requerido";
+        }
+        if (Object.keys(nuevosErrores).length > 0) {
+          setErrores(nuevosErrores);
+          return null;
+        }
+
+        setErrores({});
+
+        return {
+          ...datosBase,
+          cuotaActual: Math.max(1, datosPrestamo.cuotaActual || 1),
+          totalDeCuotas: Math.max(1, datosPrestamo.totalDeCuotas || 1),
+          prestamoDe: datosPrestamo.prestamoDe,
+          tipo: "prestamo",
+        };
+      },
+    }));
+
+    const handleChange = (campo, valor) => {
+      setDatosPrestamo((prev) => ({ ...prev, [campo]: valor }));
+    };
+
+    // Pre-cargar los datos cuando 'gasto' cambia
+    useEffect(() => {
+      if (gasto) {
+        setDatosPrestamo({
+          cuotaActual: gasto.cuotaActual || "",
+          totalDeCuotas: gasto.totalDeCuotas || "",
+          prestamoDe: gasto.prestamoDe || "",
+        });
+        // Precargamos los datos en GastoBase también
+        gastoBaseRef.current?.obtenerDatos();
       }
+    }, [gasto]);
 
-      setErrores({});
-
-      return {
-        ...datosBase,
-        cuotaActual: Math.max(1, datosPrestamo.cuotaActual || 1),
-        totalDeCuotas: Math.max(1, datosPrestamo.totalDeCuotas || 1),
-        prestamoDe: datosPrestamo.prestamoDe,
-        tipo: "prestamo",
-      };
-    },
-  }));
-
-  const handleChange = (campo, valor) => {
-    setDatosPrestamo((prev) => ({ ...prev, [campo]: valor }));
-  };
-
-  // Pre-cargar los datos cuando 'gasto' cambia
-  useEffect(() => {
-    if (gasto) {
-      setDatosPrestamo({
-        cuotaActual: gasto.cuotaActual || "",
-        totalDeCuotas: gasto.totalDeCuotas || "",
-        prestamoDe: gasto.prestamoDe || "",
-      });
-      // Precargamos los datos en GastoBase también
-      gastoBaseRef.current?.obtenerDatos();
-    }
-  }, [gasto]);
-
-  return (
-    <div>
-      <div className={css.formContainer}>
-      <GastoBase ref={gastoBaseRef} tipo="prestamo" gasto={gasto} />
-        <Input
-          placeholder="Cuota Actual"
-          type="number"
-          value={datosPrestamo.cuotaActual}
-          onChange={(e) => handleChange("cuotaActual", e.target.value)}
-        />
-        <Input
-          placeholder="Total de Cuotas"
-          type="number"
-          value={datosPrestamo.totalDeCuotas}
-          onChange={(e) => handleChange("totalDeCuotas", e.target.value)}
-        />
-        <Input
-          placeholder={errores.prestamoDe ? "Préstamo de - REQUERIDO" : "Préstamo de"}
-          value={datosPrestamo.prestamoDe}
-          onChange={(e) => handleChange("prestamoDe", e.target.value)}
-          className={errores.prestamoDe ? css.inputError : ""}
-        />
+    return (
+      <div>
+        <div className={css.formContainer}>
+          <GastoBase
+            ref={gastoBaseRef}
+            tipo="prestamo"
+            gasto={gasto}
+            excepcion={excepcion}
+            usoDirecto={usoDirecto}
+          />
+          {!excepcion && (
+            <div className={css.formContainerInterno}>
+              <Input
+                placeholder="Cuota Actual"
+                type="number"
+                value={datosPrestamo.cuotaActual}
+                onChange={(e) => handleChange("cuotaActual", e.target.value)}
+              />
+              <Input
+                placeholder="Total de Cuotas"
+                type="number"
+                value={datosPrestamo.totalDeCuotas}
+                onChange={(e) => handleChange("totalDeCuotas", e.target.value)}
+              />
+            </div>
+          )}
+          <Input
+            placeholder={
+              errores.prestamoDe ? "Préstamo de - REQUERIDO" : "Préstamo de"
+            }
+            value={datosPrestamo.prestamoDe}
+            onChange={(e) => handleChange("prestamoDe", e.target.value)}
+            className={errores.prestamoDe ? css.inputError : ""}
+          />
+        </div>
       </div>
-    </div>
-  );
-});
+    );
+  }
+);
 
 GastoPrestamo.displayName = "GastoPrestamo";
 

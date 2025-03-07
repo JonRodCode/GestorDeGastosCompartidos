@@ -73,7 +73,7 @@ const Personas = ({ listaDePersonas, setListaDePersonas }) => {
           }}
         />
         <Title level={3} >
-          Cargar Gastos Por Persona
+          Definir datos de Personas
         </Title>
       </div>
 

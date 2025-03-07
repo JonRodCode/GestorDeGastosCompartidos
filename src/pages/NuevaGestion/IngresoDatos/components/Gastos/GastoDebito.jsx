@@ -1,15 +1,15 @@
 import { forwardRef, useImperativeHandle, useRef, useEffect, useState } from "react";
 import GastoBase from "./GastoBase";
-import { Input, Select } from "antd";
+import { Input, Select, message } from "antd";
 import css from "../../css/Gastos/GastoBase.module.css";
 
 const { Option } = Select;
 
-const GastoDebito = forwardRef(({ gasto, tipo = "debito" }, ref) => {
+const GastoDebito = forwardRef(({ gasto, tipo = "debito", excepcion = false, usoDirecto = true }, ref) => {
   const gastoBaseRef = useRef();
   const [datosTarjeta, setDatosTarjeta] = useState({
-    tarjeta: "Visa",
-    tipoTarjeta: "Titular",
+    tarjeta: "",
+    tipoTarjeta: "",
     aNombreDe: "",
     banco: "",
     numFinalTarjeta: ""
@@ -24,11 +24,22 @@ const GastoDebito = forwardRef(({ gasto, tipo = "debito" }, ref) => {
 
       const nuevosErrores = {};
 
-      if (!datosTarjeta.banco) nuevosErrores.banco = true;
-      
-      // Validar "A Nombre De" solo si el campo está habilitado
-      if (datosTarjeta.tipoTarjeta === "Extensión" && !datosTarjeta.aNombreDe) {
-        nuevosErrores.aNombreDe = true;
+      if (excepcion) {
+        const tieneDatos = 
+        datosTarjeta.banco || 
+        datosTarjeta.tarjeta || 
+        datosTarjeta.numFinalTarjeta || 
+        (datosTarjeta.aNombreDe && datosTarjeta.tipoTarjeta === "Extensión");
+        if (!tieneDatos) {
+          nuevosErrores.generico = "Debe completar al menos un campo correspondiente al tipo de gasto";
+          message.error(nuevosErrores.generico);
+        }
+      } else {
+        if (!datosTarjeta.banco) nuevosErrores.banco = true;
+  
+        if (datosTarjeta.tipoTarjeta === "Extensión" && !datosTarjeta.aNombreDe) {
+          nuevosErrores.aNombreDe = true;
+        }
       }
 
       if (Object.keys(nuevosErrores).length > 0) {
@@ -70,12 +81,16 @@ const GastoDebito = forwardRef(({ gasto, tipo = "debito" }, ref) => {
   return (
     <div>
       <div className={css.formContainer}>
-        <GastoBase ref={gastoBaseRef} tipo={tipo} gasto={gasto} />
+        <GastoBase ref={gastoBaseRef} tipo={tipo} gasto={gasto}  excepcion={ excepcion }
+         usoDirecto={usoDirecto}/>
 
         <Select
-          value={datosTarjeta.tarjeta}
+          value={datosTarjeta.tarjeta || undefined}
           onChange={(value) => handleChange("tarjeta", value)}
+          placeholder="Tarjeta"
+          allowClear 
         >
+          <Option value="" disabled>Tarjeta</Option>
           <Option value="Visa">Visa</Option>
           <Option value="MasterCard">MasterCard</Option>
           <Option value="American Express">American Express</Option>
@@ -83,9 +98,12 @@ const GastoDebito = forwardRef(({ gasto, tipo = "debito" }, ref) => {
         </Select>
 
         <Select
-          value={datosTarjeta.tipoTarjeta}
+          value={datosTarjeta.tipoTarjeta || undefined}
           onChange={(value) => handleChange("tipoTarjeta", value)}
+          placeholder="Tipo de tarjeta"
+          allowClear 
         >
+          <Option value="" disabled>Tipo de tarjeta </Option>
           <Option value="Titular">Titular</Option>
           <Option value="Extensión">Extensión</Option>
         </Select>

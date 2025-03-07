@@ -9,6 +9,12 @@
   max-width: 500px;
 }
 
+.formContainerInterno{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 
 .header {
   display: flex;

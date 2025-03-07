@@ -3,7 +3,7 @@ import GastoBase from "./GastoBase";
 import { Select } from "antd";
 import css from "../../css/Gastos/GastoBase.module.css";
 
-const GastoBasico = forwardRef(({ gasto }, ref) => {
+const GastoBasico = forwardRef(({ gasto ,  excepcion = false}, ref) => {
   const gastoBaseRef = useRef();
   const [datosBasico, setDatosBasico] = useState({
     formaDePago: "Efectivo"});
@@ -32,7 +32,8 @@ const GastoBasico = forwardRef(({ gasto }, ref) => {
   return (
     <div>
       <div className={css.formContainer}>
-      <GastoBase ref={gastoBaseRef} tipo="basico" gasto={gasto} />
+      <GastoBase ref={gastoBaseRef} tipo="basico" gasto={gasto}  excepcion = { excepcion}/>
+      {!excepcion &&
       <Select
         value={datosBasico.formaDePago}
         onChange={(value) => handleChange("formaDePago", value)}
@@ -40,7 +41,7 @@ const GastoBasico = forwardRef(({ gasto }, ref) => {
           { value: "Efectivo", label: "Efectivo" },
           { value: "Billetera Virtual", label: "Billetera Virtual" }
         ]}
-      />
+      />}
     </div>
     </div>
   );

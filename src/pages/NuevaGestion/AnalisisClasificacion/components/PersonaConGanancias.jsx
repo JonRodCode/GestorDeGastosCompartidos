@@ -38,11 +38,10 @@ const PersonaConGanancias = ({ persona, actualizarGanancias,actualizarPersonasAC
       "modificar",
       gananciaEditando[0]
     );
-    setGananciaEditando(null); // Cierra el InputGanancia después de agregar/modificar
+    setGananciaEditando(null);
   };
 
   const eliminarGanancia = (ganancia, index) => {
-    // Mostrar el modal de confirmación
     Modal.confirm({
       title: "Confirmar eliminación",
       content: (
@@ -57,7 +56,6 @@ const PersonaConGanancias = ({ persona, actualizarGanancias,actualizarPersonasAC
       okText: "Sí, Eliminar",
       cancelText: "Cancelar",
       onOk: () => {
-        // Si el usuario confirma, se llama a la función de actualización
         actualizarGanancias(persona.nombre, ganancia, "eliminar", index);
       },
       onCancel: () => {

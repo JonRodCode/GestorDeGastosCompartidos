@@ -20,7 +20,7 @@ const InputGanancia = ({ onAdd, onClose,  valorMonto = "",valorFuente = "",  est
       setErrorMonto(" - Requerido")
       aprobado = false;
     }
-    else if (valueMonto < 0){
+    else if (valueMonto <= 0){
       setErrorMonto(" - Debe ser mayor 0")
       setValueMonto("");
       aprobado = false;

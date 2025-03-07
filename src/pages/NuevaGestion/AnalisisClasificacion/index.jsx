@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, Spin, Alert } from "antd";
+import { Button, Spin, Alert, Modal } from "antd";
 import css from "./css/AnalisisClasificacion.module.css"
 import Personas from "./components/Personas";
 import GastosClasificados from "./components/GastosClasificados";
@@ -17,6 +17,28 @@ const NuevaGestionAnalisisClasificacion = () => {
   }));
   
   const [listaDePersonas, setListaDePersonas] = useState(personasConCampos);
+  const [gastosEditados, setGastosEditados] = useState([]); 
+  const [visibleColumns, setVisibleColumns] = useState({
+    persona: true,
+    tipoDeImporte: true,
+    tipo: true,
+    categoria: true,
+    fuenteDelGasto: true,
+    detalle: true,
+    monto: true,
+    fecha: false,
+    tarjeta: false,
+    tipoTarjeta: false,
+    aNombreDe: false,
+    banco: false,
+    numFinalTarjeta: false,
+    nombreConsumo: false,
+    cuotaActual: false,
+    totalDeCuotas: false,
+    determinacion: true,
+    excepcion: true,
+    acciones: true,
+  });
 
   const [nuevaRespuesta, setNuevaRespuesta] = useState("No se cargo nada");
   const [loading, setLoading] = useState(false);
@@ -58,9 +80,25 @@ const NuevaGestionAnalisisClasificacion = () => {
     });
   };
 
-
+  const condicionesAprobadasParaDistribucion = () => {
+    const esValido = listaDePersonas.every(persona => persona.ganancias && persona.ganancias.length > 0);
+      if (!esValido) {
+      Modal.warning({
+        title: "Faltan datos",
+        content: "Todas las personas deben tener como mínimo 1 ganancia.",
+        okText: "Aceptar",
+      });
+      return false;
+    }
+    return true;
+  };
 
   const distribuirGastos = async () => {
+
+    if (!condicionesAprobadasParaDistribucion()){
+      return;
+    }
+
     setLoading(true);
     const datos = prepararDatos();
     console.log(datos)
@@ -80,8 +118,10 @@ const NuevaGestionAnalisisClasificacion = () => {
         setTimeout(() => {
           setLoading(false);
         setNuevaRespuesta(respuesta);
+        sessionStorage.setItem("gastosClasificadosFinales", JSON.stringify(data));
+        sessionStorage.setItem("listaDePersonasConGanancias", JSON.stringify(listaDePersonas)); 
         sessionStorage.setItem("resumenDeDistribucion", JSON.stringify(respuesta));
-        //navigate("/NuevaGestion/AnalisisClasificacion");
+        navigate("/NuevaGestion/DistribucionFinal");
       }, 2000); 
 
       } else {
@@ -122,27 +162,30 @@ const NuevaGestionAnalisisClasificacion = () => {
         <GastosClasificados
         data={data}
         setData={setData}
+        gastosEditados={gastosEditados}
+        setGastosEditados={setGastosEditados}
+        visibleColumns={visibleColumns}
+        setVisibleColumns={setVisibleColumns}
         />)}
         {activeView === "view2" && (
       <Personas
       listaDePersonas={listaDePersonas}
       setListaDePersonas={setListaDePersonas}
       />)}
-    <div>
      <Button onClick={distribuirGastos} disabled={loading} type="primary">
         {loading ? <Spin size="small" /> : "Distribuir Gastos"}
       </Button>
+
+    <div>
       {!nuevaRespuesta && !loading && (
         <Alert
           message="No se pudo comunicar con el servidor"
           type="info"
           showIcon
-          style={{ marginTop: "10px" }}
+          className={css.alertCustom} 
         />
       )} 
-      </div>       
-      <pre>{JSON.stringify(nuevaRespuesta, null, 2)}</pre>
-      <pre>{JSON.stringify(data, null, 2)}</pre>
+      </div>
     </>
   );
 };

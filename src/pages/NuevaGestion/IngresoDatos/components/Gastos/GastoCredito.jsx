@@ -6,10 +6,10 @@ import {
   useEffect,
 } from "react";
 import GastoDebito from "./GastoDebito";
-import { Input } from "antd";
+import { Input, message } from "antd";
 import css from "../../css/Gastos/GastoBase.module.css";
 
-const GastoCredito = forwardRef(({ gasto }, ref) => {
+const GastoCredito = forwardRef(({ gasto, excepcion = false, usoDirecto = true }, ref) => {
   const gastoDebitoRef = useRef();
   const [datosTarjeta, setDatosTarjeta] = useState({
     cuotaActual: "",
@@ -26,7 +26,18 @@ const GastoCredito = forwardRef(({ gasto }, ref) => {
 
       const nuevosErrores = {};
 
-      if (!datosTarjeta.nombreConsumo) nuevosErrores.nombreConsumo = true;
+    
+      if (excepcion) {
+        const tieneDatos =
+          datosTarjeta.nombreConsumo
+  
+        if (!tieneDatos) {
+          nuevosErrores.generico = "Debe completar al menos un campo correspondiente al tipo de gasto";
+          message.error(nuevosErrores.generico);
+        }
+      } else {
+        if (!datosTarjeta.nombreConsumo) nuevosErrores.nombreConsumo = true;
+      }
 
       if (Object.keys(nuevosErrores).length > 0) {
         setErrores(nuevosErrores);
@@ -60,7 +71,8 @@ const GastoCredito = forwardRef(({ gasto }, ref) => {
 
   return (
     <div>
-      <GastoDebito ref={gastoDebitoRef} gasto={gasto} tipo="credito" />
+      <GastoDebito ref={gastoDebitoRef} gasto={gasto} tipo="credito" excepcion={excepcion}
+       usoDirecto={usoDirecto}/>
       <div className={css.gastoCreditoContainer}>
         <Input
           placeholder={
@@ -70,6 +82,8 @@ const GastoCredito = forwardRef(({ gasto }, ref) => {
           onChange={(e) => handleChange("nombreConsumo", e.target.value)}
           className={errores.nombreConsumo ? css.inputError : ""}
         />
+         {!excepcion &&
+                <div className={css.formContainerInterno}>
         <Input
           placeholder="Cuota Actual"
           type="number"
@@ -82,6 +96,9 @@ const GastoCredito = forwardRef(({ gasto }, ref) => {
           value={datosTarjeta.totalDeCuotas}
           onChange={(e) => handleChange("totalDeCuotas", e.target.value)}
         />
+        
+        </div>
+}
       </div>
     </div>
   );

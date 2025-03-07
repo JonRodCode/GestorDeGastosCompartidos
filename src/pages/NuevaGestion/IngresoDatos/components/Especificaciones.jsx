@@ -3,6 +3,7 @@ import css from "../css/Especificaciones.module.css";
 import ClasificadorDeDatos from "./Especificaciones/ClasificadorDeDatos";
 import ClasificadorDeDatosEstatico from "./Especificaciones/ClasificadorDeDatosEstatico";
 import Determinador from "./Especificaciones/Determinador";
+import Excepciones from "./Especificaciones/Excepciones";
 import PanelDeCargaDeEspecificaciones from "./Especificaciones/PanelDeCargaDeEspecificaciones";
 import PanelDeEspecificaciones from "./Especificaciones/PanelDeEspecificaciones";
 PanelDeCargaDeEspecificaciones;
@@ -280,7 +281,7 @@ const Especificaciones = ({
       </div>
       <div className={css.container}>
         <Segmented
-          options={["Panel general", "Determinación", "Clasificación"]}
+          options={["Panel general", "Determinación", "Clasificación", "Excepciones"]}
           value={vista}
           onChange={setVista}
           className={css.customSegmented}
@@ -345,6 +346,12 @@ const Especificaciones = ({
                 }}
               />
             </>
+          )}
+           {vista === "Excepciones" && (
+            <Excepciones
+              especificaciones={especificaciones}
+              setEspecificaciones={setEspecificaciones}
+            />
           )}
         </div>
       </div>

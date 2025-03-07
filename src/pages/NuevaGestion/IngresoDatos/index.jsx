@@ -45,8 +45,14 @@ const NuevaGestionIngresoDatos = () => {
       GastoEquitativo: [],
       GastoIgualitario: [],
       GastoPersonal: [],
+      GastoDeOtraPersona: [],
     },
-    excepcionesGlobales: {},
+    excepcionesGlobales: {
+      GastoEquitativo: [],
+      GastoIgualitario: [],
+      GastoPersonal: [],
+      GastoDeOtraPersona: [],
+    },
     GastosConCuotasPendientes: [],
   });
   const [vistaActualEspecificaciones, setVistaActualEspecificaciones] =
@@ -147,8 +153,10 @@ const NuevaGestionIngresoDatos = () => {
     ) {
       Modal.warning({
         title: "Clasificación pendiente",
-        content:
-          "Faltan elementos por clasificar o determinar. Por favor, complete la clasificación en 'Especificaciones' para poder continuar.",
+        content:<>
+        <p>Faltan elementos por clasificar o determinar.</p>
+        <p>Por favor, complete la clasificación en &quot;Especificaciones&quot; para poder continuar.</p>
+        </>,
         okText: "Aceptar",
       });
       return false;
@@ -169,9 +177,7 @@ const NuevaGestionIngresoDatos = () => {
 
   const clasificarDatos = async () => {
     if (!(validarQueNoHayPendientes() && condicionesAprobadasParaClasificacion())) {
-      return;
-    }
-
+      return;}
     setLoading(true);
     const gastosTransformados = personas.flatMap((persona) =>
       persona.gastos.map((gasto) => mapearGasto(persona.nombre, gasto))
@@ -222,21 +228,18 @@ const NuevaGestionIngresoDatos = () => {
         title: "Faltan datos",
         content:
           "Como minimo debe agregar 1 persona con sus gastos para la clasificación",
-        okText: "Aceptar",
-        onOk:  () =>{
-          return false;}
-        
+        okText: "Aceptar"        
       });
+      return false
     }
     else if ((Object.values(fuentesDeGastosEnUsoPorPersona).flat()) < 1) {
       Modal.warning({
         title: "Faltan datos",
         content:
           "Como minimo debe agregar 1 gasto",
-        okText: "Aceptar",
-        onOk:  () =>{
-          return false;}
+        okText: "Aceptar"
       });
+      return false;
     }
     return true;
   };
