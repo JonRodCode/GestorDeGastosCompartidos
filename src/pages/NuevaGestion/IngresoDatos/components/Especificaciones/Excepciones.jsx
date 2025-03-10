@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import css from "../../css/Excepciones.module.css";
 import { Card, Button, Select, Typography, Modal } from "antd";
 import GastoBasico from "../Gastos/GastoBasico";
@@ -34,12 +34,16 @@ const Excepciones = ({ especificaciones, setEspecificaciones }) => {
     setDeterminacionDeExcepcionEditada(null);
   };
 
+  useEffect(() => {
+    if (contadorDeExcepciones === 0) {
+      setBotonActivo("");
+    }
+  }, [contadorDeExcepciones])
+
   const handleButtonClick = (accion) => {
     if (botonActivo === accion) {
-      // Si el botón ya está activo, lo desactivamos
       setBotonActivo("");
     } else {
-      // Si no está activo, lo activamos y desactivamos el otro
       setBotonActivo(accion);
     }
   };
@@ -50,6 +54,7 @@ const Excepciones = ({ especificaciones, setEspecificaciones }) => {
         return;
       }
       if (excepcionEditada) {
+        nuevaExcepcion.id = excepcionEditada.id;
         if (hayDuplicados(nuevaExcepcion, true)) {
           return;
         }
@@ -59,7 +64,7 @@ const Excepciones = ({ especificaciones, setEspecificaciones }) => {
             false,
             determinacionDeExcepcionEditada
           );
-          agregarExcepcionNueva(nuevaExcepcion);
+          agregarExcepcionNueva(nuevaExcepcion, true);
         } else {
           // Actualizar la excepción existente
           setEspecificaciones((prevEspecificaciones) => {
@@ -91,7 +96,7 @@ const Excepciones = ({ especificaciones, setEspecificaciones }) => {
     }
   };
 
-  const agregarExcepcionNueva = (nuevaExcepcion) => {
+  const agregarExcepcionNueva = (nuevaExcepcion, esEditada = false) => {
     const excepcionConId = { id: Date.now(), ...nuevaExcepcion };
     setEspecificaciones((prev) => ({
       ...prev,
@@ -103,9 +108,13 @@ const Excepciones = ({ especificaciones, setEspecificaciones }) => {
         ],
       },
     }));
-
-    setContadoDeExcepciones(contadorDeExcepciones + 1);
     setMostrarFormulario(false);
+    if (esEditada){
+    setContadoDeExcepciones(contadorDeExcepciones);
+    }
+    else {
+      setContadoDeExcepciones(contadorDeExcepciones + 1);
+    }
   };
 
   const seleccionarExcepcion = (excepcion, determinacion) => {
@@ -199,8 +208,6 @@ const Excepciones = ({ especificaciones, setEspecificaciones }) => {
     return false;
   };
   
-
-
   return (
     <>
       <Card className={css.card}>
@@ -250,12 +257,13 @@ const Excepciones = ({ especificaciones, setEspecificaciones }) => {
                 <Select
                   value={determinacionDeGasto}
                   placeholder="Gasto..."
-                  style={{ width: 160 }}
+                  style={{ width: 172 }}
                   onChange={handleChange}
                 >
                   <Option value="GastoEquitativo">Gasto Equitativo</Option>
                   <Option value="GastoIgualitario">Gasto Igualitario</Option>
                   <Option value="GastoPersonal">Gasto Personal</Option>
+                  <Option value="GastoDeOtraPersona">Gasto de Otra Persona</Option>
                 </Select>
               </div>
             </div>
@@ -310,7 +318,7 @@ const Excepciones = ({ especificaciones, setEspecificaciones }) => {
                 botonActivo === "modificar" ? css.modificarActivo : ""
               }`}
               onClick={() => handleButtonClick("modificar")}
-              disabled={especificaciones["excepcionesGlobales"].length === 0}
+              disabled={contadorDeExcepciones === 0}
             >
               Modificar
             </Button>
@@ -319,7 +327,7 @@ const Excepciones = ({ especificaciones, setEspecificaciones }) => {
                 botonActivo === "eliminar" ? css.eliminarActivo : ""
               }`}
               onClick={() => handleButtonClick("eliminar")}
-              disabled={especificaciones["excepcionesGlobales"].length === 0}
+              disabled={contadorDeExcepciones === 0}
             >
               Eliminar
             </Button>
@@ -345,6 +353,14 @@ const Excepciones = ({ especificaciones, setEspecificaciones }) => {
         <ExcepcionesSegunDeterminacion
           especificaciones={especificaciones}
           determinacion={"GastoPersonal"}
+          TIPOS_EXCEPCION={TIPOS_EXCEPCION}
+          botonActivo={botonActivo}
+          eliminarExcepcion={eliminarExcepcion}
+          seleccionarExcepcion={seleccionarExcepcion}
+        />
+          <ExcepcionesSegunDeterminacion
+          especificaciones={especificaciones}
+          determinacion={"GastoDeOtraPersona"}
           TIPOS_EXCEPCION={TIPOS_EXCEPCION}
           botonActivo={botonActivo}
           eliminarExcepcion={eliminarExcepcion}

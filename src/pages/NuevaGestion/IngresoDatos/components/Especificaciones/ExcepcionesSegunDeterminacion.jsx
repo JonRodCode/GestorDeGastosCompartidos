@@ -16,6 +16,7 @@ const ExcepcionesSegunDeterminacion = ({
     if (determinacion === "GastoEquitativo") return "Gastos Equitativos: ";
     if (determinacion === "GastoIgualitario") return "Gastos Igualitarios: ";
     if (determinacion === "GastoPersonal") return "Gastos Personales: ";
+    if (determinacion === "GastoDeOtraPersona") return "Gastos de Otra Persona: ";
     return "Excepciones Globales";
   }, [determinacion]);
 
