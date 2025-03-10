@@ -2,7 +2,6 @@ import {
   forwardRef,
   useImperativeHandle,
   useRef,
-  useEffect,
   useState,
 } from "react";
 import GastoBase from "./GastoBase";
@@ -13,10 +12,11 @@ const GastoPrestamo = forwardRef(
   ({ gasto, excepcion = false, usoDirecto = true }, ref) => {
     const gastoBaseRef = useRef();
     const [datosPrestamo, setDatosPrestamo] = useState({
-      cuotaActual: "",
-      totalDeCuotas: "",
-      prestamoDe: "",
+      cuotaActual: gasto?.cuotaActual || "",
+      totalDeCuotas: gasto?.totalDeCuotas || "",
+      prestamoDe: gasto?.prestamoDe || "",
     });
+    
 
     const [errores, setErrores] = useState({});
 
@@ -31,12 +31,12 @@ const GastoPrestamo = forwardRef(
         if (excepcion) {
           const tieneDatosExtras = datosPrestamo.prestamoDe.trim();
           const tieneDatosBase =
+          datosBase.persona.trim() ||
             datosBase.detalle.trim() ||
-            datosBase.fuenteDelGasto.trim() ||
-            (datosBase.monto && parseFloat(datosBase.monto) > 0);
+            datosBase.fuenteDelGasto.trim();
 
           if (!tieneDatosBase && !tieneDatosExtras) {
-            nuevosErrores.generico = "Debe completar al menos un campo correspondiente al tipo de gasto";
+            nuevosErrores.generico = "Debe completar al menos 1 campo";
             message.error(nuevosErrores.generico);
           }
         } else {
@@ -64,19 +64,6 @@ const GastoPrestamo = forwardRef(
     const handleChange = (campo, valor) => {
       setDatosPrestamo((prev) => ({ ...prev, [campo]: valor }));
     };
-
-    // Pre-cargar los datos cuando 'gasto' cambia
-    useEffect(() => {
-      if (gasto) {
-        setDatosPrestamo({
-          cuotaActual: gasto.cuotaActual || "",
-          totalDeCuotas: gasto.totalDeCuotas || "",
-          prestamoDe: gasto.prestamoDe || "",
-        });
-        // Precargamos los datos en GastoBase también
-        gastoBaseRef.current?.obtenerDatos();
-      }
-    }, [gasto]);
 
     return (
       <div>

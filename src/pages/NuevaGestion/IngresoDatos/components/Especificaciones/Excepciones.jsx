@@ -1,21 +1,14 @@
 import { useState, useRef } from "react";
 import css from "../../css/Excepciones.module.css";
-import {
-  Card,
-  Button,
-  Select,
-  Tooltip,
-  Typography,
-  Checkbox,
-  Modal,
-} from "antd";
+import { Card, Button, Select, Typography, Modal } from "antd";
 import GastoBasico from "../Gastos/GastoBasico";
 import GastoPrestamo from "../Gastos/GastoPrestamo";
 import GastoDebito from "../Gastos/GastoDebito";
 import GastoCredito from "../Gastos/GastoCredito";
+import ExcepcionesSegunDeterminacion from "./ExcepcionesSegunDeterminacion";
 
 const { Option } = Select;
-const { Title, Text } = Typography;
+const { Title } = Typography;
 const TIPOS_EXCEPCION = {
   basico: "Básico",
   prestamo: "Préstamo",
@@ -25,9 +18,11 @@ const TIPOS_EXCEPCION = {
 
 const Excepciones = ({ especificaciones, setEspecificaciones }) => {
   const [contadorDeExcepciones, setContadoDeExcepciones] = useState(0);
-   const [tipoGasto, setTipoGasto] = useState("basico");
+  const [tipoGasto, setTipoGasto] = useState("basico");
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
-  const [gastoEditado, setGastoEditado] = useState(null);
+  const [excepcionEditada, setExcepcionEditada] = useState(null);
+  const [determinacionDeExcepcionEditada, setDeterminacionDeExcepcionEditada] =
+    useState(null);
   const [determinacionDeGasto, setDeterminacionDeGasto] =
     useState("GastoEquitativo");
   const gastoRef = useRef(null);
@@ -35,7 +30,8 @@ const Excepciones = ({ especificaciones, setEspecificaciones }) => {
   const [botonActivo, setBotonActivo] = useState("");
   const toggleFormulario = () => {
     setMostrarFormulario(!mostrarFormulario);
-    setGastoEditado(null);
+    setExcepcionEditada(null);
+    setDeterminacionDeExcepcionEditada(null);
   };
 
   const handleButtonClick = (accion) => {
@@ -47,44 +43,82 @@ const Excepciones = ({ especificaciones, setEspecificaciones }) => {
       setBotonActivo(accion);
     }
   };
-//HAY QUE CORROBORAR QUE NO ESTE LA MISMA EXCEPCCION EN OTRA DETERMINACION
   const agregarExcepcion = () => {
     if (gastoRef.current) {
       const nuevaExcepcion = gastoRef.current.obtenerDatos();
-  
       if (!nuevaExcepcion) {
         return;
       }
-  
-      const excepcionConId = { id: Date.now(), ...nuevaExcepcion };
-  
-      setEspecificaciones((prev) => ({
-        ...prev,
-        excepcionesGlobales: {
-          ...prev.excepcionesGlobales,
-          [determinacionDeGasto]: [
-            ...(prev.excepcionesGlobales?.[determinacionDeGasto] || []),
-            excepcionConId,
-          ],
-        },
-      }));
-  
-      setMostrarFormulario(false);
+      if (excepcionEditada) {
+        if (hayDuplicados(nuevaExcepcion, true)) {
+          return;
+        }
+        if (determinacionDeGasto !== determinacionDeExcepcionEditada) {
+          eliminarExcepcion(
+            excepcionEditada,
+            false,
+            determinacionDeExcepcionEditada
+          );
+          agregarExcepcionNueva(nuevaExcepcion);
+        } else {
+          // Actualizar la excepción existente
+          setEspecificaciones((prevEspecificaciones) => {
+            const nuevasExcepciones = prevEspecificaciones[
+              "excepcionesGlobales"
+            ][determinacionDeGasto].map((excepcion) =>
+              excepcion.id === excepcionEditada.id
+                ? { ...excepcion, ...nuevaExcepcion } // Actualizar solo la excepción editada
+                : excepcion
+            );
+
+            return {
+              ...prevEspecificaciones,
+              excepcionesGlobales: {
+                ...prevEspecificaciones["excepcionesGlobales"],
+                [determinacionDeGasto]: nuevasExcepciones,
+              },
+            };
+          });
+          setMostrarFormulario(false);
+        }
+      }
+      else {        
+      if (hayDuplicados(nuevaExcepcion, false)) {
+        return;
+      }
+        agregarExcepcionNueva(nuevaExcepcion);
+      }
     }
   };
-  
-  
 
-  const seleccionarExcepcion = (gasto) => {
-    setGastoEditado(gasto);
+  const agregarExcepcionNueva = (nuevaExcepcion) => {
+    const excepcionConId = { id: Date.now(), ...nuevaExcepcion };
+    setEspecificaciones((prev) => ({
+      ...prev,
+      excepcionesGlobales: {
+        ...prev.excepcionesGlobales,
+        [determinacionDeGasto]: [
+          ...(prev.excepcionesGlobales?.[determinacionDeGasto] || []),
+          excepcionConId,
+        ],
+      },
+    }));
+
+    setContadoDeExcepciones(contadorDeExcepciones + 1);
+    setMostrarFormulario(false);
+  };
+
+  const seleccionarExcepcion = (excepcion, determinacion) => {
+    setExcepcionEditada(excepcion);
     setMostrarFormulario(true); // Abrimos el formulario para editar
-    setTipoGasto(gasto.tipo);
-
+    setTipoGasto(excepcion.tipo);
+    setDeterminacionDeGasto(determinacion);
+    setDeterminacionDeExcepcionEditada(determinacion);
     // Mover foco al formulario
     formularioRef.current?.focus();
   };
 
-  const eliminarExcepcion = (excepcion, confirmar = true, determinacion = "GastoEquitativo") => {
+  const eliminarExcepcion = (excepcion, confirmar = true, determinacion) => {
     if (confirmar) {
       Modal.confirm({
         title: "Confirmar eliminación",
@@ -96,11 +130,13 @@ const Excepciones = ({ especificaciones, setEspecificaciones }) => {
             ...prev,
             excepcionesGlobales: {
               ...prev.excepcionesGlobales,
-              [determinacion]: prev.excepcionesGlobales[determinacionDeGasto]?.filter(
-                (ex) => ex.id !== excepcion.id
-              ) || [],
+              [determinacion]:
+                prev.excepcionesGlobales[determinacion]?.filter(
+                  (ex) => ex.id !== excepcion.id
+                ) || [],
             },
           }));
+          setContadoDeExcepciones(contadorDeExcepciones - 1);
         },
       });
     } else {
@@ -108,17 +144,62 @@ const Excepciones = ({ especificaciones, setEspecificaciones }) => {
         ...prev,
         excepcionesGlobales: {
           ...prev.excepcionesGlobales,
-          [determinacionDeGasto]: prev.excepcionesGlobales[determinacionDeGasto]?.filter(
-            (ex) => ex.id !== excepcion.id
-          ) || [],
+          [determinacion]:
+            prev.excepcionesGlobales[determinacion]?.filter(
+              (ex) => ex.id !== excepcion.id
+            ) || [],
         },
       }));
+      setContadoDeExcepciones(contadorDeExcepciones - 1);
     }
   };
 
   const handleChange = (value) => {
     setDeterminacionDeGasto(value);
   };
+
+  const formatKey = (key) => {
+    return key.replace(/([a-z])([A-Z])/g, '$1 $2');
+  };
+
+  const hayDuplicados = (nuevaExcepcion, esEditado) => {
+    const excepcionesGlobales = especificaciones["excepcionesGlobales"];
+  
+    for (const key in excepcionesGlobales) {
+      const excepciones = excepcionesGlobales[key];
+  
+      for (const excepcion of excepciones) {
+        if (esEditado && excepcion.id === nuevaExcepcion.id) {
+          continue;  
+        }  
+        if (
+          excepcion.persona === nuevaExcepcion.persona &&
+          excepcion.fuenteDelGasto === nuevaExcepcion.fuenteDelGasto &&
+          excepcion.detalle === nuevaExcepcion.detalle &&
+          excepcion.tipo === nuevaExcepcion.tipo &&
+          excepcion?.prestamoDe === nuevaExcepcion?.prestamoDe &&
+          excepcion?.banco === nuevaExcepcion?.banco &&
+          excepcion?.tarjeta === nuevaExcepcion?.tarjeta &&
+          excepcion?.numFinalTarjeta === nuevaExcepcion?.numFinalTarjeta &&
+          excepcion?.aNombreDe === nuevaExcepcion?.aNombreDe &&
+          excepcion?.tipoTarjeta === nuevaExcepcion?.tipoTarjeta &&
+          excepcion?.nombreConsumo === nuevaExcepcion?.nombreConsumo
+        ) {
+
+          Modal.warning({
+            title: 'Excepción duplicada',
+            content: `Ya existe una excepción con los mismos datos como "${formatKey(key)}".`,
+            onOk() {
+            },
+          });
+          return true;
+        }
+      }
+    }
+    return false;
+  };
+  
+
 
   return (
     <>
@@ -143,7 +224,7 @@ const Excepciones = ({ especificaciones, setEspecificaciones }) => {
         {mostrarFormulario && (
           <>
             <Title level={4} className={css.nuevoGastoTitulo}>
-              {gastoEditado ? "Modificar Gasto" : "Nueva Excepción"}
+              {excepcionEditada ? "Modificar Excepción" : "Nueva Excepción"}
             </Title>
 
             <div
@@ -182,14 +263,14 @@ const Excepciones = ({ especificaciones, setEspecificaciones }) => {
             {tipoGasto === "basico" && (
               <GastoBasico
                 ref={gastoRef}
-                gasto={gastoEditado}
+                gasto={excepcionEditada}
                 excepcion={true}
               />
             )}
             {tipoGasto === "prestamo" && (
               <GastoPrestamo
                 ref={gastoRef}
-                gasto={gastoEditado}
+                gasto={excepcionEditada}
                 excepcion={true}
                 usoDirecto={false}
               />
@@ -197,7 +278,7 @@ const Excepciones = ({ especificaciones, setEspecificaciones }) => {
             {tipoGasto === "debito" && (
               <GastoDebito
                 ref={gastoRef}
-                gasto={gastoEditado}
+                gasto={excepcionEditada}
                 excepcion={true}
                 usoDirecto={false}
               />
@@ -205,7 +286,7 @@ const Excepciones = ({ especificaciones, setEspecificaciones }) => {
             {tipoGasto === "credito" && (
               <GastoCredito
                 ref={gastoRef}
-                gasto={gastoEditado}
+                gasto={excepcionEditada}
                 excepcion={true}
                 usoDirecto={false}
               />
@@ -245,125 +326,30 @@ const Excepciones = ({ especificaciones, setEspecificaciones }) => {
           </div>
         </div>
 
-        <div className={css.gastosLista}>
-          {especificaciones["excepcionesGlobales"]["GastoEquitativo"].length === 0 ? (
-            <Text type="secondary">No se han agregado excepciones</Text>
-          ) : (
-            <div>
-              <div className={css.gastosScrollWrapper}>
-                <div className={css.gastosScrollContainer}>
-                  {especificaciones["excepcionesGlobales"]["GastoEquitativo"].map((excepcion) => (
-                    <div key={excepcion.id} className={css.gastoItem}>
-                      <Card>
-                        <div className={css.tipoYCheckbox}>
-                          <p>
-                            <strong>Tipo:</strong>{" "}
-                            {TIPOS_EXCEPCION[excepcion.tipo] || excepcion.tipo}
-                          </p>
-                        </div>
-                        <p>
-                          <strong>Fuente del gasto:</strong>{" "}
-                          {excepcion.fuenteDelGasto}
-                        </p>
-                        {excepcion.detalle && (
-                          <p>
-                            <strong>Detalle:</strong> {excepcion.detalle}
-                          </p>
-                        )}
-                        {excepcion.fecha && (
-                          <p>
-                            <strong>Fecha:</strong> {excepcion.fecha.toString()}
-                          </p>
-                        )}
-                        {excepcion.tipo === "basico" && (
-                          <>
-                            <p>
-                              <strong>Forma de pago:</strong>{" "}
-                              {excepcion.formaDePago}
-                            </p>
-                          </>
-                        )}
-                        {excepcion.tipo === "prestamo" && (
-                          <>
-                            <p>
-                              <strong>Cuota Actual:</strong>{" "}
-                              {excepcion.cuotaActual}
-                            </p>
-                            <p>
-                              <strong>Total de Cuotas:</strong>{" "}
-                              {excepcion.totalDeCuotas}
-                            </p>
-                            <p>
-                              <strong>Préstamo de:</strong>{" "}
-                              {excepcion.prestamoDe}
-                            </p>
-                          </>
-                        )}
-                        {(excepcion.tipo === "debito" ||
-                          excepcion.tipo === "credito") && (
-                          <>
-                            <p>
-                              <strong>Tarjeta:</strong> {excepcion.tarjeta}
-                            </p>
-                            <p>
-                              <strong>Tipo de Tarjeta:</strong>{" "}
-                              {excepcion.tipoTarjeta}
-                            </p>
-                            {excepcion.tipoTarjeta === "Extensión" && (
-                              <p>
-                                <strong>A Nombre De:</strong>{" "}
-                                {excepcion.aNombreDe}
-                              </p>
-                            )}
-                            <p>
-                              <strong>Banco:</strong> {excepcion.banco}
-                            </p>
-                            <p>
-                              <strong>Últimos dígitos de la Tarjeta:</strong>{" "}
-                              {excepcion.numFinalTarjeta}
-                            </p>
-                          </>
-                        )}
-                        {excepcion.tipo === "credito" && (
-                          <>
-                            <p>
-                              <strong>Nombre del Consumo:</strong>{" "}
-                              {excepcion.nombreConsumo}
-                            </p>
-                            <p>
-                              <strong>Cuota Actual:</strong>{" "}
-                              {excepcion.cuotaActual}
-                            </p>
-                            <p>
-                              <strong>Total de Cuotas:</strong>{" "}
-                              {excepcion.totalDeCuotas}
-                            </p>
-                          </>
-                        )}
-                        {botonActivo === "eliminar" && (
-                          <p
-                            style={{ color: "red", cursor: "pointer" }}
-                            onClick={() => eliminarExcepcion(excepcion)}
-                          >
-                            Eliminar
-                          </p>
-                        )}
-                        {botonActivo === "modificar" && (
-                          <p
-                            style={{ color: "blue", cursor: "pointer" }}
-                            onClick={() => seleccionarExcepcion(excepcion)}
-                          >
-                            Seleccionar
-                          </p>
-                        )}
-                      </Card>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
+        <ExcepcionesSegunDeterminacion
+          especificaciones={especificaciones}
+          determinacion={"GastoEquitativo"}
+          TIPOS_EXCEPCION={TIPOS_EXCEPCION}
+          botonActivo={botonActivo}
+          eliminarExcepcion={eliminarExcepcion}
+          seleccionarExcepcion={seleccionarExcepcion}
+        />
+        <ExcepcionesSegunDeterminacion
+          especificaciones={especificaciones}
+          determinacion={"GastoIgualitario"}
+          TIPOS_EXCEPCION={TIPOS_EXCEPCION}
+          botonActivo={botonActivo}
+          eliminarExcepcion={eliminarExcepcion}
+          seleccionarExcepcion={seleccionarExcepcion}
+        />
+        <ExcepcionesSegunDeterminacion
+          especificaciones={especificaciones}
+          determinacion={"GastoPersonal"}
+          TIPOS_EXCEPCION={TIPOS_EXCEPCION}
+          botonActivo={botonActivo}
+          eliminarExcepcion={eliminarExcepcion}
+          seleccionarExcepcion={seleccionarExcepcion}
+        />
       </Card>
     </>
   );

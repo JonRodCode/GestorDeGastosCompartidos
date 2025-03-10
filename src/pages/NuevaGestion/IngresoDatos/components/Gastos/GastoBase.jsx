@@ -1,4 +1,4 @@
-import { useState, useEffect, forwardRef, useImperativeHandle } from "react";
+import { useState, forwardRef, useImperativeHandle } from "react";
 import { Input, Select, DatePicker, Checkbox, Tooltip, message } from "antd";
 import css from "../../css/Gastos/GastoBase.module.css";
 
@@ -12,12 +12,13 @@ const TITULOS_GASTO = {
 const GastoBase = forwardRef(
   ({ tipo, gasto, excepcion = false, usoDirecto = true }, ref) => {
     const [datos, setDatos] = useState({
-      detalle: "",
-      fuenteDelGasto: "",
-      monto: "",
-      tipoImporte: "Gasto",
-      fecha: null,
-      marcado: false,
+      persona:gasto?.persona || "",
+      detalle: gasto?.detalle || "",
+      fuenteDelGasto: gasto?.fuenteDelGasto || "",
+      monto: gasto?.monto || "",
+      tipoImporte: gasto?.tipoImporte ||"Gasto",
+      fecha: gasto?.fecha ||null,
+      marcado: gasto?.marcado ||false,
     });
 
     const [errores, setErrores] = useState({});
@@ -35,20 +36,6 @@ const GastoBase = forwardRef(
       setDatos((prev) => ({ ...prev, [campo]: valor }));
     };
 
-    // Pre-cargar los datos cuando 'gasto' cambia
-    useEffect(() => {
-      if (gasto) {
-        setDatos({
-          detalle: gasto.detalle || "",
-          fuenteDelGasto: gasto.fuenteDelGasto || "",
-          monto: gasto.monto || "",
-          tipoImporte: gasto.tipoImporte || "Gasto",
-          fecha: gasto.fecha || null,
-          marcado: gasto.marcado || false,
-        });
-      }
-    }, [gasto]);
-
     useImperativeHandle(ref, () => ({
       obtenerDatos() {
         const nuevosErrores = {};
@@ -56,9 +43,9 @@ const GastoBase = forwardRef(
         if (usoDirecto) {
           if (excepcion) {
             const tieneDatos =
+              datos.persona.trim() ||
               datos.detalle.trim() ||
-              datos.fuenteDelGasto.trim() ||
-              (datos.monto && parseFloat(datos.monto) > 0);
+              datos.fuenteDelGasto.trim();
 
             if (!tieneDatos) {
               nuevosErrores.generico = "Debe completar al menos un campo";
@@ -96,6 +83,13 @@ const GastoBase = forwardRef(
             </Tooltip>
           )}
         </div>
+        {excepcion && (
+        <Input
+          placeholder="Nombre de Persona"
+          value={datos.persona}
+          onChange={(e) => handleChange("persona", e.target.value)}
+        />
+        )}
         <Input
           placeholder="Detalle de Consumo"
           value={datos.detalle}
@@ -134,10 +128,12 @@ const GastoBase = forwardRef(
             { value: "Reintegro", label: "Reintegro" },
           ]}
         />
+          {!excepcion && (
         <DatePicker
           value={datos.fecha}
           onChange={(date) => handleChange("fecha", date)}
         />
+      )}
       </div>
     );
   }

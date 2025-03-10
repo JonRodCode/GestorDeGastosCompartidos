@@ -263,6 +263,10 @@ const Especificaciones = ({
     return hayConflictoFuentes || hayConflictoConsumos;
   };
 
+  const verificarSiHayConflictosConLasExcepciones = () => {
+    
+  };
+
   return (
     <>
       <div className={css.containerPanel}>
