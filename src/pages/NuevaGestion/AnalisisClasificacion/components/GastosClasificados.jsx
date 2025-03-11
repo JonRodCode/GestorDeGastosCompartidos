@@ -11,11 +11,18 @@ import {
   message,
 } from "antd";
 import { DownOutlined } from "@ant-design/icons";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import FiltroDeGastos from "./FiltroDeGastos";
 import css from "../css/GastosClasificados.module.css";
 
 const { Title } = Typography;
+
+const opcionesDeterminacion = [
+  { value: "GastoEquitativo", label: "Gasto Equitativo" },
+  { value: "GastoIgualitario", label: "Gasto Igualitario" },
+  { value: "GastoPersonal", label: "Gasto Personal" },
+  { value: "GastoDeOtraPersona", label: "Gasto de Otra Persona" },
+];
 
 const GastosClasificados = ({
   data,
@@ -23,14 +30,15 @@ const GastosClasificados = ({
   gastosEditados,
   setGastosEditados,
   visibleColumns,
-  setVisibleColumns
+  setVisibleColumns,
+  listaDePersonas,
+  cantidadDeDatosPendientesPorCompletar,
 }) => {
   const [filteredData, setFilteredData] = useState(data);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editData, setEditData] = useState(null);
   const [form] = Form.useForm();
-
-  
+  const determinacionSeleccionada = Form.useWatch("determinacion", form);
 
   const handleEdit = (record) => {
     setEditData(record);
@@ -61,6 +69,7 @@ const GastosClasificados = ({
             const gastoOriginal = gastosEditados.find((g) => g.id === item.id);
 
             let nuevaExcepcion = item.excepcion;
+            let personaResponsable = item.personaResponsable;
 
             if (gastoOriginal) {
               if (values.determinacion !== gastoOriginal.determinacion) {
@@ -69,11 +78,15 @@ const GastosClasificados = ({
                 nuevaExcepcion = gastoOriginal.excepcion; // Si volvió a su valor original, restauramos la excepción
               }
             }
+            if (values.determinacion === "GastoDeOtraPersona") {
+              personaResponsable = values.otraPersona;
+            }
 
             return {
               ...item,
               determinacion: values.determinacion,
               excepcion: nuevaExcepcion,
+              personaResponsable, // Agregar personaResponsable al objeto final
             };
           }
           return item;
@@ -528,6 +541,32 @@ const GastosClasificados = ({
       render: (text) => text.replace(/([a-z])([A-Z])/g, "$1 $2"),
     },
     {
+      title: "Responsable",
+      dataIndex: "personaResponsable",
+      key: "personaResponsable",
+      align: "center",
+      filterDropdown: ({
+        setSelectedKeys,
+        selectedKeys,
+        confirm,
+        clearFilters,
+      }) => (
+        <FiltroDeGastos
+          selectedKeys={selectedKeys}
+          setSelectedKeys={setSelectedKeys}
+          confirm={confirm}
+          clearFilters={clearFilters}
+          elemento="Responsable"
+        />
+      ),
+      onFilter: (value, record) =>
+        record.personaResponsable
+          ?.toString()
+          .toLowerCase()
+          .includes(value.toLowerCase()),
+          render: (text) => text || "---",
+    },
+    {
       title: "Excepción",
       dataIndex: "excepcion",
       key: "excepcion",
@@ -554,12 +593,12 @@ const GastosClasificados = ({
     },
 
     {
-      title: "Exceptuar",
+      title: "Redeterminar",
       key: "acciones",
       align: "center",
       render: (_, record) => (
         <Button onClick={() => handleEdit(record)} type="link">
-          Editar
+          Seleccionar
         </Button>
       ),
     },
@@ -572,11 +611,11 @@ const GastosClasificados = ({
 
     if (visibleColumnCount <= 5 && visibleColumns[columnName]) {
       message.info("Alcanzado el número de columnas invisibles.");
-      return; 
+      return;
     }
     setVisibleColumns((prev) => ({
       ...prev,
-      [columnName]: !prev[columnName], 
+      [columnName]: !prev[columnName],
     }));
   };
 
@@ -634,19 +673,42 @@ const GastosClasificados = ({
       <Menu.Item key="totalDeCuotas">
         Total de cuotas {visibleColumns.totalDeCuotas ? "" : "(Oculto)"}
       </Menu.Item>
+      <Menu.Item key="personaResponsable">
+        Responsable {visibleColumns.personaResponsable ? "" : "(Oculto)"}
+      </Menu.Item>
     </Menu>
   );
   const filteredColumns = columns.filter((col) => visibleColumns[col.key]);
+
+  useEffect(() => {
+    if (editData) {
+      form.setFieldsValue({ otraPersona: editData.personaResponsable });
+    }
+  }, [editData, form]);
 
   return (
     <>
       <Title level={3}>Gastos Clasificados</Title>
       <div className={css.tableContainer}>
-        <Dropdown overlay={menu}>
-          <Button>
-            Mostrar/Ocultar Columnas <DownOutlined />
-          </Button>
-        </Dropdown>
+        <div className={css.headerGastos}>
+          <Dropdown overlay={menu}>
+            <Button>
+              Mostrar/Ocultar Columnas <DownOutlined />
+            </Button>
+          </Dropdown>
+          <p>
+            Gastos con datos pendientes de completar:
+            <span
+              className={
+                cantidadDeDatosPendientesPorCompletar === 0
+                  ? css.numeroCero
+                  : css.numero
+              }
+            >
+              {cantidadDeDatosPendientesPorCompletar}
+            </span>
+          </p>
+        </div>
         <Table
           dataSource={filteredData}
           columns={filteredColumns}
@@ -655,14 +717,14 @@ const GastosClasificados = ({
             console.log("onChange", pagination, filters, sorter)
           }
           pagination={{
-            pageSize: 10, 
+            pageSize: 10,
           }}
           scroll={{ x: "max-content" }}
         />
       </div>
 
       <Modal
-        title="Exceptuar Determinación del Gasto"
+        title="Exceptuar Determinación del Gasto - (Redeterminar)"
         open={isModalVisible}
         onOk={handleSave}
         onCancel={() => setIsModalVisible(false)}
@@ -719,24 +781,56 @@ const GastosClasificados = ({
             <div className={css.infoItem}>
               <strong>Cuota Actual:</strong> {editData?.cuotaActual}
             </div>
-          <div className={css.infoItem}>
-            <strong>Determinacion: </strong>
-            <Form.Item name="determinacion">
-              <Select className={css.selectInput}>
-                <Select.Option value="GastoEquitativo">
-                  Gasto Equitativo
-                </Select.Option>
-                <Select.Option value="GastoIgualitario">
-                  Gasto Igualitario
-                </Select.Option>
-                <Select.Option value="GastoPersonal">
-                  Gasto Personal
-                </Select.Option>
-              </Select>
-            </Form.Item>
-          </div>
-          <div className={css.infoItem}>
+            <div className={css.infoItem}>
+              <strong>Determinacion: </strong>
+              <Form.Item name="determinacion">
+                <Select className={css.selectInput}>
+                  {opcionesDeterminacion.map((opcion) => (
+                    <Select.Option key={opcion.value} value={opcion.value}>
+                      {opcion.label}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </div>
+
+            <div className={css.infoItem}>
               <strong>Excepción:</strong> {editData?.excepcion}
+            </div>
+            <div className={css.infoItemUltimo}>
+              {determinacionSeleccionada === "GastoDeOtraPersona" && (
+                <>
+                  <strong>Persona responsable del gasto:</strong>
+                  <Form.Item name="otraPersona">
+                    {listaDePersonas.filter(
+                      (persona) => persona.nombre !== editData?.persona
+                    ).length > 0 ? (
+                      <Select
+                        className={css.selectInput}
+                        placeholder="Seleccione una persona"
+                      >
+                        {listaDePersonas
+                          .filter(
+                            (persona) => persona.nombre !== editData?.persona
+                          )
+                          .map((persona) => (
+                            <Select.Option
+                              key={persona.nombre}
+                              value={persona.nombre}
+                            >
+                              {persona.nombre}
+                            </Select.Option>
+                          ))}
+                      </Select>
+                    ) : (
+                      <div className={css.mensajeError}>
+                        No hay datos para seleccionar. Por favor agregar en la
+                        sección &quot;Personas&quot;.
+                      </div>
+                    )}
+                  </Form.Item>
+                </>
+              )}
             </div>
           </div>
         </Form>

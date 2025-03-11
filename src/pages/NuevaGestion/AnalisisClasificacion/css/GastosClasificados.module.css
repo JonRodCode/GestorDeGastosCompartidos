@@ -77,4 +77,39 @@
     justify-content: flex-end;
   }
 
-  
+  .infoItemUltimo {
+    margin-top: -25px;
+    padding: 4px;
+    font-size: 14px;
+  }
+
+.mensajeError {
+  color : red;
+}
+
+.headerGastos {
+  display: flex;
+  justify-content: space-between;
+  align-items: center; /* Alinea verticalmente */
+  margin-bottom: 16px; /* Espacio antes de la tabla */
+  gap: 8px; 
+}
+
+
+.numero {
+  font-weight: bold;
+  font-size: 18px;
+  color: red;
+  background-color: #ffecec;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.numeroCero {
+  font-weight: bold;
+  font-size: 18px;
+  color: green;
+  background-color: #e8ffe8;
+  padding: 4px 8px;
+  border-radius: 4px;
+}

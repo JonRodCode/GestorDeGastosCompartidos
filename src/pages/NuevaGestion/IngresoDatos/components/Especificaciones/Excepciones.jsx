@@ -16,8 +16,8 @@ const TIPOS_EXCEPCION = {
   credito: "Crédito",
 };
 
-const Excepciones = ({ especificaciones, setEspecificaciones }) => {
-  const [contadorDeExcepciones, setContadoDeExcepciones] = useState(0);
+const Excepciones = ({ especificaciones, setEspecificaciones, contadorDeExcepciones,
+  setContadoDeExcepciones, hayDuplicados}) => {  
   const [tipoGasto, setTipoGasto] = useState("basico");
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [excepcionEditada, setExcepcionEditada] = useState(null);
@@ -165,47 +165,6 @@ const Excepciones = ({ especificaciones, setEspecificaciones }) => {
 
   const handleChange = (value) => {
     setDeterminacionDeGasto(value);
-  };
-
-  const formatKey = (key) => {
-    return key.replace(/([a-z])([A-Z])/g, '$1 $2');
-  };
-
-  const hayDuplicados = (nuevaExcepcion, esEditado) => {
-    const excepcionesGlobales = especificaciones["excepcionesGlobales"];
-  
-    for (const key in excepcionesGlobales) {
-      const excepciones = excepcionesGlobales[key];
-  
-      for (const excepcion of excepciones) {
-        if (esEditado && excepcion.id === nuevaExcepcion.id) {
-          continue;  
-        }  
-        if (
-          excepcion.persona === nuevaExcepcion.persona &&
-          excepcion.fuenteDelGasto === nuevaExcepcion.fuenteDelGasto &&
-          excepcion.detalle === nuevaExcepcion.detalle &&
-          excepcion.tipo === nuevaExcepcion.tipo &&
-          excepcion?.prestamoDe === nuevaExcepcion?.prestamoDe &&
-          excepcion?.banco === nuevaExcepcion?.banco &&
-          excepcion?.tarjeta === nuevaExcepcion?.tarjeta &&
-          excepcion?.numFinalTarjeta === nuevaExcepcion?.numFinalTarjeta &&
-          excepcion?.aNombreDe === nuevaExcepcion?.aNombreDe &&
-          excepcion?.tipoTarjeta === nuevaExcepcion?.tipoTarjeta &&
-          excepcion?.nombreConsumo === nuevaExcepcion?.nombreConsumo
-        ) {
-
-          Modal.warning({
-            title: 'Excepción duplicada',
-            content: `Ya existe una excepción con los mismos datos como "${formatKey(key)}".`,
-            onOk() {
-            },
-          });
-          return true;
-        }
-      }
-    }
-    return false;
   };
   
   return (

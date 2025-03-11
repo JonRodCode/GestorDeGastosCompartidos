@@ -7,7 +7,7 @@ import Excepciones from "./Especificaciones/Excepciones";
 import PanelDeCargaDeEspecificaciones from "./Especificaciones/PanelDeCargaDeEspecificaciones";
 import PanelDeEspecificaciones from "./Especificaciones/PanelDeEspecificaciones";
 PanelDeCargaDeEspecificaciones;
-import { Segmented } from "antd";
+import { Segmented, Modal } from "antd";
 
 const Especificaciones = ({
   especificaciones,
@@ -25,6 +25,7 @@ const Especificaciones = ({
   setElementoAReclasificar,
   mostrarInputEspecificaciones,
 }) => {
+  const [contadorDeExcepciones, setContadoDeExcepciones] = useState(0);
   const [fuentesDeGastosEnUso, setFuentesDeGastosEnUso] = useState({});
   const [consumosEnUso, setConsumosEnUso] = useState({});
   const fraseDeEliminacion =
@@ -263,8 +264,77 @@ const Especificaciones = ({
     return hayConflictoFuentes || hayConflictoConsumos;
   };
 
-  const verificarSiHayConflictosConLasExcepciones = () => {
-    
+  const verificarSiHayConflictosConLasExcepciones = (
+    nuevasEspecificaciones
+  ) => {
+    const nuevasExcepcionesGlobales =
+      nuevasEspecificaciones["excepcionesGlobales"];
+
+    for (const key in nuevasExcepcionesGlobales) {
+      const nuevasExcepciones = nuevasExcepcionesGlobales[key];
+      for (const nuevaExcepcion of nuevasExcepciones) {
+        const validado = hayDuplicados(nuevaExcepcion, false, false);
+        if (validado) {        
+          return true;
+        }
+      }
+    }
+    return false;
+  };
+
+  const formatKey = (key) => {
+    return key.replace(/([a-z])([A-Z])/g, "$1 $2");
+  };
+
+  const hayDuplicados = (nuevaExcepcion, esEditado, mostrarModal = true) => {
+    const excepcionesGlobales = especificaciones["excepcionesGlobales"];
+
+    for (const key in excepcionesGlobales) {
+      const excepciones = excepcionesGlobales[key];
+
+      for (const excepcion of excepciones) {
+        if (esEditado && excepcion.id === nuevaExcepcion.id) {
+          continue;
+        }
+
+        if (
+          excepcion.persona?.toLowerCase() ===
+            nuevaExcepcion.persona?.toLowerCase() &&
+          excepcion.fuenteDelGasto?.toLowerCase() ===
+            nuevaExcepcion.fuenteDelGasto?.toLowerCase() &&
+          excepcion.detalle?.toLowerCase() ===
+            nuevaExcepcion.detalle?.toLowerCase() &&
+          excepcion.tipo?.toLowerCase() ===
+            nuevaExcepcion.tipo?.toLowerCase() &&
+          excepcion?.prestamoDe?.toLowerCase() ===
+            nuevaExcepcion?.prestamoDe?.toLowerCase() &&
+          excepcion?.banco?.toLowerCase() ===
+            nuevaExcepcion?.banco?.toLowerCase() &&
+          excepcion?.tarjeta?.toLowerCase() ===
+            nuevaExcepcion?.tarjeta?.toLowerCase() &&
+          excepcion?.numFinalTarjeta?.toLowerCase() ===
+            nuevaExcepcion?.numFinalTarjeta?.toLowerCase() &&
+          excepcion?.aNombreDe?.toLowerCase() ===
+            nuevaExcepcion?.aNombreDe?.toLowerCase() &&
+          excepcion?.tipoTarjeta?.toLowerCase() ===
+            nuevaExcepcion?.tipoTarjeta?.toLowerCase() &&
+          excepcion?.nombreConsumo?.toLowerCase() ===
+            nuevaExcepcion?.nombreConsumo?.toLowerCase()
+        ) {
+          if (mostrarModal) {
+            Modal.warning({
+              title: "Excepción duplicada",
+              content: `Ya existe una excepción con los mismos datos como "${formatKey(
+                key
+              )}".`,
+              onOk() {},
+            });
+          }
+          return true;
+        }
+      }
+    }
+    return false;
   };
 
   return (
@@ -280,12 +350,20 @@ const Especificaciones = ({
             verificarSiHayConflictosConLosElementosEnUso={
               verificarSiHayConflictosConLosElementosEnUso
             }
+            verificarSiHayConflictosConLasExcepciones={
+              verificarSiHayConflictosConLasExcepciones
+            }
           />
         )}
       </div>
       <div className={css.container}>
         <Segmented
-          options={["Panel general", "Determinación", "Clasificación", "Excepciones"]}
+          options={[
+            "Panel general",
+            "Determinación",
+            "Clasificación",
+            "Excepciones",
+          ]}
           value={vista}
           onChange={setVista}
           className={css.customSegmented}
@@ -351,10 +429,13 @@ const Especificaciones = ({
               />
             </>
           )}
-           {vista === "Excepciones" && (
+          {vista === "Excepciones" && (
             <Excepciones
               especificaciones={especificaciones}
               setEspecificaciones={setEspecificaciones}
+              contadorDeExcepciones={contadorDeExcepciones}
+              setContadoDeExcepciones={setContadoDeExcepciones}
+              hayDuplicados={hayDuplicados}
             />
           )}
         </div>

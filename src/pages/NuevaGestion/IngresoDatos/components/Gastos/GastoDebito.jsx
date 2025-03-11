@@ -1,17 +1,12 @@
-import {
-  forwardRef,
-  useImperativeHandle,
-  useRef,
-  useState,
-} from "react";
+import { forwardRef, useImperativeHandle, useRef, useState } from "react";
 import GastoBase from "./GastoBase";
-import { Input, Select, message } from "antd";
+import { Input, Select } from "antd";
 import css from "../../css/Gastos/GastoBase.module.css";
 
 const { Option } = Select;
 
 const GastoDebito = forwardRef(
-  ({ gasto, tipo = "debito", excepcion = false, usoDirecto = true }, ref) => {
+  ({ gasto, tipo = "debito", excepcion = false }, ref) => {
     const gastoBaseRef = useRef();
     const [datosTarjeta, setDatosTarjeta] = useState({
       tarjeta: gasto?.tarjeta || "",
@@ -29,23 +24,6 @@ const GastoDebito = forwardRef(
         if (!datosBase) return null;
 
         const nuevosErrores = {};
-        if (usoDirecto) {
-        if (excepcion) {
-          const tieneDatosExtras =
-            datosTarjeta.banco ||
-            datosTarjeta.tarjeta ||
-            datosTarjeta.numFinalTarjeta ||
-            (datosTarjeta.aNombreDe &&
-              datosTarjeta.tipoTarjeta === "Extensión");
-
-          const tieneDatosBase =
-          datosBase.persona.trim() || datosBase.detalle.trim() || datosBase.fuenteDelGasto.trim();
-            
-          if (!tieneDatosBase && !tieneDatosExtras) {
-            nuevosErrores.generico = "Debe completar al menos 1 campo";
-            message.error(nuevosErrores.generico);
-          }
-        } else {
           if (!datosTarjeta.banco) nuevosErrores.banco = true;
 
           if (
@@ -54,7 +32,6 @@ const GastoDebito = forwardRef(
           ) {
             nuevosErrores.aNombreDe = true;
           }
-        }}
 
         if (Object.keys(nuevosErrores).length > 0) {
           setErrores(nuevosErrores);
@@ -78,7 +55,6 @@ const GastoDebito = forwardRef(
       setErrores((prev) => ({ ...prev, [campo]: false })); // Quita el error al escribir
     };
 
-
     return (
       <div>
         <div className={css.formContainer}>
@@ -87,7 +63,6 @@ const GastoDebito = forwardRef(
             tipo={tipo}
             gasto={gasto}
             excepcion={excepcion}
-            usoDirecto={usoDirecto}
           />
 
           <Select

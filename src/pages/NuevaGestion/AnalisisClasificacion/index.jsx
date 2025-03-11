@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Spin, Alert, Modal } from "antd";
 import css from "./css/AnalisisClasificacion.module.css"
@@ -15,6 +15,7 @@ const NuevaGestionAnalisisClasificacion = () => {
     ganancias: [],
     personasACargo: 0, 
   }));
+  const [cantidadDeDatosPendientesPorCompletar, setCantidadDeDatosPendientesPorCompletar] = useState(0);
   
   const [listaDePersonas, setListaDePersonas] = useState(personasConCampos);
   const [gastosEditados, setGastosEditados] = useState([]); 
@@ -44,6 +45,26 @@ const NuevaGestionAnalisisClasificacion = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  const validarGastosPorOtros = () => {
+    const gastosInvalidos = data.filter(gasto => 
+      gasto.determinacion === "GastoDeOtraPersona" && 
+      (!gasto.personaResponsable || gasto.personaResponsable.trim() === "")
+    );
+  
+    if (gastosInvalidos.length > 0) {
+      Modal.warning({
+        title: "Falta definición de ciertos gastos.",
+        content: <>
+        <p>Algunos gastos con determinación &quot;Gasto de Otra Persona&quot; no tienen una persona responsable asignada.</p>
+        <p>Por favor, verifica esta situación en los gastos correspondientes.</p>
+        </> ,
+      });
+      return false;
+    }
+  
+    return true; 
+  };
+  
 
   const prepararDatos = () => {
     return listaDePersonas.map(persona => {
@@ -66,6 +87,17 @@ const NuevaGestionAnalisisClasificacion = () => {
       const gastosIgualitariosPendientes = gastosPersona.filter(gasto => 
         (gasto.tipo === "prestamo" || gasto.tipo === "credito") && gasto.determinacion === "GastoIgualitario"
       ).map(gasto => gasto.monto);
+
+    const gastosPersonalesDeOtros = {};
+
+    data
+      .filter(gasto => gasto.determinacion === "GastoDeOtraPersona" && gasto.personaResponsable !== persona.nombre)
+      .forEach(gasto => {
+        if (!gastosPersonalesDeOtros[gasto.personaResponsable]) {
+          gastosPersonalesDeOtros[gasto.personaResponsable] = [];
+        }
+        gastosPersonalesDeOtros[gasto.personaResponsable].push(gasto.monto);
+      });
   
       return {
         nombre: persona.nombre,
@@ -75,13 +107,22 @@ const NuevaGestionAnalisisClasificacion = () => {
         gastosEquitativosPendientes,
         gastosIgualitariosPagados,
         gastosIgualitariosPendientes,
-        gastosPersonalesDeOtros: {}
+        gastosPersonalesDeOtros,
       };
     });
   };
 
   const condicionesAprobadasParaDistribucion = () => {
-    const esValido = listaDePersonas.every(persona => persona.ganancias && persona.ganancias.length > 0);
+    let esValido = listaDePersonas.length > 1;
+    if (!esValido) {
+    Modal.warning({
+      title: "Faltan datos",
+      content: "Debe haber como minimo 2 personas.",
+      okText: "Aceptar",
+    });
+    return false;
+  }
+    esValido = listaDePersonas.every(persona => persona.ganancias && persona.ganancias.length > 0);
       if (!esValido) {
       Modal.warning({
         title: "Faltan datos",
@@ -98,10 +139,13 @@ const NuevaGestionAnalisisClasificacion = () => {
     if (!condicionesAprobadasParaDistribucion()){
       return;
     }
+    if (!validarGastosPorOtros()){
+      return;
+    }
+    
 
     setLoading(true);
     const datos = prepararDatos();
-    console.log(datos)
     try {
       const response = await fetch(
         "http://localhost:6061/resumen",
@@ -136,6 +180,16 @@ const NuevaGestionAnalisisClasificacion = () => {
     } 
   };
 
+  useEffect(() => {
+    const gastosInvalidos = data.filter(
+      (gasto) =>
+        gasto.determinacion === "GastoDeOtraPersona" &&
+        (!gasto.personaResponsable || gasto.personaResponsable.trim() === "")
+    );
+  
+    setCantidadDeDatosPendientesPorCompletar(gastosInvalidos.length);
+  }, [data]);
+
   return (
     <>
       <h1>Gestión de Análisis de Clasificación</h1>
@@ -166,6 +220,8 @@ const NuevaGestionAnalisisClasificacion = () => {
         setGastosEditados={setGastosEditados}
         visibleColumns={visibleColumns}
         setVisibleColumns={setVisibleColumns}
+        listaDePersonas={listaDePersonas}
+        cantidadDeDatosPendientesPorCompletar={cantidadDeDatosPendientesPorCompletar}
         />)}
         {activeView === "view2" && (
       <Personas
@@ -186,6 +242,7 @@ const NuevaGestionAnalisisClasificacion = () => {
         />
       )} 
       </div>
+
     </>
   );
 };

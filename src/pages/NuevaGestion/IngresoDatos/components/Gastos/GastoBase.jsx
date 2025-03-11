@@ -10,15 +10,15 @@ const TITULOS_GASTO = {
 };
 
 const GastoBase = forwardRef(
-  ({ tipo, gasto, excepcion = false, usoDirecto = true }, ref) => {
+  ({ tipo, gasto, excepcion = false}, ref) => {
     const [datos, setDatos] = useState({
-      persona:gasto?.persona || "",
+      persona: gasto?.persona || "",
       detalle: gasto?.detalle || "",
       fuenteDelGasto: gasto?.fuenteDelGasto || "",
       monto: gasto?.monto || "",
-      tipoImporte: gasto?.tipoImporte ||"Gasto",
-      fecha: gasto?.fecha ||null,
-      marcado: gasto?.marcado ||false,
+      tipoImporte: gasto?.tipoImporte || "Gasto",
+      fecha: gasto?.fecha || null,
+      marcado: gasto?.marcado || false,
     });
 
     const [errores, setErrores] = useState({});
@@ -40,24 +40,22 @@ const GastoBase = forwardRef(
       obtenerDatos() {
         const nuevosErrores = {};
 
-        if (usoDirecto) {
-          if (excepcion) {
-            const tieneDatos =
-              datos.persona.trim() ||
-              datos.detalle.trim() ||
-              datos.fuenteDelGasto.trim();
+        if (excepcion) {
+          const tieneDatos =
+            datos.persona.trim() && datos.fuenteDelGasto.trim();
 
-            if (!tieneDatos) {
-              nuevosErrores.generico = "Debe completar al menos un campo";
-              message.error(nuevosErrores.generico);
-            }
-          } else {
-            // Validación normal cuando excepcion es false
-            if (!datos.fuenteDelGasto)
-              nuevosErrores.fuenteDelGasto = "Requerido";
-            if (!excepcion && (!datos.monto || parseFloat(datos.monto) === 0)) {
-              nuevosErrores.monto = "Debe ser mayor a 0";
-            }
+          if (!tieneDatos) {
+            nuevosErrores.generico =
+              "Debe completar los campos requeridos.";
+            message.error(nuevosErrores.generico);
+            if (!datos.fuenteDelGasto) nuevosErrores.fuenteDelGasto = "Requerido";
+            if (!datos.persona) nuevosErrores.persona = "Requerido";
+          }
+        } else {
+          // Validación normal cuando excepcion es false
+          if (!datos.fuenteDelGasto) nuevosErrores.fuenteDelGasto = "Requerido";
+          if (!excepcion && (!datos.monto || parseFloat(datos.monto) === 0)) {
+            nuevosErrores.monto = "Debe ser mayor a 0";
           }
         }
 
@@ -84,11 +82,12 @@ const GastoBase = forwardRef(
           )}
         </div>
         {excepcion && (
-        <Input
-          placeholder="Nombre de Persona"
-          value={datos.persona}
-          onChange={(e) => handleChange("persona", e.target.value)}
-        />
+          <Input
+            placeholder={errores.persona ? "Nombre de Persona - REQUERIDO" : "Nombre de Persona"}
+            value={datos.persona}
+            onChange={(e) => handleChange("persona", e.target.value)}
+            className={errores.persona ? css.inputError : ""}
+          />
         )}
         <Input
           placeholder="Detalle de Consumo"
@@ -128,12 +127,12 @@ const GastoBase = forwardRef(
             { value: "Reintegro", label: "Reintegro" },
           ]}
         />
-          {!excepcion && (
-        <DatePicker
-          value={datos.fecha}
-          onChange={(date) => handleChange("fecha", date)}
-        />
-      )}
+        {!excepcion && (
+          <DatePicker
+            value={datos.fecha}
+            onChange={(date) => handleChange("fecha", date)}
+          />
+        )}
       </div>
     );
   }

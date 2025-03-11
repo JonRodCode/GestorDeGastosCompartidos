@@ -190,7 +190,7 @@ const NuevaGestionIngresoDatos = () => {
 
     try {
       const response = await fetch(
-        "http://localhost:6060/clasificacionGeneral",
+        "http://localhost:6060/clasificacionCompleta",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

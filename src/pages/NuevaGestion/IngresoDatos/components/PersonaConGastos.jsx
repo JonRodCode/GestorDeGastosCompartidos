@@ -602,9 +602,9 @@ const PersonaConGastos = ({
                           <strong>Detalle:</strong> {gasto.detalle}
                         </p>
                       )}
-                      {gasto.fecha && (
+                      {gasto?.fecha && (
                         <p>
-                          <strong>Fecha:</strong> {gasto.fecha.toString()}
+                          <strong>Fecha:</strong> {gasto?.fecha.toString()}
                         </p>
                       )}
                       {gasto.tipo === "basico" && (

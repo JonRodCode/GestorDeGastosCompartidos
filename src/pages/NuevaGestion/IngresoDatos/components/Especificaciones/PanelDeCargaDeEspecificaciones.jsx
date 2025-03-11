@@ -5,6 +5,7 @@ const PanelDeCargaDeEspecificaciones = ({
   verificarEspecificacionesNuevas,
   verificarSiHayDatos,
   verificarSiHayConflictosConLosElementosEnUso,
+  verificarSiHayConflictosConLasExcepciones,
   agregarNuevasEspecificaciones,
   setEspecificaciones,
   especificaciones,
@@ -53,10 +54,12 @@ const PanelDeCargaDeEspecificaciones = ({
                 cancelText: "Eliminar y cargar nuevos",
                 onOk: () => {
                   console.log("El usuario decidió mantener los elementos.");
-                  if (verificarEspecificacionesNuevas(datos)) {
+                  if (verificarEspecificacionesNuevas(datos) &&
+                  !verificarSiHayConflictosConLasExcepciones(datos)) {
                     datos = agregarNuevasEspecificaciones(datos);
                     setEspecificaciones(datos);
                     message.success("Archivo cargado con éxito");
+
                   } else {
                     Modal.warning({
                       title: "Inconsistencia Detectada",
@@ -67,9 +70,9 @@ const PanelDeCargaDeEspecificaciones = ({
                             especificaciones.
                           </p>
                           <p>
-                            Por favor, verifique que las clasificaciones
-                            actuales coincidan con las nuevas e intente
-                            nuevamente.
+                          Por favor, verifique que las clasificaciones actuales coincidan
+                          con las nuevas y que las excepciones no se repitan.
+                          Luego, intente nuevamente.
                           </p>
                         </>
                       ),
