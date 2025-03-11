@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Card, Descriptions, Button, Upload } from "antd";
 import { InboxOutlined } from "@ant-design/icons";
+import css from "./css/DistribucionFinal.module.css"
 
 const { Dragger } = Upload;
 
@@ -10,8 +11,9 @@ const NuevaGestionDistribucionFinal = () => {
   const [resumen, setResumen] = useState(
     JSON.parse(sessionStorage.getItem("resumenDeDistribucion"))
   );
+  const [activeView, setActiveView] = useState("view1");
 
-  // Función para guardar el estado como archivo JSON
+  
   const guardarComoArchivo = () => {
     const jsonStr = JSON.stringify(resumen, null, 2); // Convertimos el estado en JSON
     const blob = new Blob([jsonStr], { type: "application/json" }); // Creamos un blob con el tipo 'application/json'
@@ -40,8 +42,29 @@ const NuevaGestionDistribucionFinal = () => {
   return (
     <>
       <div>
+      <h1>Resumen de Gestión</h1>
+      <div className={css.buttonContainer}>
+        <Button
+          className={
+            activeView === "view1" ? css.activeButton : css.defaultButton
+          }
+          onClick={() => setActiveView("view1")}
+        >
+          Resumen
+        </Button>
+        <Button
+          className={
+            activeView === "view2" ? css.activeButton : css.defaultButton
+          }
+          onClick={() => setActiveView("view2")}
+        >
+          Gastos
+        </Button>
+      </div>
+      {activeView === "view1" && (<>
+
         <Card title="Resumen General" style={{ marginBottom: "16px" }}>
-          <Descriptions column={1} bordered>
+           <Descriptions column={1} bordered>
             <Descriptions.Item label="Sueldo Total del Hogar">
               {resumen.sueldoHogar}
             </Descriptions.Item>
@@ -133,7 +156,8 @@ const NuevaGestionDistribucionFinal = () => {
               </Descriptions>
             </Card>
           ))}
-        </Card>
+        </Card></>)}
+
         <div style={{ marginTop: "16px" }}>
           <Button
             type="primary"
