@@ -18,6 +18,9 @@ const AppLayout = () => {
           <Menu.Item key="3">
             <Link to="/DistribucionRapida">Distribución Rápida</Link>
           </Menu.Item>
+          <Menu.Item key="4">
+            <Link to="/LoginPage">Login</Link>
+          </Menu.Item>
         </Menu>
       </Header>
 

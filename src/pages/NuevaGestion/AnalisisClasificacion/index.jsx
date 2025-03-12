@@ -200,7 +200,7 @@ const NuevaGestionAnalisisClasificacion = () => {
           }
           onClick={() => setActiveView("view1")}
         >
-          Gastos
+          Personas
         </Button>
         <Button
           className={
@@ -208,11 +208,11 @@ const NuevaGestionAnalisisClasificacion = () => {
           }
           onClick={() => setActiveView("view2")}
         >
-          Personas
+          Gastos
         </Button>
       </div>
 
-      {activeView === "view1" && (
+      {activeView === "view2" && (
         <GastosClasificados
         data={data}
         setData={setData}
@@ -223,7 +223,7 @@ const NuevaGestionAnalisisClasificacion = () => {
         listaDePersonas={listaDePersonas}
         cantidadDeDatosPendientesPorCompletar={cantidadDeDatosPendientesPorCompletar}
         />)}
-        {activeView === "view2" && (
+        {activeView === "view1" && (
       <Personas
       listaDePersonas={listaDePersonas}
       setListaDePersonas={setListaDePersonas}

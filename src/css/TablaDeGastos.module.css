@@ -42,6 +42,7 @@
 
 
 .numero {
+  margin-left: 3px;
   font-weight: bold;
   font-size: 18px;
   color: red;
@@ -51,10 +52,23 @@
 }
 
 .numeroCero {
+  margin-left: 3px;
   font-weight: bold;
   font-size: 18px;
   color: green;
   background-color: #e8ffe8;
   padding: 4px 8px;
   border-radius: 4px;
+}
+
+.totalMonto {
+  text-align: right;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.valorMonto {
+  margin-left: 3px;
+  color: red; /* O cualquier color que quieras */
+  font-size: 1.1rem;
 }

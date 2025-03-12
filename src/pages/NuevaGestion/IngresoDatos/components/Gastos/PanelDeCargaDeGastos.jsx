@@ -98,7 +98,7 @@ const PanelDeCargaDeGastos = ({
       await writable.write(contenido);
       await writable.close();
 
-      message.success("✅ Datos guardados con éxito.");
+      message.success("Datos guardados con éxito.");
     } catch (error) {
       if (error.name === "AbortError") {
         console.warn("⚠️ Guardado cancelado por el usuario.");

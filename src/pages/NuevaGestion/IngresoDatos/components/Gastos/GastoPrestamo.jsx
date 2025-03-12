@@ -22,9 +22,7 @@ const GastoPrestamo = forwardRef(({ gasto, excepcion = false }, ref) => {
       if (!datosPrestamo.prestamoDe.trim())
         nuevosErrores.prestamoDe = "Requerido";
       
-      if (
-        datosPrestamo.cuotaActual > datosPrestamo.totalDeCuotas
-      ) {
+      if (Number(datosPrestamo.cuotaActual) > Number(datosPrestamo.totalDeCuotas)) {
         nuevosErrores.cuotaActual = "Debe ser menor al total de cuotas";
         setDatosPrestamo((prev) => ({
           ...prev,

@@ -1,19 +1,43 @@
 import { useState } from "react";
-import { Card, Descriptions, Button, Upload } from "antd";
+import { Button, Upload, Typography } from "antd";
 import { InboxOutlined } from "@ant-design/icons";
-import css from "./css/DistribucionFinal.module.css"
+import ResumenHogar from "./components/ResumenHogar";
+import TablaDeGastos from "../../../components/TablaDeGastos";
+import css from "./css/DistribucionFinal.module.css";
+
+const { Title } = Typography;
 
 const { Dragger } = Upload;
 
 const NuevaGestionDistribucionFinal = () => {
-  //const [gastos, setGastos] = useState(JSON.parse(sessionStorage.getItem("gastosClasificadosFinales")));
+  const [gastos, setGastos] = useState(JSON.parse(sessionStorage.getItem("gastosClasificadosFinales")));
   //const [listaDePersonas, setListaDePersonas] = useState(JSON.parse(sessionStorage.getItem("listaDePersonasConGanancias")));
   const [resumen, setResumen] = useState(
     JSON.parse(sessionStorage.getItem("resumenDeDistribucion"))
   );
   const [activeView, setActiveView] = useState("view1");
+  const [visibleColumns, setVisibleColumns] = useState({
+    persona: true,
+    tipoDeImporte: true,
+    tipo: true,
+    categoria: true,
+    fuenteDelGasto: true,
+    detalle: true,
+    monto: true,
+    fecha: false,
+    tarjeta: false,
+    tipoTarjeta: false,
+    aNombreDe: false,
+    banco: false,
+    numFinalTarjeta: false,
+    nombreConsumo: false,
+    cuotaActual: false,
+    totalDeCuotas: false,
+    determinacion: true,
+    excepcion: true,
+    acciones: true,
+  });
 
-  
   const guardarComoArchivo = () => {
     const jsonStr = JSON.stringify(resumen, null, 2); // Convertimos el estado en JSON
     const blob = new Blob([jsonStr], { type: "application/json" }); // Creamos un blob con el tipo 'application/json'
@@ -42,121 +66,39 @@ const NuevaGestionDistribucionFinal = () => {
   return (
     <>
       <div>
-      <h1>Resumen de Gestión</h1>
-      <div className={css.buttonContainer}>
-        <Button
-          className={
-            activeView === "view1" ? css.activeButton : css.defaultButton
-          }
-          onClick={() => setActiveView("view1")}
-        >
-          Resumen
-        </Button>
-        <Button
-          className={
-            activeView === "view2" ? css.activeButton : css.defaultButton
-          }
-          onClick={() => setActiveView("view2")}
-        >
-          Gastos
-        </Button>
-      </div>
-      {activeView === "view1" && (<>
-
-        <Card title="Resumen General" style={{ marginBottom: "16px" }}>
-           <Descriptions column={1} bordered>
-            <Descriptions.Item label="Sueldo Total del Hogar">
-              {resumen.sueldoHogar}
-            </Descriptions.Item>
-            <Descriptions.Item label="Gasto Equitativo">
-              {resumen.gastoEquitativo}
-            </Descriptions.Item>
-            <Descriptions.Item label="Gasto Igualitario">
-              {resumen.gastoIgualitario}
-            </Descriptions.Item>
-            <Descriptions.Item label="Miembros Contribuyentes">
-              {resumen.miembrosContribuyentes}
-            </Descriptions.Item>
-            <Descriptions.Item label="Miembros Beneficiarios">
-              {resumen.miembrosBeneficiarios}
-            </Descriptions.Item>
-            <Descriptions.Item label="Total de Miembros">
-              {resumen.totalDeMiembros}
-            </Descriptions.Item>
-            <Descriptions.Item label="Ajustes de Saldos">
-              {resumen.ajustesDeSaldos.length > 0 ? (
-                <ul>
-                  {resumen.ajustesDeSaldos.map((ajuste, index) => (
-                    <li key={index}>{ajuste}</li>
-                  ))}
-                </ul>
-              ) : (
-                "No hay ajustes"
-              )}
-            </Descriptions.Item>
-          </Descriptions>
-        </Card>
-
-        <Card title="Detalles por Persona">
-          {resumen.detallePorPersona.map((persona, index) => (
-            <Card
-              key={index}
-              title={persona.nombre}
-              style={{ marginBottom: "10px" }}
-            >
-              <Descriptions column={1} bordered>
-                <Descriptions.Item label="Ganancias">
-                  {persona.ganancias.join(", ")}
-                </Descriptions.Item>
-                <Descriptions.Item label="Personas a Cargo">
-                  {persona.personasACargo}
-                </Descriptions.Item>
-                <Descriptions.Item label="Sueldo Total">
-                  {persona.sueldoTotal}
-                </Descriptions.Item>
-                <Descriptions.Item label="Porcentaje del Hogar">
-                  {persona.porcentajeCorrespondienteDelHogar
-                    ? Number(persona.porcentajeCorrespondienteDelHogar).toFixed(
-                        2
-                      )
-                    : "0.00"}
-                  %
-                </Descriptions.Item>
-                <Descriptions.Item label="Gasto Equitativo">
-                  {persona.gastoEquitativo}
-                </Descriptions.Item>
-                <Descriptions.Item label="Gasto Igualitario">
-                  {persona.gastoIgualitario}
-                </Descriptions.Item>
-                <Descriptions.Item label="Gasto Total">
-                  {persona.gastoTotal}
-                </Descriptions.Item>
-                <Descriptions.Item label="Parte Equitativa">
-                  {persona.parteEquitativaCorrespondiente}
-                </Descriptions.Item>
-                <Descriptions.Item label="Parte Igualitaria">
-                  {persona.parteIgualitariaCorrespondiente}
-                </Descriptions.Item>
-                <Descriptions.Item label="Parte Correspondiente Total">
-                  {persona.parteCorrespondienteTotal}
-                </Descriptions.Item>
-                <Descriptions.Item label="Es Deudor">
-                  {persona.esDeudor ? "Sí" : "No"}
-                </Descriptions.Item>
-                {persona.esDeudor && (
-                  <>
-                    <Descriptions.Item label="Debe a">
-                      {persona.debeAODe.join(", ")}
-                    </Descriptions.Item>
-                    <Descriptions.Item label="Cantidad a Pagar">
-                      {persona.cantidadAPagarORecibir.join(", ")}
-                    </Descriptions.Item>
-                  </>
-                )}
-              </Descriptions>
-            </Card>
-          ))}
-        </Card></>)}
+        <h1>Resumen de Gestión</h1>
+        <div className={css.buttonContainer}>
+          <Button
+            className={
+              activeView === "view1" ? css.activeButton : css.defaultButton
+            }
+            onClick={() => setActiveView("view1")}
+          >
+            Resumen
+          </Button>
+          <Button
+            className={
+              activeView === "view2" ? css.activeButton : css.defaultButton
+            }
+            onClick={() => setActiveView("view2")}
+          >
+            Gastos
+          </Button>
+        </div>
+        {activeView === "view1" && (
+          <>
+            <Title level={3}>Resumen General</Title>
+          <ResumenHogar resumen={resumen} /></>
+          )}
+          {activeView === "view2" && (<>
+            <Title level={3}>Gastos del Resumen</Title>
+          <TablaDeGastos
+          visibleColumns={visibleColumns}
+        setVisibleColumns={setVisibleColumns}
+        filteredData={gastos}
+        edicionHabilitada={false}
+          />
+          </>)}
 
         <div style={{ marginTop: "16px" }}>
           <Button

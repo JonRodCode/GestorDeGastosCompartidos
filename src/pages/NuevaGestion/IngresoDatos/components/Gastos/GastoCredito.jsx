@@ -19,12 +19,8 @@ const GastoCredito = forwardRef(({ gasto, excepcion = false }, ref) => {
       if (!datosBase) return null;
 
       const nuevosErrores = {};
-
-      if (!datosTarjeta.nombreConsumo) nuevosErrores.nombreConsumo = true;
-
-      if (
-        datosTarjeta.cuotaActual > datosTarjeta.totalDeCuotas
-      ) {
+      
+      if (Number(datosTarjeta.cuotaActual) > Number(datosTarjeta.totalDeCuotas)) {
         nuevosErrores.cuotaActual = "Debe ser menor al total de cuotas";
         setDatosTarjeta((prev) => ({
           ...prev,
@@ -40,7 +36,7 @@ const GastoCredito = forwardRef(({ gasto, excepcion = false }, ref) => {
       setErrores({});
       return {
         ...datosBase,
-        nombreConsumo: datosTarjeta.nombreConsumo,
+        nombreConsumo: datosTarjeta.nombreConsumo || "",
         cuotaActual: Math.max(1, datosTarjeta.cuotaActual || 1),
         totalDeCuotas: Math.max(1, datosTarjeta.totalDeCuotas || 1),
         tipo: "credito",
@@ -62,14 +58,9 @@ const GastoCredito = forwardRef(({ gasto, excepcion = false }, ref) => {
       />
       <div className={css.gastoCreditoContainer}>
         <Input
-          placeholder={
-            errores.nombreConsumo
-              ? "Nombre de Consumo - REQUERIDO"
-              : "Nombre de Consumo"
-          }
+          placeholder={"Nombre de Consumo"}
           value={datosTarjeta.nombreConsumo}
           onChange={(e) => handleChange("nombreConsumo", e.target.value)}
-          className={errores.nombreConsumo ? css.inputError : ""}
         />
         {!excepcion && (
           <div className={css.formContainerInterno}>

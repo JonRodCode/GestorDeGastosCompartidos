@@ -9,6 +9,7 @@ const PanelDeCargaDeEspecificaciones = ({
   agregarNuevasEspecificaciones,
   setEspecificaciones,
   especificaciones,
+  eliminarPendientes,
   tipoDeCaptura = "objeto",
   elemento = "elemento"
 }) => {
@@ -83,6 +84,7 @@ const PanelDeCargaDeEspecificaciones = ({
                 onCancel: () => {
                   if (!verificarSiHayConflictosConLosElementosEnUso(datos)) {
                     setEspecificaciones(datos);
+                    eliminarPendientes();
                     message.success("Archivo cargado con éxito");
                   } else {
                     Modal.warning({
@@ -142,7 +144,7 @@ const PanelDeCargaDeEspecificaciones = ({
       await writable.write(contenido);
       await writable.close();
 
-      message.success("✅ Datos guardados con éxito.");
+      message.success("Datos guardados con éxito.");
     } catch (error) {
       if (error.name === "AbortError") {
         console.warn("⚠️ Guardado cancelado por el usuario.");

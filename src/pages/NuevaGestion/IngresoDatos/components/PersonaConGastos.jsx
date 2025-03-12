@@ -187,7 +187,7 @@ const PersonaConGastos = ({
             setListaDeFuentesDeGastosPendientes,
             setFuentesDeGastosEnUsoPorPersona
           );
-          if (nuevoGasto.tipo === "credito") {
+          if (nuevoGasto.tipo === "credito" && nuevoGasto.nombreConsumo !== "") {
             agregarElemento(
               nuevoGasto.nombreConsumo,
               consumos,
@@ -240,10 +240,8 @@ const PersonaConGastos = ({
       let esValido = !elGastoYaExiste(gasto, gastos, listaDeGastosValidados, !eliminarValoresAnteriores);
 
       if (esValido) {
-        if (gasto.tipo === "credito") {
-          if (
-            validarConcordanciaEntreConsumoYFuenteDeGasto(gasto, true, false)
-          ) {
+        if (gasto.tipo === "credito" && gasto.nombreConsumo !== "") {
+          if (validarConcordanciaEntreConsumoYFuenteDeGasto(gasto, true, false)){
             const consumos = Object.values(
               especificaciones.fuenteDelGasto
             ).flat();

@@ -337,6 +337,12 @@ const Especificaciones = ({
     return false;
   };
 
+  const eliminarPendientes = () => {
+    setCategoriasPendientes([]);
+    setFuenteDeGastosPendientes([]);
+    setConsumosPendientesParaClasificar([]);
+  };
+
   return (
     <>
       <div className={css.containerPanel}>
@@ -353,6 +359,7 @@ const Especificaciones = ({
             verificarSiHayConflictosConLasExcepciones={
               verificarSiHayConflictosConLasExcepciones
             }
+            eliminarPendientes={eliminarPendientes}
           />
         )}
       </div>
