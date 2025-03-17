@@ -54,16 +54,15 @@ const Especificaciones = ({
     setConsumosEnUso(agruparElementosEnUso(consumosEnUsoPorPersona));
   }, [consumosEnUsoPorPersona]);
 
-  const verificarCategorias = (
-    existentes,
-    nuevas,
-    pendientes,
-    setPendientes
-  ) => {
+  const verificarCategorias = (existentes, nuevas, pendientes) => {
     let valido = true;
+    const pendientesFiltrados = [...pendientes];
+  
     Object.keys(nuevas.categorias).forEach((categoria) => {
       if (pendientes.includes(categoria)) {
-        setPendientes((prev) => prev.filter((c) => c !== categoria));
+        // Marcar para eliminación sin modificar el estado
+        const index = pendientesFiltrados.indexOf(categoria);
+        if (index !== -1) pendientesFiltrados.splice(index, 1);
       } else {
         const existenteEn = Object.entries(existentes.determinaciones).find(
           ([_, lista]) => lista.includes(categoria)
@@ -71,108 +70,103 @@ const Especificaciones = ({
         const determinacionCorrespondiente = Object.entries(
           nuevas.determinaciones
         ).find(([_, lista]) => lista.includes(categoria));
-
+  
         if (existenteEn) {
-          const grupoExistente = existenteEn[0]; // Nombre de la determinación (ej: "GastoEquitativo")
-          const grupoNuevo = determinacionCorrespondiente[0];
+          const grupoExistente = existenteEn[0];
+          const grupoNuevo = determinacionCorrespondiente?.[0];
           if (grupoExistente !== grupoNuevo) {
             valido = false;
           }
         }
       }
     });
-    return valido;
+  
+    return { valido, pendientesFiltrados };
   };
-
-  const verificarFuentesDeGasto = (
-    existentes,
-    nuevas,
-    pendientes,
-    setPendientes
-  ) => {
+  
+  const verificarFuentesDeGasto = (existentes, nuevas, pendientes) => {
     let valido = true;
-
+    const pendientesFiltrados = [...pendientes];
+  
     Object.keys(nuevas.fuenteDelGasto).forEach((fuente) => {
       if (pendientes.includes(fuente)) {
-        setPendientes((prev) => prev.filter((f) => f !== fuente));
+        const index = pendientesFiltrados.indexOf(fuente);
+        if (index !== -1) pendientesFiltrados.splice(index, 1);
       } else {
         const existenteEn = Object.entries(existentes.categorias).find(
           ([_, lista]) => lista.includes(fuente)
         );
-
+  
         const categoriaCorrespondiente = Object.entries(nuevas.categorias).find(
           ([_, lista]) => lista.includes(fuente)
         );
-
+  
         if (existenteEn) {
-          const grupoExistente = existenteEn[0]; // Nombre de la determinación (ej: "GastoEquitativo")
-          const grupoNuevo = categoriaCorrespondiente[0];
+          const grupoExistente = existenteEn[0];
+          const grupoNuevo = categoriaCorrespondiente?.[0];
           if (grupoExistente !== grupoNuevo) {
             valido = false;
           }
         }
       }
     });
-
-    return valido;
+  
+    return { valido, pendientesFiltrados };
   };
-  const verificarConsumos = (existentes, nuevas, pendientes, setPendientes) => {
+  
+  const verificarConsumos = (existentes, nuevas, pendientes) => {
     let valido = true;
-
-    // Obtener todos los consumos desde nuevas.fuenteDelGasto
+    const pendientesFiltrados = [...pendientes];
+  
     const nuevosConsumos = Object.values(nuevas.fuenteDelGasto).flat();
-
+  
     nuevosConsumos.forEach((consumo) => {
       if (pendientes.includes(consumo)) {
-        setPendientes((prev) => prev.filter((c) => c !== consumo));
+        const index = pendientesFiltrados.indexOf(consumo);
+        if (index !== -1) pendientesFiltrados.splice(index, 1);
       } else {
         const existenteEn = Object.entries(existentes.fuenteDelGasto).find(
           ([_, lista]) => lista.includes(consumo)
         );
-
+  
         if (existenteEn) {
-          const fuenteExistente = existenteEn[0]; // Fuente en existentes
+          const fuenteExistente = existenteEn[0];
           const fuenteNueva = Object.entries(nuevas.fuenteDelGasto).find(
             ([_, lista]) => lista.includes(consumo)
-          )?.[0]; // Fuente en nuevas
-
+          )?.[0];
+  
           if (fuenteExistente !== fuenteNueva) {
             valido = false;
           }
         }
       }
     });
-    return valido;
+  
+    return { valido, pendientesFiltrados };
   };
-
+  
   const verificarEspecificacionesNuevas = (nuevas) => {
-    const categoriasValidas = verificarCategorias(
-      especificaciones,
-      nuevas,
-      categoriasPendientes,
-      setCategoriasPendientes
-    );
-
+    const { valido: categoriasValidas, pendientesFiltrados: categoriasFinales } =
+      verificarCategorias(especificaciones, nuevas, categoriasPendientes);
+  
     if (!categoriasValidas) return false;
-
-    const fuentesValidas = verificarFuentesDeGasto(
-      especificaciones,
-      nuevas,
-      fuentesDeGastosPendientes,
-      setFuenteDeGastosPendientes
-    );
-
+  
+    const { valido: fuentesValidas, pendientesFiltrados: fuentesFinales } =
+      verificarFuentesDeGasto(especificaciones, nuevas, fuentesDeGastosPendientes);
+  
     if (!fuentesValidas) return false;
-
-    const consumosValidos = verificarConsumos(
-      especificaciones,
-      nuevas,
-      consumosPendientesParaClasificar,
-      setConsumosPendientesParaClasificar
-    );
-
+  
+    const { valido: consumosValidos, pendientesFiltrados: consumosFinales } =
+      verificarConsumos(especificaciones, nuevas, consumosPendientesParaClasificar);
+  
+    // Aplicar cambios en el estado en un solo paso
+    setCategoriasPendientes(categoriasFinales);
+    setFuenteDeGastosPendientes(fuentesFinales);
+    setConsumosPendientesParaClasificar(consumosFinales);
+  
     return consumosValidos;
   };
+  
 
   const verificarSiHayDatos = () => {
     const hayPendientes =
