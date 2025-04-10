@@ -16,7 +16,7 @@ const GastoBase = forwardRef(
       detalle: gasto?.detalle || "",
       fuenteDelGasto: gasto?.fuenteDelGasto || "",
       monto: gasto?.monto || "",
-      tipoImporte: gasto?.tipoImporte || "Gasto",
+      tipoDeImporte: gasto?.tipoDeImporte || "Gasto",
       fecha: gasto?.fecha || null,
       marcado: gasto?.marcado || false,
     });
@@ -120,8 +120,8 @@ const GastoBase = forwardRef(
           />
         )}
         <Select
-          value={datos.tipoImporte}
-          onChange={(value) => handleChange("tipoImporte", value)}
+          value={datos.tipoDeImporte}
+          onChange={(value) => handleChange("tipoDeImporte", value)}
           options={[
             { value: "Gasto", label: "Gasto" },
             { value: "Reintegro", label: "Reintegro" },

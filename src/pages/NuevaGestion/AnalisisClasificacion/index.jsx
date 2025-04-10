@@ -72,23 +72,52 @@ const NuevaGestionAnalisisClasificacion = () => {
       const gastosPersona = data.filter(gasto => gasto.persona === persona.nombre);
   
       // Clasificar los gastos según las condiciones dadas
-      const gastosEquitativosPagados = gastosPersona.filter(gasto => 
-        (gasto.tipo === "basico" || gasto.tipo === "debito") && gasto.determinacion === "GastoEquitativo"
-      ).map(gasto => gasto.monto);
+      const gastosEquitativosPagados = gastosPersona
+  .filter(gasto =>
+    (gasto.tipo === "basico" || gasto.tipo === "debito") &&
+    gasto.determinacion === "GastoEquitativo"
+  )
+  .map(gasto =>
+    gasto.tipoDeImporte === "Reintegro"
+      ? -Math.abs(gasto.monto)
+      : gasto.monto
+  );
   
-      const gastosEquitativosPendientes = gastosPersona.filter(gasto => 
-        (gasto.tipo === "prestamo" || gasto.tipo === "credito") && gasto.determinacion === "GastoEquitativo"
-      ) .map(gasto => gasto.monto);
-  
-      const gastosIgualitariosPagados = gastosPersona.filter(gasto => 
-        (gasto.tipo === "basico" || gasto.tipo === "debito") && gasto.determinacion === "GastoIgualitario"
-      ).map(gasto => gasto.monto);
-  
-      const gastosIgualitariosPendientes = gastosPersona.filter(gasto => 
-        (gasto.tipo === "prestamo" || gasto.tipo === "credito") && gasto.determinacion === "GastoIgualitario"
-      ).map(gasto => gasto.monto);
+  const gastosEquitativosPendientes = gastosPersona
+  .filter(gasto => 
+    (gasto.tipo === "prestamo" || gasto.tipo === "credito") &&
+    gasto.determinacion === "GastoEquitativo"
+  )
+  .map(gasto =>
+    gasto.tipoDeImporte === "Reintegro"
+      ? -Math.abs(gasto.monto)
+      : gasto.monto
+  );
 
-    const gastosPersonalesDeOtros = {};
+const gastosIgualitariosPagados = gastosPersona
+  .filter(gasto => 
+    (gasto.tipo === "basico" || gasto.tipo === "debito") &&
+    gasto.determinacion === "GastoIgualitario"
+  )
+  .map(gasto =>
+    gasto.tipoDeImporte === "Reintegro"
+      ? -Math.abs(gasto.monto)
+      : gasto.monto
+  );
+
+const gastosIgualitariosPendientes = gastosPersona
+  .filter(gasto => 
+    (gasto.tipo === "prestamo" || gasto.tipo === "credito") &&
+    gasto.determinacion === "GastoIgualitario"
+  )
+  .map(gasto =>
+    gasto.tipoDeImporte === "Reintegro"
+      ? -Math.abs(gasto.monto)
+      : gasto.monto
+  );
+
+const gastosPersonalesDeOtros = {};
+
 
     data
       .filter(gasto => gasto.determinacion === "GastoDeOtraPersona" && gasto.personaResponsable !== persona.nombre)

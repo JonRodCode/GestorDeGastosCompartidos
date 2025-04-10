@@ -103,7 +103,7 @@ const NuevaGestionIngresoDatos = () => {
       categoria: gasto.categoria || "",
       determinacion: gasto.determinacion || "",
       monto: gasto.monto || 0,
-      tipoDeImporte: gasto.tipoDeImporte || "Gasto",
+      tipoDeImporte: gasto.tipoDeImporte || "Pepito",
       excepcion: gasto.excepcion || "Nula",
       fecha: gasto.fecha || null,
       marcado: gasto.marcado ? "true" : "false",

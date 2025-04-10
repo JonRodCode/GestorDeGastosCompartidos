@@ -578,7 +578,7 @@ const PersonaConGastos = ({
                       <div className={css.tipoYCheckbox}>
                         <p>
                           <strong>T. de importe:</strong>{" "}
-                          {gasto.tipoImporte}
+                          {gasto.tipoDeImporte}
                         </p>
                         <Tooltip title="Marcar para un rápido acceso luego de la clasificación">
                           <Checkbox checked={gasto.marcado} />

@@ -18,8 +18,8 @@ const App = () => {
         <Route path="NuevaGestion/IngresoDatos" element={<NuevaGestionIngresoDatos />} />
         <Route path="NuevaGestion/AnalisisClasificacion" element={<NuevaGestionAnalisisClasificacion />}/>
          <Route path="NuevaGestion/DistribucionFinal" element={<NuevaGestionDistribucionFinal />}/>
-         <Route path="LoginPage" element={<LoginPage />}
-         />
+         {/*<Route path="LoginPage" element={<LoginPage />}
+         />*/}
       </Route>
     </Routes>
   );

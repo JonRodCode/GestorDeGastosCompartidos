@@ -1,9 +1,14 @@
 .card {
-    margin-bottom: 20px;
-    width: 850px;
-    max-width: 850px;
-    min-width: 550px;
-  }
+  margin-bottom: 20px;
+  width: 850px;
+  max-width: 850px;
+  min-width: 550px;
+  
+  margin-left: auto;
+  margin-right: auto; /* Esto solo la centrará horizontalmente */
+  
+  display: block; /* En lugar de grid */
+}
   .addButton:disabled {
     background-color: #d9d9d9; /* Color gris cuando está deshabilitado */
     color: #bfbfbf; /* Color gris claro para el texto */
