@@ -19,7 +19,7 @@ const Home = () => {
             <Text className={styles.cardDescription}>
               Comienza a cargar los datos del hogar y los gastos para gestionar las distribuciones.
             </Text>
-            <Button className={styles.cardButton} href="/NuevaGestion/IngresoDatos">
+            <Button className={styles.cardButton} href="/#/NuevaGestion/IngresoDatos">
               Comenzar Nueva Gestión
             </Button>
           </Card>
@@ -31,7 +31,7 @@ const Home = () => {
             <Text className={styles.cardDescription}>
               Realiza una distribución rápida de los gastos sin necesidad de configuraciones previas.
             </Text>
-            <Button className={styles.cardButton} href="/DistribucionRapida">
+            <Button className={styles.cardButton} href="/#/DistribucionRapida">
               Ir a Distribución Rápida
             </Button>
           </Card>
