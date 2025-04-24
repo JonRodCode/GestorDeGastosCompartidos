@@ -1,7 +1,7 @@
 import { Typography, Card, Modal } from "antd";
 import css from "../../css/ClasificadorDeDatos.module.css";
 import Categoria from "./Categoria";
-import ClasificacionPendiente from "./clasificacionPendiente";
+import ClasificacionPendiente from "./ClasificacionPendiente";
 
 const { Title } = Typography;
 
