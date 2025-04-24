@@ -4,7 +4,7 @@ import InputDesplegable from "../../../../../components/InputDesplegable";
 import ButtonDesplegable from "../../../../../components/ButtonDesplegable";
 import css from "../../css/ClasificadorDeDatos.module.css";
 import Categoria from "./Categoria";
-import ClasificacionPendiente from "./clasificacionPendiente";
+import ClasificacionPendiente from "./ClasificacionPendiente";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 
 const { Title } = Typography;
