@@ -8,6 +8,8 @@ import Especificaciones from "./components/Especificaciones";
 import css from "./css/NuevaGestionPage.module.css";
 
 const { Title } = Typography;
+const servicioLocal = "http://localhost:6060/clasificacionCompleta";
+const servicioDeClasificacion = "https://clasificadordegastos-production.up.railway.app/clasificacionCompleta";
 
 const NuevaGestionIngresoDatos = () => {
   const [activeView, setActiveView] = useState("view1");
@@ -189,8 +191,7 @@ const NuevaGestionIngresoDatos = () => {
     };
 
     try {
-      const response = await fetch(
-        "http://localhost:6060/clasificacionCompleta",
+      const response = await fetch(servicioDeClasificacion,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
