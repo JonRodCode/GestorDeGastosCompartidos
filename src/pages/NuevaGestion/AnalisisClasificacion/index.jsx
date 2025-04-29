@@ -5,6 +5,10 @@ import css from "./css/AnalisisClasificacion.module.css"
 import Personas from "./components/Personas";
 import GastosClasificados from "./components/GastosClasificados";
 
+
+const servicioLocal = "http://localhost:6061/resumen";
+const servicioDeClasificacion = "distribuidordegastos-production.up.railway.app/resumen";
+
 const NuevaGestionAnalisisClasificacion = () => {
   const [activeView, setActiveView] = useState("view1");
   const [data, setData] = useState(
@@ -177,7 +181,7 @@ const gastosPersonalesDeOtros = {};
     const datos = prepararDatos();
     try {
       const response = await fetch(
-        "http://localhost:6061/resumen",
+        servicioDeClasificacion,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
