@@ -7,7 +7,9 @@ import GastosClasificados from "./components/GastosClasificados";
 
 
 const servicioLocal = "http://localhost:6061/resumen";
-const servicioDeClasificacion = "distribuidordegastos-production.up.railway.app/resumen";
+const servicioDeClasificacion = "https://distribuidordegastos-production.up.railway.app/resumen";
+
+
 
 const NuevaGestionAnalisisClasificacion = () => {
   const [activeView, setActiveView] = useState("view1");
