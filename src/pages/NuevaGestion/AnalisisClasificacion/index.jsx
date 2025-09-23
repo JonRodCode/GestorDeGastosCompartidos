@@ -183,7 +183,7 @@ const gastosPersonalesDeOtros = {};
     const datos = prepararDatos();
     try {
       const response = await fetch(
-        servicioDeClasificacion,
+        servicioLocal,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

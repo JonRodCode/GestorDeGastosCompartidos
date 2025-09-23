@@ -191,7 +191,7 @@ const NuevaGestionIngresoDatos = () => {
     };
 
     try {
-      const response = await fetch(servicioDeClasificacion,
+      const response = await fetch(servicioLocal,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
