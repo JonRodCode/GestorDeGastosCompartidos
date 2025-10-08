@@ -15,8 +15,8 @@ const LoginPage = () => {
   };
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-      <Card title="Iniciar sesión" style={{ width: 400 }}>
+    <div>
+      <Card title="Iniciar sesión" >
         <LoginForm onFinish={onFinish} loading={loading} />
       </Card>
     </div>
